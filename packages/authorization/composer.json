@@ -1,0 +1,24 @@
+{
+    "name": "inlayphp/authorization",
+    "description": "Vendor-neutral Laravel Gate and Policy authorization for Inlay resources and panels.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/auth": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/support": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Authorization\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\Authorization\\AuthorizationServiceProvider"
+            ]
+        }
+    }
+}

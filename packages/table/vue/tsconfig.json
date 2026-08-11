@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
+    "paths": {
+      "@inlayphp/actions": [
+        "../../actions/frontend/src/index.ts"
+      ],
+      "@inlayphp/actions-vue": [
+        "../../actions/vue/src/index.ts"
+      ],
+      "@inlayphp/core": [
+        "../../core/frontend/src/index.ts"
+      ],
+      "@inlayphp/forms-vue": [
+        "../../form/vue/src/index.ts"
+      ],
+      "@inlayphp/ui": [
+        "../../ui/frontend/src/index.ts"
+      ],
+      "@inlayphp/ui-vue": [
+        "../../ui/vue/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "tests",
+    "vitest.setup.ts",
+    "vite.config.ts"
+  ]
+}

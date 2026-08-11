@@ -1,0 +1,21 @@
+{
+    "name": "inlayphp/infolists",
+    "description": "Renderer-neutral read-only infolist schemas for Laravel and Inertia.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/contracts": "^12.0",
+        "illuminate/database": "^12.0",
+        "inlayphp/schemas": "dev-main",
+        "inlayphp/support": "dev-main"
+    },
+    "suggest": {
+        "phiki/phiki": "Highlight CodeEntry values on the server (recommended)."
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Infolists\\": "src/"
+        }
+    }
+}

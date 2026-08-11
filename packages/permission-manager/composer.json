@@ -1,0 +1,34 @@
+{
+    "name": "inlayphp/permission-manager",
+    "description": "Dcat-inspired role and permission administration plugin for Inlay panels.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/database": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/support": "^12.0",
+        "illuminate/validation": "^12.0",
+        "inertiajs/inertia-laravel": "^3.0",
+        "inlayphp/actions": "dev-main",
+        "inlayphp/authorization": "dev-main",
+        "inlayphp/authorization-spatie": "dev-main",
+        "inlayphp/forms": "dev-main",
+        "inlayphp/panels": "dev-main",
+        "inlayphp/resources": "dev-main",
+        "inlayphp/tables": "dev-main",
+        "inlayphp/validation": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\PermissionManager\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\PermissionManager\\PermissionManagerServiceProvider"
+            ]
+        }
+    }
+}

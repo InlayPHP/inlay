@@ -1,0 +1,26 @@
+{
+    "name": "inlayphp/actions",
+    "description": "Reusable action contracts for Laravel and Inlay components.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/container": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/validation": "^12.0",
+        "inlayphp/support": "^0.2 || dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Actions\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\Actions\\ActionsServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,10 @@
+packages:
+  - packages/*/frontend
+  - packages/*/react
+  - packages/*/vue
+  # CMS adapters are released separately and are not part of this core checkout.
+  - '!packages/cms-*'
+  - '!packages/cms-*/*'
+  - '!packages/cms-client'
+  # Framework-neutral packages that ship no renderer of their own.
+  - examples/*

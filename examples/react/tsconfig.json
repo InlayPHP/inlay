@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@inlayphp/forms-react": ["../../packages/form/react/src/index.ts"],
+      "@inlayphp/tables-react": ["../../packages/table/react/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "@inlayphp/design",
+  "version": "0.1.0",
+  "description": "Inlay design-system façade, theme helpers, and shared UI recipes.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "tests",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@inlayphp/theme": "workspace:^",
+    "@inlayphp/ui": "workspace:^"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/design/frontend"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/design/frontend",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

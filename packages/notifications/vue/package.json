@@ -1,0 +1,66 @@
+{
+  "name": "@inlayphp/notifications-vue",
+  "version": "0.1.0",
+  "description": "Accessible Vue notification renderer for Inlay.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist/types",
+    "test": "vitest",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0",
+    "@inlayphp/core": "workspace:*",
+    "@inlayphp/ui": "workspace:*",
+    "@inlayphp/notifications": "workspace:*"
+  },
+  "devDependencies": {
+    "@inlayphp/core": "workspace:*",
+    "@inlayphp/notifications": "workspace:*",
+    "@inlayphp/ui": "workspace:*",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/vue": "^8.1.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/compiler-sfc": "^3.5.13",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^3.0.5",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  },
+  "dependencies": {
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/notifications": "workspace:^",
+    "@inlayphp/ui": "workspace:^"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/notifications/vue"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/notifications/vue",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

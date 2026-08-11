@@ -1,0 +1,117 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+env:
+  # The checkout is often not on a release tag. Keep Composer's path-package
+  # diagnostics deterministic until the first coordinated tag exists.
+  COMPOSER_ROOT_VERSION: dev-main
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }} (${{ matrix.dependencies }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - php: '8.3'
+            dependencies: lowest
+            composer-flags: --prefer-lowest
+          - php: '8.4'
+            dependencies: highest
+            composer-flags: ''
+          - php: '8.5'
+            dependencies: highest
+            composer-flags: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite
+          coverage: none
+      - run: composer validate --no-check-publish
+      - run: for manifest in packages/*/composer.json; do composer validate --no-check-publish "$manifest"; done
+      - run: composer update --no-interaction --prefer-dist ${{ matrix.composer-flags }}
+      - run: composer test
+      - run: composer lint
+
+  playground:
+    name: Laravel playground integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite
+          coverage: none
+      - run: composer validate --no-check-publish
+        working-directory: playground/laravel-react
+      - run: cp .env.example .env
+        working-directory: playground/laravel-react
+      - run: sed -i 's#^APP_URL=.*#APP_URL=http://localhost:8000#' .env
+        working-directory: playground/laravel-react
+      - run: composer install --no-interaction --prefer-dist --no-progress
+        working-directory: playground/laravel-react
+      # Laravel's clean checkout does not contain ignored runtime folders.
+      # Wayfinder boots Artisan during the Vite build and the view compiler
+      # requires its cache directory to exist before that hook runs.
+      - run: mkdir -p storage/framework/cache storage/framework/sessions storage/framework/testing storage/framework/views storage/logs bootstrap/cache
+        working-directory: playground/laravel-react
+      - run: php artisan key:generate --force
+        working-directory: playground/laravel-react
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: playground/laravel-react/pnpm-lock.yaml
+      # The playground links directly to package workspaces. Build those
+      # renderer entry points before its TypeScript compiler resolves them.
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm install --frozen-lockfile
+        working-directory: playground/laravel-react
+      - run: pnpm run lint:check
+        working-directory: playground/laravel-react
+      - run: pnpm run format:check
+        working-directory: playground/laravel-react
+      - run: pnpm run types:check
+        working-directory: playground/laravel-react
+      - run: pnpm run build
+        working-directory: playground/laravel-react
+      - run: vendor/bin/pest --compact
+        working-directory: playground/laravel-react
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # A clean checkout has no ignored dist/ artifacts. Build dependencies
+      # before typechecking packages that import their workspace entrypoints.
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm test:frontend
+      # PHP's package export test is intentionally run after the frontend
+      # build as well: a clean checkout has no git-tracked dist/ directories,
+      # so only this post-build pass can verify every published entry point.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: vendor/bin/pest tests/PackageExportsTest.php

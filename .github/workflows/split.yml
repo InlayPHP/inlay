@@ -1,0 +1,107 @@
+# Mirrors each PHP package into its own repository, the way established Laravel ecosystems handle package mirrors.
+#
+# Composer resolves a package from a git repository, so a package can only be
+# installed on its own if it has one. `splitsh-lite` replays this monorepo's history
+# for a single directory and force-pushes the result, which is why the mirrors are
+# read only: every push overwrites them, so a commit made there would be lost.
+#
+# The npm packages need none of this. npm hosts a tarball rather than a repository,
+# so `@inlayphp/forms-vue` publishes straight from here with `pnpm publish`.
+#
+# Mirrors follow the main development branch as well as release tags. Manual runs
+# remain available when a mirror needs to be resynchronised without a new commit.
+name: split
+
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - '*'
+    workflow_dispatch: {}
+
+env:
+    # A personal access token with `repo` scope on the mirror organisation. The
+    # default `GITHUB_TOKEN` cannot push to another repository.
+    GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+
+jobs:
+    split:
+        name: ${{ matrix.package.split_repository }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                package:
+                    - local_path: 'actions'
+                      split_repository: 'actions'
+                    - local_path: 'authorization-spatie'
+                      split_repository: 'authorization-spatie'
+                    - local_path: 'authorization'
+                      split_repository: 'authorization'
+                    - local_path: 'core'
+                      split_repository: 'core'
+                    - local_path: 'design'
+                      split_repository: 'design'
+                    - local_path: 'form'
+                      split_repository: 'forms'
+                    - local_path: 'import'
+                      split_repository: 'imports'
+                    - local_path: 'infolist'
+                      split_repository: 'infolists'
+                    - local_path: 'media-manager'
+                      split_repository: 'media-manager'
+                    - local_path: 'media-spatie'
+                      split_repository: 'media-spatie'
+                    - local_path: 'notifications'
+                      split_repository: 'notifications'
+                    - local_path: 'media'
+                      split_repository: 'media'
+                    - local_path: 'panel'
+                      split_repository: 'panels'
+                    - local_path: 'permission-manager'
+                      split_repository: 'permission-manager'
+                    - local_path: 'resources'
+                      split_repository: 'resources'
+                    - local_path: 'schemas'
+                      split_repository: 'schemas'
+                    - local_path: 'support'
+                      split_repository: 'support'
+                    - local_path: 'table'
+                      split_repository: 'tables'
+                    - local_path: 'table-xlsx'
+                      split_repository: 'tables-xlsx'
+                    - local_path: 'theme'
+                      split_repository: 'theme'
+                    - local_path: 'two-factor-authentication'
+                      split_repository: 'two-factor-authentication'
+                    - local_path: 'validation'
+                      split_repository: 'validation'
+                    - local_path: 'widgets'
+                      split_repository: 'widgets'
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  # splitsh-lite replays history, so a shallow clone produces a
+                  # mirror with none of it.
+                  fetch-depth: 0
+
+            - if: "!startsWith(github.ref, 'refs/tags/')"
+              uses: danharrin/monorepo-split-github-action@v2.4.0
+              with:
+                  package_directory: 'packages/${{ matrix.package.local_path }}'
+                  repository_organization: 'InlayPHP'
+                  repository_name: '${{ matrix.package.split_repository }}'
+                  user_name: 'solutionforestteam'
+                  user_email: 'solutionforestteam@users.noreply.github.com'
+
+            - if: "startsWith(github.ref, 'refs/tags/')"
+              uses: danharrin/monorepo-split-github-action@v2.4.0
+              with:
+                  tag: ${{ github.ref_name }}
+                  package_directory: 'packages/${{ matrix.package.local_path }}'
+                  repository_organization: 'InlayPHP'
+                  repository_name: '${{ matrix.package.split_repository }}'
+                  user_name: 'solutionforestteam'
+                  user_email: 'solutionforestteam@users.noreply.github.com'

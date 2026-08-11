@@ -1,0 +1,46 @@
+{
+  "name": "@acme/inlay-order-summary",
+  "version": "0.1.0",
+  "private": true,
+  "description": "React and Vue adapters for the Inlay community schema view template.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./vue": {
+      "types": "./dist/vue.d.ts",
+      "import": "./dist/vue.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup src/react.tsx src/vue.ts --format esm --dts --clean --external react --external vue --external @inlayphp/core --external @inlayphp/forms-react --external @inlayphp/forms-vue",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@inlayphp/core": "^0.2.0",
+    "@inlayphp/forms-react": "^0.1.0",
+    "@inlayphp/forms-vue": "^0.1.0",
+    "react": "^19.0.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/forms-vue": "workspace:^",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5",
+    "vue": "^3.5.13"
+  }
+}

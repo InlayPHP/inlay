@@ -1,0 +1,60 @@
+{
+  "name": "@inlayphp/ui-vue",
+  "version": "0.1.0",
+  "description": "Accessible Vue primitives and shared control styling for Inlay packages.",
+  "license": "MIT",
+  "type": "module",
+  "types": "./dist/types/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist/types",
+    "test": "vitest",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@inlayphp/ui": "^0.1.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@inlayphp/ui": "workspace:^",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/vue": "^8.1.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  },
+  "dependencies": {
+    "@inlayphp/ui": "workspace:^"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/ui/vue"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/ui/vue",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,30 @@
+{
+    "name": "inlayphp/tables-xlsx",
+    "description": "Optional PhpSpreadsheet XLSX export driver for Inlay tables.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "inlayphp/tables": "dev-main",
+        "phpoffice/phpspreadsheet": "^5.0",
+        "ext-ctype": "*",
+        "ext-dom": "*",
+        "ext-fileinfo": "*",
+        "ext-filter": "*",
+        "ext-gd": "*",
+        "ext-iconv": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-simplexml": "*",
+        "ext-xml": "*",
+        "ext-xmlreader": "*",
+        "ext-xmlwriter": "*",
+        "ext-zip": "*",
+        "ext-zlib": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Tables\\Xlsx\\": "src/"
+        }
+    }
+}

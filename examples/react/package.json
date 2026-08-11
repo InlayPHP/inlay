@@ -1,0 +1,8 @@
+{
+  "name": "@inlayphp/example-react",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "vite build", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@inlayphp/forms-react": "workspace:*", "@inlayphp/tables-react": "workspace:*", "@inertiajs/react": "^3.6.1", "react": "^19.0.0", "react-dom": "^19.0.0" },
+  "devDependencies": { "@tailwindcss/vite": "^4.1.0", "@types/react": "^19.0.0", "@types/react-dom": "^19.0.0", "@vitejs/plugin-react": "^4.3.4", "tailwindcss": "^4.1.0", "typescript": "^5.7.2", "vite": "^6.1.0" }
+}

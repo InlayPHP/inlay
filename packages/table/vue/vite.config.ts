@@ -1,0 +1,3 @@
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+export default defineConfig({ plugins: [vue()], resolve: { alias: { '@inlayphp/actions': new URL('../../actions/frontend/src/index.ts', import.meta.url).pathname, '@inlayphp/actions-vue': new URL('../../actions/vue/src/index.ts', import.meta.url).pathname } }, build: { lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' }, rollupOptions: { external: ['vue', '@inlayphp/ui', '@inlayphp/ui-vue', '@inertiajs/vue3', '@inlayphp/actions', '@inlayphp/actions-vue', '@inlayphp/core', '@inlayphp/forms-vue'] } }, test: { environment: 'jsdom', setupFiles: ['./vitest.setup.ts'] } })

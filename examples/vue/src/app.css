@@ -1,0 +1,3 @@
+@import 'tailwindcss';
+@source '../../../packages/form/vue/src/**/*.{ts,vue}';
+@source '../../../packages/table/vue/src/**/*.{ts,vue}';

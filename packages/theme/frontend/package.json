@@ -1,0 +1,45 @@
+{
+  "name": "@inlayphp/theme",
+  "version": "0.1.0",
+  "description": "Shared semantic theme tokens and presets for Inlay renderers.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/theme/frontend"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/theme/frontend",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

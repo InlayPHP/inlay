@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import { Form } from '@inlayphp/forms-vue'
+import type { FormResource } from '@inlayphp/forms-vue'
+import { Table } from '@inlayphp/tables-vue'
+import type { TableResource } from '@inlayphp/tables-vue'
+const base = { hidden: false, columnSpan: 1, extraAttributes: {}, default: null, required: false, disabled: false, autofocus: false, readOnly: false }
+const userForm: FormResource = { contract: 'inlay.forms.v1', type: 'form', name: 'create-user', action: null, method: 'post', columns: 2, submitLabel: 'Create user', data: {}, schema: [{ ...base, type: 'text', name: 'name', label: 'Name', required: true }, { ...base, type: 'text', name: 'email', label: 'Email address', inputType: 'email' }, { ...base, type: 'toggle', name: 'active', label: 'Active', default: true }] }
+const usersTable: TableResource = { contract: 'inlay.tables.v1', type: 'table', name: 'users', primaryKey: 'id', searchPlaceholder: 'Search users', columns: [{ type: 'text-column', name: 'name', label: 'Name', sortable: true, searchable: true, toggleable: true, visible: true, alignment: 'left', tooltip: null, url: null, openUrlInNewTab: false }, { type: 'badge-column', name: 'status', label: 'Status', sortable: false, searchable: false, toggleable: true, visible: true, alignment: 'left', tooltip: null, url: null, openUrlInNewTab: false, colors: { active: 'success' } }], filters: [], actions: [], headerActions: [], bulkActions: [], rows: [{ id: 1, name: 'Ada Lovelace', status: 'active' }], pagination: { currentPage: 1, lastPage: 1 }, selectable: false, deferFilters: true, query: null, emptyState: { heading: 'No users', description: null } }
+</script>
+<template><main class="mx-auto grid max-w-6xl gap-12 p-4 sm:p-8"><section><h1 class="mb-6 text-2xl font-semibold tracking-tight">Create user</h1><Form :resource="userForm" @submit="console.log" /></section><section><h2 class="mb-6 text-xl font-semibold">Users</h2><Table :resource="usersTable" @query-change="console.log" /></section></main></template>

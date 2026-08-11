@@ -1,0 +1,24 @@
+{
+    "name": "inlayphp/design",
+    "description": "Inlay design system façade, semantic tokens, and theme generation tools.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/console": "^12.0",
+        "illuminate/filesystem": "^12.0",
+        "inlayphp/theme": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Design\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\Design\\DesignServiceProvider"
+            ]
+        }
+    }
+}

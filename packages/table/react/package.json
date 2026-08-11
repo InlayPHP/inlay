@@ -1,0 +1,71 @@
+{
+  "name": "@inlayphp/tables-react",
+  "version": "0.1.0",
+  "description": "React renderer for Inlay PHP-first tables.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --external react --external @inertiajs/react --external @inlayphp/core --external @inlayphp/actions --external @inlayphp/actions-react --external @inlayphp/forms-react --external @inlayphp/ui-react --external @inlayphp/theme",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@inlayphp/actions": "^0.3.0",
+    "@inlayphp/actions-react": "^0.3.0",
+    "@inlayphp/core": "^0.2.0",
+    "@inlayphp/theme": "^0.1.0",
+    "@inlayphp/forms-react": "^0.1.0",
+    "@inlayphp/ui-react": "^0.1.0",
+    "@inertiajs/react": "^3.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-react": "workspace:^",
+    "@inlayphp/core": "workspace:*",
+    "@inlayphp/theme": "workspace:^",
+    "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/ui-react": "workspace:^",
+    "@inertiajs/react": "^3.6.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/table/react"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/table/react",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

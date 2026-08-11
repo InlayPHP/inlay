@@ -1,0 +1,51 @@
+name: publish-npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+# npm trusted publishing uses GitHub's OIDC token. The registry token is still
+# supplied as NPM_TOKEN so this workflow also works before every package has
+# trusted-publisher metadata configured.
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: publish frontend packages
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      # Build before the consumer gates: several workspace packages resolve
+      # sibling declaration entry points from dist/. A clean runner has no
+      # generated artifacts after install, so typecheck/test must not run
+      # before this step.
+      - run: pnpm build
+      # A release cannot publish declarations or renderer code that was not
+      # exercised by the same commit. Keep these gates in the release job, not
+      # only in the general test workflow, so a tag can never bypass them.
+      - run: pnpm typecheck
+      - run: pnpm test:frontend
+
+      - name: Publish @inlayphp packages
+        run: pnpm publish:npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

@@ -1,0 +1,28 @@
+{
+    "name": "acme/inlay-order-summary",
+    "description": "Template community schema view for Inlay.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "inlayphp/schemas": "^0.3 || dev-main"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Acme\\InlayOrderSummary\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Acme\\InlayOrderSummary\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "pest"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

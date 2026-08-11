@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "ESNext", "moduleResolution": "Bundler", "jsx": "react-jsx",
+    "strict": true, "declaration": true, "esModuleInterop": true, "skipLibCheck": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@inlayphp/actions": ["../../actions/frontend/src/index.ts"],
+      "@inlayphp/actions-react": ["../../actions/react/src/index.ts"],
+      "@inlayphp/ui-react": ["../../ui/react/src/index.ts"],
+      "react": ["node_modules/@types/react/index.d.ts"],
+      "react/jsx-runtime": ["node_modules/@types/react/jsx-runtime.d.ts"]
+    }
+  },
+  "include": ["src", "tests", "vitest.setup.ts"]
+}

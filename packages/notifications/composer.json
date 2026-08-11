@@ -1,0 +1,25 @@
+{
+    "name": "inlayphp/notifications",
+    "description": "Session and database notifications for Inlay and Laravel applications.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/container": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/support": "^12.0",
+        "inlayphp/support": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Notifications\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\Notifications\\NotificationsServiceProvider"
+            ]
+        }
+    }
+}

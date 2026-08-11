@@ -1,0 +1,15 @@
+{
+    "name": "inlayphp/imports",
+    "description": "Validated import previews and row processing for Laravel and Inlay.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "inlayphp/validation": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Imports\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../../../packages/form/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/table/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/actions/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/panel/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/permission-manager/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/media-manager/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/ui/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/widgets/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/infolist/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/import/react/src/**/*.{ts,tsx}';
+@source '../../../../packages/resources/react/src/**/*.{ts,tsx}';
+/* The shared control vocabulary lives in @inlayphp/ui, not a renderer package. */
+@source '../../../../packages/ui/frontend/src/**/*.{ts,tsx}';
+/* Keep the playground's Tailwind build in sync with both renderers. Vue
+   classes are source code too, even when the active demo is React. */
+@source '../../../../packages/**/src/**/*.{ts,tsx,vue}';
+@source '../js/**/*.{ts,tsx,vue}';
+
+@theme {
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+}
+
+/* A scrollable table/media surface owns its horizontal overflow. Keep the
+   document viewport itself from becoming a second, accidental scroll region. */
+@layer base {
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: clip;
+    }
+}

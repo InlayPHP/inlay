@@ -1,0 +1,62 @@
+{
+  "name": "@inlayphp/notifications-react",
+  "version": "0.1.0",
+  "description": "Accessible React notification renderer for Inlay.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --external react --external react-dom --external @inlayphp/core --external @inlayphp/ui --external @inlayphp/notifications",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@inlayphp/core": "workspace:*",
+    "@inlayphp/ui": "workspace:*",
+    "@inlayphp/notifications": "workspace:*"
+  },
+  "devDependencies": {
+    "@inlayphp/core": "workspace:*",
+    "@inlayphp/notifications": "workspace:*",
+    "@inlayphp/ui": "workspace:*",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "jsdom": "^26.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/notifications/react"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/notifications/react",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

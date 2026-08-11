@@ -1,0 +1,27 @@
+{
+    "name": "inlayphp/validation",
+    "description": "Reusable Laravel validation classes for forms, requests, imports, APIs, and actions.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/console": "^12.0",
+        "illuminate/container": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/filesystem": "^12.0",
+        "illuminate/support": "^12.0",
+        "illuminate/validation": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Validation\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\Validation\\ValidationServiceProvider"
+            ]
+        }
+    }
+}

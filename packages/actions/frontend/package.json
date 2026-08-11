@@ -1,0 +1,49 @@
+{
+  "name": "@inlayphp/actions",
+  "version": "0.3.0",
+  "description": "Framework-neutral action contracts and confirmation runtime for Inlay.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --external @inlayphp/core",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@inlayphp/core": "^0.2.0"
+  },
+  "devDependencies": {
+    "@inlayphp/core": "workspace:^",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/InlayPHP/inlay.git",
+    "directory": "packages/actions/frontend"
+  },
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/actions/frontend",
+  "bugs": {
+    "url": "https://github.com/InlayPHP/inlay/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

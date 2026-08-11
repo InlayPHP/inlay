@@ -1,0 +1,19 @@
+{
+    "name": "inlayphp/widgets",
+    "description": "PHP-first dashboard widgets for Inlay panels and Inertia applications.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/contracts": "^12.0",
+        "illuminate/http": "^12.0",
+        "inlayphp/actions": "dev-main",
+        "inlayphp/support": "dev-main",
+        "inlayphp/tables": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\Widgets\\": "src/"
+        }
+    }
+}

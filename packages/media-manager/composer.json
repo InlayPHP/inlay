@@ -1,0 +1,33 @@
+{
+    "name": "inlayphp/media-manager",
+    "description": "Authorized media browser and picker backend plugin for Inlay panels.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/auth": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/filesystem": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/routing": "^12.0",
+        "illuminate/support": "^12.0",
+        "illuminate/validation": "^12.0",
+        "inertiajs/inertia-laravel": "^3.0",
+        "inlayphp/actions": "dev-main",
+        "inlayphp/authorization": "dev-main",
+        "inlayphp/media": "dev-main",
+        "inlayphp/panels": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\MediaManager\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\MediaManager\\MediaManagerServiceProvider"
+            ]
+        }
+    }
+}

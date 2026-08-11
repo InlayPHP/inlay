@@ -1,0 +1,29 @@
+{
+    "name": "inlayphp/two-factor-authentication",
+    "description": "Optional panel two-factor authentication with TOTP and recovery codes.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "illuminate/auth": "^12.0",
+        "illuminate/container": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/support": "^12.0",
+        "inertiajs/inertia-laravel": "^3.0",
+        "inlayphp/forms": "dev-main",
+        "inlayphp/panels": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inlay\\TwoFactorAuthentication\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inlay\\TwoFactorAuthentication\\TwoFactorAuthenticationServiceProvider"
+            ]
+        }
+    }
+}
