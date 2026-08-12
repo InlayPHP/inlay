@@ -196,8 +196,8 @@ final class AdminPanelProvider extends PanelProvider
 PHP);
         $files->put($root.'/app/Models/User.php', '<?php class User implements PanelAccount {}');
         $files->put($root.'/app/Inlay/Resources/UserResource.php', '<?php');
-        $files->put($root.'/database/migrations/2026_01_01_000000_create_inlay_media_tables.php', '<?php');
-        $files->put($root.'/database/migrations/2026_08_02_010000_create_inlay_media_collections.php', '<?php');
+        $files->put($root.'/database/migrations/2026_08_12_103953_create_inlay_media_tables.php', '<?php');
+        $files->put($root.'/database/migrations/2026_08_12_103954_create_inlay_media_collections.php', '<?php');
         $files->put($root.'/package.json', json_encode([
             'dependencies' => ['@inlayphp/panels-react' => '^0.3.0'],
         ], JSON_THROW_ON_ERROR));

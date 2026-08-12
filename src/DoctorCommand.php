@@ -70,8 +70,8 @@ final class DoctorCommand extends Command
 
         if (str_contains($providerSource, 'MediaManagerPlugin')) {
             $this->check(
-                $this->files->exists($basePath.'/database/migrations/2026_01_01_000000_create_inlay_media_tables.php')
-                    && $this->files->exists($basePath.'/database/migrations/2026_08_02_010000_create_inlay_media_collections.php'),
+                $this->hasMigration($basePath, 'create_inlay_media_tables.php')
+                    && $this->hasMigration($basePath, 'create_inlay_media_collections.php'),
                 'Bundled Media Manager migrations',
                 'Rerun php artisan inlay:install --panels to publish the migrations.',
             );
@@ -219,5 +219,10 @@ final class DoctorCommand extends Command
                 && ! str_contains($path, '..')
                 && ! str_starts_with($path, '/'),
         )));
+    }
+
+    private function hasMigration(string $basePath, string $suffix): bool
+    {
+        return $this->files->glob($basePath.'/database/migrations/*_'.$suffix) !== [];
     }
 }
