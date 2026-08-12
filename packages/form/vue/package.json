@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/forms-vue",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Vue renderer for Inlay PHP-first forms.",
   "license": "MIT",
   "type": "module",
@@ -23,12 +23,12 @@
   },
   "peerDependencies": {
     "@inertiajs/vue3": "^3.0.0",
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/actions-vue": "^0.3.0",
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/theme": "^0.1.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-vue": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
     "vue": "^3.4.0",
-    "@inlayphp/ui": "^0.1.0"
+    "@inlayphp/ui": "workspace:^"
   },
   "devDependencies": {
     "@inertiajs/vue3": "^3.6.1",

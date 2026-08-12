@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/imports-vue",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Vue renderer for Inlay import mapping and preview workflows.",
   "license": "MIT",
   "type": "module",
@@ -22,8 +22,8 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/ui-vue": "^0.1.0",
-    "@inlayphp/theme": "^0.1.0",
+    "@inlayphp/ui-vue": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
     "vue": "^3.4.0"
   },
   "devDependencies": {

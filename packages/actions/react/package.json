@@ -22,9 +22,9 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/ui-react": "^0.1.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/ui-react": "workspace:^",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -44,7 +44,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.1.0",
     "vitest": "^3.0.5",
-    "@inlayphp/core": "workspace:*"
+    "@inlayphp/core": "workspace:^"
   },
   "repository": {
     "type": "git",

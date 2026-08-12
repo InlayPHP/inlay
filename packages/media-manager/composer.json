@@ -13,10 +13,10 @@
         "illuminate/support": "^12.0 || ^13.0",
         "illuminate/validation": "^12.0 || ^13.0",
         "inertiajs/inertia-laravel": "^3.0",
-        "inlayphp/actions": "dev-main",
-        "inlayphp/authorization": "dev-main",
-        "inlayphp/media": "dev-main",
-        "inlayphp/panels": "dev-main"
+        "inlayphp/actions": "^0.3 || dev-main",
+        "inlayphp/authorization": "^0.3 || dev-main",
+        "inlayphp/media": "^0.3 || dev-main",
+        "inlayphp/panels": "^0.3 || dev-main"
     },
     "autoload": {
         "psr-4": {

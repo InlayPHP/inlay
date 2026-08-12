@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/widgets-vue",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Vue renderer for Inlay dashboard widgets.",
   "license": "MIT",
   "type": "module",
@@ -23,23 +23,23 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/actions": "^0.3.0",
+    "@inlayphp/actions": "workspace:^",
     "@inertiajs/vue3": "^3.0.0",
-    "@inlayphp/actions-vue": "^0.3.0",
-    "@inlayphp/forms-vue": "workspace:*",
+    "@inlayphp/actions-vue": "workspace:^",
+    "@inlayphp/forms-vue": "workspace:^",
     "vue": "^3.5.0",
-    "@inlayphp/core": "workspace:*",
-    "@inlayphp/tables-vue": "workspace:*",
-    "@inlayphp/theme": "^0.1.0"
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/tables-vue": "workspace:^",
+    "@inlayphp/theme": "workspace:^"
   },
   "devDependencies": {
-    "@inlayphp/actions": "workspace:*",
+    "@inlayphp/actions": "workspace:^",
     "@inertiajs/vue3": "^3.6.1",
-    "@inlayphp/actions-vue": "workspace:*",
-    "@inlayphp/core": "workspace:*",
-    "@inlayphp/forms-vue": "workspace:*",
-    "@inlayphp/tables-vue": "workspace:*",
-    "@inlayphp/theme": "workspace:*",
+    "@inlayphp/actions-vue": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/forms-vue": "workspace:^",
+    "@inlayphp/tables-vue": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/vue": "^8.1.0",
     "@testing-library/user-event": "^14.6.1",

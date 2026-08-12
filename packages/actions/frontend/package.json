@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/core": "^0.2.0"
+    "@inlayphp/core": "workspace:^"
   },
   "devDependencies": {
     "@inlayphp/core": "workspace:^",

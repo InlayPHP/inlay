@@ -5,3 +5,7 @@
 **/dist/
 
 .gstack/
+
+# Local release credentials
+.secret
+.secert

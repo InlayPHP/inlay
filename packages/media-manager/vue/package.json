@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/media-manager-vue",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Vue media browser and picker for Inlay panels.",
   "license": "MIT",
   "type": "module",
@@ -23,9 +23,9 @@
   "peerDependencies": {
     "@inertiajs/vue3": "^3.0.0",
     "vue": "^3.4.0",
-    "@inlayphp/ui": "^0.1.0",
-    "@inlayphp/ui-vue": "^0.1.0",
-    "@inlayphp/theme": "^0.1.0"
+    "@inlayphp/ui": "workspace:^",
+    "@inlayphp/ui-vue": "workspace:^",
+    "@inlayphp/theme": "workspace:^"
   },
   "devDependencies": {
     "@inertiajs/vue3": "^3.6.1",

@@ -22,13 +22,13 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/ui": "^0.1.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/ui": "workspace:^",
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@inlayphp/actions": "workspace:*",
+    "@inlayphp/actions": "workspace:^",
     "@inlayphp/ui": "workspace:^",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
@@ -40,7 +40,7 @@
     "vitest": "^3.0.5",
     "vue": "^3.5.13",
     "vue-tsc": "^2.2.0",
-    "@inlayphp/core": "workspace:*"
+    "@inlayphp/core": "workspace:^"
   },
   "repository": {
     "type": "git",

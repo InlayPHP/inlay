@@ -64,7 +64,7 @@ it('generates an application theme class and CSS file without overwriting by def
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->add($command);
+        $console->addCommand($command);
 
         $status = $console->run(new ArrayInput([
             'command' => 'make:inlay-theme',
@@ -124,7 +124,7 @@ it('rejects traversal in generated theme paths', function (): void {
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->add($command);
+        $console->addCommand($command);
 
         $status = $console->run(new ArrayInput([
             'command' => 'make:inlay-theme',

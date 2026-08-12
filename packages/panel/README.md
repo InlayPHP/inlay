@@ -14,11 +14,15 @@ A complete, renderer-neutral, fluent panel runtime for Laravel and Inertia. It o
 composer require inlayphp/panels
 ```
 
-When using the full `inlayphp/inlay` package, the first panel can be scaffolded
-with `php artisan inlay:install`. The command writes an application-owned
-`PanelProvider` and registers it in `config/inlay-panels.php`; it does not choose
-a frontend, Resource, authorization backend, or media plugin for the
-application.
+When using the full `inlayphp/inlay` package, install the complete default
+panel with `php artisan inlay:install --panels`. The root installer writes an
+application-owned `PanelProvider`, registers it in `config/inlay-panels.php`,
+generates User CRUD, enables account settings, bundles Media Manager, publishes
+its migrations, and scaffolds the official React entry points. Installing
+`inlayphp/panels` alone remains intentionally renderer-neutral.
+
+After migrating a new Laravel application, run `php artisan inlay:make-user` to
+create the first panel login without shipping a public default password.
 
 The installer can also generate a tenant-aware provider, so a new multi-tenant
 panel does not need a hand-written first pass:

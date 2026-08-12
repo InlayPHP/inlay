@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/widgets-react",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "React renderer for Inlay dashboard widgets.",
   "license": "MIT",
   "type": "module",
@@ -24,13 +24,13 @@
   },
   "peerDependencies": {
     "@inertiajs/react": "^3.0.0",
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/actions-react": "^0.3.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-react": "workspace:^",
     "react": "^19.0.0",
-    "@inlayphp/core": "workspace:*",
-    "@inlayphp/forms-react": "workspace:*",
-    "@inlayphp/tables-react": "workspace:*",
-    "@inlayphp/theme": "^0.1.0"
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/tables-react": "workspace:^",
+    "@inlayphp/theme": "workspace:^"
   },
   "devDependencies": {
     "@inertiajs/react": "^3.6.1",

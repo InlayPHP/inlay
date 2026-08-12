@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/two-factor-authentication-react",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "React renderer for Inlay two-factor authentication challenge and settings screens.",
   "license": "MIT",
   "type": "module",
@@ -21,11 +21,11 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/forms-react": "^0.1.0",
+    "@inlayphp/forms-react": "workspace:^",
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "@inlayphp/forms-react": "workspace:*",
+    "@inlayphp/forms-react": "workspace:^",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.0.0",

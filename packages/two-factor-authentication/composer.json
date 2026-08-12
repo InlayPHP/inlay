@@ -11,8 +11,8 @@
         "illuminate/http": "^12.0 || ^13.0",
         "illuminate/support": "^12.0 || ^13.0",
         "inertiajs/inertia-laravel": "^3.0",
-        "inlayphp/forms": "dev-main",
-        "inlayphp/panels": "dev-main"
+        "inlayphp/forms": "^0.3 || dev-main",
+        "inlayphp/panels": "^0.3 || dev-main"
     },
     "autoload": {
         "psr-4": {

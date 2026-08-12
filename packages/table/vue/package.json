@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/tables-vue",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Vue renderer for Inlay PHP-first tables.",
   "license": "MIT",
   "type": "module",
@@ -21,20 +21,20 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/actions-vue": "^0.3.0",
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/theme": "^0.1.0",
-    "@inlayphp/forms-vue": "^0.1.0",
-    "@inlayphp/ui-vue": "^0.1.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-vue": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
+    "@inlayphp/forms-vue": "workspace:^",
+    "@inlayphp/ui-vue": "workspace:^",
     "@inertiajs/vue3": "^3.0.0",
     "vue": "^3.4.0",
-    "@inlayphp/ui": "^0.1.0"
+    "@inlayphp/ui": "workspace:^"
   },
   "devDependencies": {
-    "@inlayphp/actions": "workspace:*",
-    "@inlayphp/actions-vue": "workspace:*",
-    "@inlayphp/core": "workspace:*",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-vue": "workspace:^",
+    "@inlayphp/core": "workspace:^",
     "@inlayphp/theme": "workspace:^",
     "@inlayphp/forms-vue": "workspace:^",
     "@inlayphp/ui-vue": "workspace:^",

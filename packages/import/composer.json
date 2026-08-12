@@ -5,7 +5,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "inlayphp/validation": "dev-main"
+        "inlayphp/validation": "^0.3 || dev-main"
     },
     "autoload": {
         "psr-4": {

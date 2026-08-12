@@ -70,7 +70,48 @@ it('keeps every Composer package on the PHP 8.3 and Laravel 12 platform floor', 
     expect($violations)->toBe([], 'Package platform constraints must remain aligned with the supported Laravel baseline.');
 });
 
-it('keeps the root distribution clean while testing optional official plugins', function () {
+it('coordinates every public non-CMS package on the 0.3 release line', function (): void {
+    $composerManifests = array_merge(
+        [__DIR__.'/../composer.json'],
+        glob(__DIR__.'/../packages/*/composer.json') ?: [],
+    );
+
+    foreach ($composerManifests as $manifestPath) {
+        $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
+        $name = (string) ($manifest['name'] ?? '');
+
+        if ($name === 'inlayphp/cms' || str_starts_with($name, 'inlayphp/cms-')) {
+            continue;
+        }
+
+        foreach ([...($manifest['require'] ?? []), ...($manifest['require-dev'] ?? [])] as $dependency => $constraint) {
+            if (str_starts_with((string) $dependency, 'inlayphp/')) {
+                expect($constraint)->toBe('^0.3 || dev-main', "{$name} must use the coordinated Composer release line.");
+            }
+        }
+    }
+
+    foreach (glob(__DIR__.'/../packages/*/*/package.json') ?: [] as $manifestPath) {
+        $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
+        $name = (string) ($manifest['name'] ?? '');
+
+        if (! str_starts_with($name, '@inlayphp/') || str_starts_with($name, '@inlayphp/cms')) {
+            continue;
+        }
+
+        expect($manifest['version'] ?? null)->toBe('0.3.0', "{$name} must use the coordinated npm release line.");
+
+        foreach (['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'] as $section) {
+            foreach ($manifest[$section] ?? [] as $dependency => $constraint) {
+                if (str_starts_with((string) $dependency, '@inlayphp/')) {
+                    expect($constraint)->toBe('workspace:^', "{$name} must use coordinated internal npm ranges.");
+                }
+            }
+        }
+    }
+});
+
+it('keeps the root panel preset complete while leaving advanced plugins optional', function () {
     $root = json_decode((string) file_get_contents(__DIR__.'/../composer.json'), true, flags: JSON_THROW_ON_ERROR);
     $core = [
         'inlayphp/actions',
@@ -79,6 +120,8 @@ it('keeps the root distribution clean while testing optional official plugins', 
         'inlayphp/design',
         'inlayphp/forms',
         'inlayphp/infolists',
+        'inlayphp/media',
+        'inlayphp/media-manager',
         'inlayphp/notifications',
         'inlayphp/panels',
         'inlayphp/resources',
@@ -92,8 +135,6 @@ it('keeps the root distribution clean while testing optional official plugins', 
     $plugins = [
         'inlayphp/authorization-spatie',
         'inlayphp/imports',
-        'inlayphp/media',
-        'inlayphp/media-manager',
         'inlayphp/media-spatie',
         'inlayphp/permission-manager',
         'inlayphp/tables-xlsx',

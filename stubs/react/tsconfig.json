@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "paths": {
+      "@/layouts/inlay-panel-layout": ["./inlay-panel-layout.tsx"],
+      "@inertiajs/react": [
+        "../../demo/node_modules/@inertiajs/react/types/index.d.ts"
+      ],
+      "@inlayphp/forms-react": ["../../packages/form/react/dist/index.d.ts"],
+      "@inlayphp/media-manager-react": [
+        "../../packages/media-manager/react/dist/index.d.ts"
+      ],
+      "@inlayphp/panels-react": ["../../packages/panel/react/dist/index.d.ts"],
+      "@inlayphp/resources-react": [
+        "../../packages/resources/react/dist/index.d.ts"
+      ],
+      "@inlayphp/tables-react": ["../../packages/table/react/dist/index.d.ts"],
+      "@inlayphp/theme": ["../../packages/theme/frontend/dist/index.d.ts"],
+      "@inlayphp/ui-react": ["../../packages/ui/react/dist/index.d.ts"],
+      "react": ["../../demo/node_modules/@types/react/index.d.ts"],
+      "react/jsx-runtime": [
+        "../../demo/node_modules/@types/react/jsx-runtime.d.ts"
+      ],
+      "*": ["../../demo/node_modules/*", "../../node_modules/*"]
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "typeRoots": ["../../demo/node_modules/@types"],
+    "types": ["react", "react-dom"]
+  },
+  "include": ["./*.tsx"]
+}

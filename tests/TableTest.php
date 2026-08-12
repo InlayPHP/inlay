@@ -18,15 +18,13 @@ use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
-use Inlay\Actions\ActionModal;
 use Inlay\Actions\ActionGroup;
+use Inlay\Actions\ActionModal;
 use Inlay\Actions\ActionRunner;
 use Inlay\Forms\Fields\TextInput;
 use Inlay\Tables\Actions\Action;
 use Inlay\Tables\Actions\BulkAction;
 use Inlay\Tables\Actions\ExportAction;
-use Inlay\Tables\Exports\ExportColumn;
-use Inlay\Tables\Exports\QueuedExport;
 use Inlay\Tables\Column;
 use Inlay\Tables\Columns\BadgeColumn;
 use Inlay\Tables\Columns\BooleanColumn;
@@ -56,6 +54,8 @@ use Inlay\Tables\Data\TableDataResult;
 use Inlay\Tables\Enums\ColumnManagerLayout;
 use Inlay\Tables\Enums\ColumnManagerResetActionPosition;
 use Inlay\Tables\Enums\VerticalAlignment;
+use Inlay\Tables\Exports\ExportColumn;
+use Inlay\Tables\Exports\QueuedExport;
 use Inlay\Tables\Filter;
 use Inlay\Tables\Filters\BooleanFilter;
 use Inlay\Tables\Filters\DateFilter;
@@ -250,9 +250,9 @@ it('resolves column URLs and new-tab behavior per record', function (): void {
             'openUrlInNewTab' => true,
         ])
         ->and(fn () => TextColumn::make('name')->url(fn (): int => 7)->resolveRowPresentation(['name' => 'Ada']))
-            ->toThrow(UnexpectedValueException::class, 'URL callbacks must return a string or null')
+        ->toThrow(UnexpectedValueException::class, 'URL callbacks must return a string or null')
         ->and(fn () => TextColumn::make('name')->openUrlInNewTab(fn (): string => 'yes')->resolveRowPresentation(['name' => 'Ada']))
-            ->toThrow(UnexpectedValueException::class, 'openUrlInNewTab callbacks must return a boolean');
+        ->toThrow(UnexpectedValueException::class, 'openUrlInNewTab callbacks must return a boolean');
 });
 
 it('formats table cell state on the server with row-aware callbacks', function (): void {
@@ -3088,7 +3088,7 @@ it('generates a standalone table page with its route hint', function (): void {
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->add($command);
+        $console->addCommand($command);
         $output = new BufferedOutput;
 
         $status = $console->run(new ArrayInput([

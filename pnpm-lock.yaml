@@ -136,7 +136,7 @@ importers:
         specifier: workspace:^
         version: link:../frontend
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/ui-react':
         specifier: workspace:^
@@ -184,10 +184,10 @@ importers:
   packages/actions/vue:
     devDependencies:
       '@inlayphp/actions':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../frontend
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/ui':
         specifier: workspace:^
@@ -721,13 +721,13 @@ importers:
   packages/notifications/react:
     devDependencies:
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/notifications':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../frontend
       '@inlayphp/ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../ui/frontend
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -809,16 +809,16 @@ importers:
         specifier: ^3.6.1
         version: 3.6.1(axios@1.18.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/forms-react':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/react
       '@inlayphp/theme':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../theme/frontend
       '@inlayphp/ui-react':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../ui/react
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -863,16 +863,16 @@ importers:
   packages/panel/vue:
     devDependencies:
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/forms-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/vue
       '@inlayphp/theme':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../theme/frontend
       '@inlayphp/ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../ui/frontend
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -968,10 +968,10 @@ importers:
         specifier: ^3.6.1
         version: 3.6.1(axios@1.18.1)(vue@3.5.40(typescript@5.9.3))
       '@inlayphp/forms-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/vue
       '@inlayphp/tables-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../table/vue
       '@inlayphp/theme':
         specifier: workspace:^
@@ -1028,13 +1028,13 @@ importers:
   packages/resources/react:
     dependencies:
       '@inlayphp/forms-react':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/react
       '@inlayphp/resources':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../frontend
       '@inlayphp/tables-react':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../table/react
     devDependencies:
       '@inertiajs/react':
@@ -1050,7 +1050,7 @@ importers:
         specifier: workspace:^
         version: link:../../ui/react
       '@inlayphp/widgets-react':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../widgets/react
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -1092,13 +1092,13 @@ importers:
   packages/resources/vue:
     dependencies:
       '@inlayphp/forms-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/vue
       '@inlayphp/resources':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../frontend
       '@inlayphp/tables-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../table/vue
     devDependencies:
       '@inertiajs/vue3':
@@ -1162,7 +1162,7 @@ importers:
         specifier: workspace:^
         version: link:../../actions/react
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/forms-react':
         specifier: workspace:^
@@ -1219,13 +1219,13 @@ importers:
         specifier: ^3.6.1
         version: 3.6.1(axios@1.18.1)(vue@3.5.40(typescript@5.9.3))
       '@inlayphp/actions':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../actions/frontend
       '@inlayphp/actions-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../actions/vue
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/forms-vue':
         specifier: workspace:^
@@ -1285,7 +1285,7 @@ importers:
   packages/two-factor-authentication/react:
     devDependencies:
       '@inlayphp/forms-react':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/react
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -1327,7 +1327,7 @@ importers:
   packages/two-factor-authentication/vue:
     devDependencies:
       '@inlayphp/forms-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/vue
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -1518,22 +1518,22 @@ importers:
         specifier: ^3.6.1
         version: 3.6.1(axios@1.18.1)(vue@3.5.40(typescript@5.9.3))
       '@inlayphp/actions':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../actions/frontend
       '@inlayphp/actions-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../actions/vue
       '@inlayphp/core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../core/frontend
       '@inlayphp/forms-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../form/vue
       '@inlayphp/tables-vue':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../table/vue
       '@inlayphp/theme':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../theme/frontend
       '@testing-library/jest-dom':
         specifier: ^6.6.3

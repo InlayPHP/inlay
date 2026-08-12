@@ -14,9 +14,9 @@
         "illuminate/validation": "^12.0 || ^13.0",
         "inertiajs/inertia-laravel": "^3.0",
         "inlayphp/actions": "^0.3 || dev-main",
-        "inlayphp/schemas": "dev-main",
-        "inlayphp/support": "dev-main",
-        "inlayphp/validation": "dev-main",
+        "inlayphp/schemas": "^0.3 || dev-main",
+        "inlayphp/support": "^0.3 || dev-main",
+        "inlayphp/validation": "^0.3 || dev-main",
         "symfony/html-sanitizer": "^7.4.13"
     },
     "autoload": {

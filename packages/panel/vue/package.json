@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/panels-vue",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Vue renderer for Inlay administration panels.",
   "license": "MIT",
   "type": "module",
@@ -22,15 +22,15 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/forms-vue": "workspace:*",
-    "@inlayphp/theme": "^0.1.0",
-    "@inlayphp/ui": "^0.1.0",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/forms-vue": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
+    "@inlayphp/ui": "workspace:^",
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@inlayphp/core": "workspace:*",
-    "@inlayphp/ui": "workspace:*",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/ui": "workspace:^",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
     "@testing-library/vue": "^8.1.0",
@@ -41,8 +41,8 @@
     "vitest": "^3.0.5",
     "vue": "^3.5.13",
     "vue-tsc": "^2.2.0",
-    "@inlayphp/forms-vue": "workspace:*",
-    "@inlayphp/theme": "workspace:*"
+    "@inlayphp/forms-vue": "workspace:^",
+    "@inlayphp/theme": "workspace:^"
   },
   "repository": {
     "type": "git",

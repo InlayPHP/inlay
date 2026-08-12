@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/theme",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Shared semantic theme tokens and presets for Inlay renderers.",
   "license": "MIT",
   "type": "module",

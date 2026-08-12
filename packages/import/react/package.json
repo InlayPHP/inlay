@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/imports-react",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "React renderer for Inlay import mapping and preview workflows.",
   "license": "MIT",
   "type": "module",
@@ -21,8 +21,8 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/ui-react": "^0.1.0",
-    "@inlayphp/theme": "^0.1.0",
+    "@inlayphp/ui-react": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

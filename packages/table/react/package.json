@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/tables-react",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "React renderer for Inlay PHP-first tables.",
   "license": "MIT",
   "type": "module",
@@ -21,12 +21,12 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/actions-react": "^0.3.0",
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/theme": "^0.1.0",
-    "@inlayphp/forms-react": "^0.1.0",
-    "@inlayphp/ui-react": "^0.1.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-react": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
+    "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/ui-react": "workspace:^",
     "@inertiajs/react": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@inlayphp/actions": "workspace:^",
     "@inlayphp/actions-react": "workspace:^",
-    "@inlayphp/core": "workspace:*",
+    "@inlayphp/core": "workspace:^",
     "@inlayphp/theme": "workspace:^",
     "@inlayphp/forms-react": "workspace:^",
     "@inlayphp/ui-react": "workspace:^",

@@ -77,7 +77,7 @@ is the monorepo itself.
 
 Before the first public tag, internal Composer constraints may use `dev-main`.
 For a tagged pre-release, replace those constraints with the coordinated
-pre-release version (for example `^0.1`) in one lockstep change, regenerate
+pre-release version (currently `^0.3 || dev-main`) in one lockstep change, regenerate
 the root and playground locks, and then tag the monorepo. Publish frontend
 packages only after their PHP contract version has been tagged and the full
 build has passed.

@@ -7,9 +7,9 @@
         "php": "^8.3",
         "illuminate/contracts": "^12.0 || ^13.0",
         "illuminate/http": "^12.0 || ^13.0",
-        "inlayphp/actions": "dev-main",
-        "inlayphp/support": "dev-main",
-        "inlayphp/tables": "dev-main"
+        "inlayphp/actions": "^0.3 || dev-main",
+        "inlayphp/support": "^0.3 || dev-main",
+        "inlayphp/tables": "^0.3 || dev-main"
     },
     "autoload": {
         "psr-4": {

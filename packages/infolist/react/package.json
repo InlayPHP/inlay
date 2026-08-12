@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/infolists-react",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "React renderer for Inlay read-only infolists.",
   "license": "MIT",
   "type": "module",
@@ -22,11 +22,11 @@
   },
   "peerDependencies": {
     "@inertiajs/react": "^3.0.0",
-    "@inlayphp/actions": "^0.3.0",
-    "@inlayphp/actions-react": "^0.3.0",
-    "@inlayphp/core": "^0.2.0",
-    "@inlayphp/forms-react": "^0.1.0",
-    "@inlayphp/theme": "^0.1.0",
+    "@inlayphp/actions": "workspace:^",
+    "@inlayphp/actions-react": "workspace:^",
+    "@inlayphp/core": "workspace:^",
+    "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

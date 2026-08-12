@@ -9,10 +9,10 @@ use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\Validator;
-use Inlay\Validation\Console\MakeValidationCommand;
 use Inlay\Validation\Concerns\UsesValidation;
-use Inlay\Validation\ValidationContext;
+use Inlay\Validation\Console\MakeValidationCommand;
 use Inlay\Validation\Validation;
+use Inlay\Validation\ValidationContext;
 use Inlay\Validation\ValidationRunner;
 use Inlay\Validation\ValidationServiceProvider;
 use Symfony\Component\Console\Application as ConsoleApplication;
@@ -39,7 +39,7 @@ it('exposes a domain-neutral abstract validation base class', function (): void 
 
 it('registers the validation runner as the package execution service', function (): void {
     $app = new Application(dirname(__DIR__));
-    $app->instance(\Illuminate\Contracts\Validation\Factory::class, new Factory(new Translator(new ArrayLoader, 'en')));
+    $app->instance(Illuminate\Contracts\Validation\Factory::class, new Factory(new Translator(new ArrayLoader, 'en')));
     $provider = new ValidationServiceProvider($app);
     $provider->register();
 
@@ -55,7 +55,7 @@ it('declares the Laravel contracts used directly by the validation runner', func
         flags: JSON_THROW_ON_ERROR,
     );
 
-    expect($manifest['require'])->toHaveKey('illuminate/contracts', '^12.0');
+    expect($manifest['require'])->toHaveKey('illuminate/contracts', '^12.0 || ^13.0');
 });
 
 it('generates application-owned validation classes without overwriting by default', function (): void {
@@ -75,7 +75,7 @@ it('generates application-owned validation classes without overwriting by defaul
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->add($command);
+        $console->addCommand($command);
         $output = new BufferedOutput;
 
         $status = $console->run(new ArrayInput([

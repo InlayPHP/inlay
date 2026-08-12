@@ -234,17 +234,45 @@ it('can queue transformations with only the asset identity in the job payload', 
             return $command;
         }
 
-        public function dispatchSync($command, $handler = null) { return $this->dispatch($command); }
+        public function dispatchSync($command, $handler = null)
+        {
+            return $this->dispatch($command);
+        }
 
-        public function dispatchNow($command, $handler = null) { return $this->dispatch($command); }
+        public function dispatchNow($command, $handler = null)
+        {
+            return $this->dispatch($command);
+        }
 
-        public function hasCommandHandler($command): bool { return false; }
+        public function dispatchAfterResponse($command, $handler = null): void
+        {
+            $this->dispatch($command);
+        }
 
-        public function getCommandHandler($command) { return null; }
+        public function chain($jobs = null)
+        {
+            return $jobs;
+        }
 
-        public function pipeThrough(array $pipes): static { return $this; }
+        public function hasCommandHandler($command): bool
+        {
+            return false;
+        }
 
-        public function map(array $map): static { return $this; }
+        public function getCommandHandler($command)
+        {
+            return null;
+        }
+
+        public function pipeThrough(array $pipes): static
+        {
+            return $this;
+        }
+
+        public function map(array $map): static
+        {
+            return $this;
+        }
     };
     $uploader = new MediaUploader(
         $this->filesystems,

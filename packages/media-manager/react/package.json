@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/media-manager-react",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "React media browser and picker for Inlay panels.",
   "license": "MIT",
   "type": "module",
@@ -21,8 +21,8 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/ui-react": "^0.1.0",
-    "@inlayphp/theme": "^0.1.0",
+    "@inlayphp/ui-react": "workspace:^",
+    "@inlayphp/theme": "workspace:^",
     "@inertiajs/react": "^3.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

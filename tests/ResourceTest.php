@@ -12,22 +12,20 @@ spl_autoload_register(static function (string $class): void {
     }
 });
 
-use Symfony\Component\Console\Application as ConsoleApplication;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Foundation\Application;
-use Inlay\Resources\Console\MakeResourceCommand;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Routing\Route;
@@ -36,57 +34,60 @@ use Illuminate\Routing\Router;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Session\ArraySessionHandler;
 use Illuminate\Session\Store as SessionStore;
-use Illuminate\Container\Container;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use Inlay\Actions\Action;
+use Inlay\Actions\ActionRunner;
+use Inlay\Forms\Actions\FormActionResolver;
 use Inlay\Forms\Fields\Select;
 use Inlay\Forms\Fields\TextInput;
 use Inlay\Forms\Form;
 use Inlay\Forms\Support\Set;
-use Inlay\Actions\Action;
-use Inlay\Actions\ActionRunner;
-use Inlay\Forms\Actions\FormActionResolver;
 use Inlay\Infolists\Entries\TextEntry;
 use Inlay\Infolists\Infolist;
-use Inlay\Resources\Exceptions\ResourceAccessDenied;
-use Inlay\Resources\Http\Controllers\ResourceController;
-use Inlay\Resources\Pages\CreateRecord;
-use Inlay\Resources\Pages\EditRecord;
-use Inlay\Resources\GlobalSearch;
-use Inlay\Resources\Http\Controllers\GlobalSearchController;
-use Inlay\Resources\Pages\ListRecords;
-use Inlay\Resources\Pages\ResourcePage;
-use Inlay\Resources\Pages\ManageRelatedRecords;
-use Inlay\Resources\Pages\PageTab;
-use Inlay\Resources\ParentResourceRegistration;
-use Inlay\Resources\Http\Middleware\ResolveTenant;
-use Inlay\Resources\Routing\ResourceRegistrar;
-use Inlay\Resources\Pages\ViewRecord;
-use Inlay\Resources\Resource;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Inlay\Resources\Testing\ResourceTester;
 use Inlay\Panel;
 use Inlay\PanelRegistry;
-use PHPUnit\Framework\AssertionFailedError;
-use Inlay\Widgets\Stat;
-use Inlay\Widgets\StatsOverviewWidget;
-use Inlay\Widgets\WidgetResolver;
-use Inlay\Resources\Tenancy;
+use Inlay\Resources\Console\MakeResourceCommand;
+use Inlay\Resources\Exceptions\ResourceAccessDenied;
+use Inlay\Resources\GlobalSearch;
+use Inlay\Resources\Http\Controllers\GlobalSearchController;
+use Inlay\Resources\Http\Controllers\ResourceController;
+use Inlay\Resources\Http\Middleware\ResolveTenant;
+use Inlay\Resources\Pages\CreateRecord;
+use Inlay\Resources\Pages\EditRecord;
+use Inlay\Resources\Pages\ListRecords;
+use Inlay\Resources\Pages\ManageRelatedRecords;
+use Inlay\Resources\Pages\PageTab;
+use Inlay\Resources\Pages\ResourcePage;
+use Inlay\Resources\Pages\ViewRecord;
+use Inlay\Resources\ParentResourceRegistration;
 use Inlay\Resources\RelationGroup;
 use Inlay\Resources\RelationManager;
 use Inlay\Resources\RelationOperation;
+use Inlay\Resources\Resource;
 use Inlay\Resources\ResourceOperation;
 use Inlay\Resources\ResourceRegistry;
+use Inlay\Resources\Routing\ResourceRegistrar;
+use Inlay\Resources\Tenancy;
+use Inlay\Resources\Testing\ResourceTester;
+use Inlay\Schemas\Components\View;
 use Inlay\Schemas\Components\Wizard;
 use Inlay\Schemas\Components\WizardStep;
-use Inlay\Schemas\Components\View;
 use Inlay\Tables\Columns\TextColumn;
 use Inlay\Tables\Table;
 use Inlay\Validation\Validation;
 use Inlay\Validation\ValidationContext;
 use Inlay\Validation\ValidationRunner;
+use Inlay\Widgets\Stat;
+use Inlay\Widgets\StatsOverviewWidget;
+use Inlay\Widgets\WidgetResolver;
+use PHPUnit\Framework\AssertionFailedError;
+use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class ResourceTestValidation extends Validation
 {
@@ -855,19 +856,19 @@ it('validates relation groups while keeping the endpoint registry flat and uniqu
         ]);
 
     expect(fn () => RelationGroup::make('', [ResourceTestTagsRelationManager::class]))
-        ->toThrow(\InvalidArgumentException::class)
+        ->toThrow(InvalidArgumentException::class)
         ->and(fn () => RelationGroup::make('Empty', []))
-        ->toThrow(\InvalidArgumentException::class)
+        ->toThrow(InvalidArgumentException::class)
         ->and(fn () => RelationGroup::make('Duplicate', [
             ResourceTestTagsRelationManager::class,
             ResourceTestTagsRelationManager::class,
-        ]))->toThrow(\InvalidArgumentException::class)
-        ->and(fn () => RelationGroup::make('Invalid', [\stdClass::class]))
-        ->toThrow(\InvalidArgumentException::class)
+        ]))->toThrow(InvalidArgumentException::class)
+        ->and(fn () => RelationGroup::make('Invalid', [stdClass::class]))
+        ->toThrow(InvalidArgumentException::class)
         ->and(fn () => RelationGroup::make('Connections', [
             ResourceTestTagsRelationManager::class,
         ])->defaultRelation('notes'))
-        ->toThrow(\InvalidArgumentException::class);
+        ->toThrow(InvalidArgumentException::class);
 });
 
 it('builds owner-scoped relation managers and securely creates edits attaches and detaches records', function (): void {
@@ -935,9 +936,9 @@ it('builds owner-scoped relation managers and securely creates edits attaches an
     expect($owner->tags()->whereKey(2)->firstOrFail()->pivot->source)->toBe('imported')
         ->and($attached->source)->toBe('imported');
     expect(fn () => $manager->attachRecord(3, ['unexpected' => true]))
-        ->toThrow(\InvalidArgumentException::class);
+        ->toThrow(InvalidArgumentException::class);
     expect(fn () => ResourceTestInvalidPivotRelationManager::make($owner)->configuredAttachForm())
-        ->toThrow(\LogicException::class);
+        ->toThrow(LogicException::class);
     expect(fn () => $manager->attachRecord(3))->toThrow(ModelNotFoundException::class);
     $manager->detachRecord(2);
     expect($owner->tags()->whereKey(2)->exists())->toBeFalse();
@@ -1047,7 +1048,7 @@ it('executes relation soft-delete lifecycle actions through the hosted action bo
     $runner = new ActionRunner(
         new Container,
         $factory,
-        ResourceTestNote::getConnectionResolver() ?? throw new \LogicException('Missing database resolver.'),
+        ResourceTestNote::getConnectionResolver() ?? throw new LogicException('Missing database resolver.'),
     );
     $request = Request::create(
         '/users/1/_inlay/relations/notes?_inlay_action=delete&_inlay_action_scope=row&record=1',
@@ -1099,7 +1100,7 @@ it('tests relation manager tables forms and mutations through the fluent resourc
     $owner = ResourceTestUser::findOrFail(1);
     $owner->tags()->attach(1);
     $factory = new Factory(new Translator(new ArrayLoader, 'en'));
-    $relation = \Inlay\Resources\Testing\ResourceTester::make(
+    $relation = ResourceTester::make(
         ResourceTestUserResource::class,
         validationFactory: $factory,
         validationRunner: new ValidationRunner($factory),
@@ -1134,7 +1135,7 @@ it('tests relation manager tables forms and mutations through the fluent resourc
     expect($owner->tags()->whereKey(2)->firstOrFail()->pivot->source)->toBe('imported');
     $relation->detach(2)->assertCountTableRecords(2);
 
-    \Inlay\Resources\Testing\ResourceTester::make(
+    ResourceTester::make(
         ResourceTestUserResource::class,
         validationFactory: $factory,
         validationRunner: new ValidationRunner($factory),
@@ -1346,7 +1347,7 @@ it('serves deferred views through the authorized resource display route', functi
         new Factory(new Translator(new ArrayLoader, 'en')),
     );
 
-    expect($response)->toBeInstanceOf(\Illuminate\Http\JsonResponse::class)
+    expect($response)->toBeInstanceOf(JsonResponse::class)
         ->and($response->getData(true))->toBe([
             'contract' => 'inlay.schemas.deferred-view.v1',
             'view' => 'acme/resource-summary',
@@ -1410,7 +1411,7 @@ it('mounts resource table action forms and serves their sub-transports', functio
     $runner = new ActionRunner(
         $container,
         $factory,
-        ResourceTestUser::getConnectionResolver() ?? throw new \LogicException('Missing database resolver.'),
+        ResourceTestUser::getConnectionResolver() ?? throw new LogicException('Missing database resolver.'),
         new FormActionResolver($factory, $container),
     );
     $base = '/users?table=users&_inlay_action=rename&_inlay_action_scope=row&record=1';
@@ -1466,7 +1467,7 @@ it('serves resource action form option searches through the authorized display r
     $container->instance(ActionRunner::class, new ActionRunner(
         $container,
         $factory,
-        ResourceTestUser::getConnectionResolver() ?? throw new \LogicException('Missing database resolver.'),
+        ResourceTestUser::getConnectionResolver() ?? throw new LogicException('Missing database resolver.'),
         new FormActionResolver($factory, $container),
     ));
 
@@ -1616,7 +1617,7 @@ function inlayResourceGenerator(): array
     $command->setLaravel($app);
     $console = new ConsoleApplication;
     $console->setAutoExit(false);
-    $console->add($command);
+    $console->addCommand($command);
 
     return [
         'run' => fn (array $input): int => $console->run(
@@ -1830,7 +1831,7 @@ final class TenantProjectResource extends Resource
     /** @param array<string, mixed> $data */
     public static function storeRecord(array $data): Model
     {
-        return static::handleRecordCreation($data);
+        return self::handleRecordCreation($data);
     }
 }
 
@@ -2195,7 +2196,7 @@ final class SearchableUserResource extends Resource
 
     protected static function canAccess(ResourceOperation $operation, ?Model $record, mixed $user): bool
     {
-        return static::$allowed;
+        return self::$allowed;
     }
 }
 

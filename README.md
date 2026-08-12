@@ -150,25 +150,35 @@ The monorepo keeps PHP builders and their React/Vue adapters near each other so 
 
 ## Installation
 
-For the clean first-party administration framework, install the root package and one frontend renderer:
+Install the complete administration framework with two commands:
 
 ```bash
-composer require inlayphp/inlay
-pnpm add @inlayphp/panels-react
+composer require inlayphp/inlay:"^0.3"
+php artisan inlay:install --panels
 ```
 
-Scaffold the first panel provider and register it in `config/inlay-panels.php`:
+The installer creates and registers `AdminPanelProvider`, enables the default
+theme, authentication and account settings, generates a working User Resource,
+bundles the Media Manager, publishes its migrations, redirects guests to the
+panel login, and scaffolds the official React pages. It detects npm, pnpm, Yarn,
+or Bun and installs the required renderer packages. Run the normal migration
+and frontend build commands used by the application, then open `/admin`.
 
 ```bash
-php artisan inlay:install
+php artisan migrate
+php artisan inlay:make-user
+npm run build
 ```
 
-The installer creates `app/Providers/Inlay/AdminPanelProvider.php`, keeps an
-existing panel configuration intact, and prints the renderer-specific next
-step. Use `--renderer=vue` for Vue, `--renderer=none` for a custom renderer,
-`--panel=reports` for another panel id, or `--no-panel` when only the config
-registration is needed. It never adds application Resources or permission and
-media plugins automatically.
+`inlay:make-user` uses hidden password and confirmation prompts. Its `--name`,
+`--email`, and `--password` options are available for controlled automation, but
+putting passwords directly in shell history is not recommended.
+
+Use `--panel=reports` for another panel id, `--without-media` or
+`--without-users` for a smaller preset, `--no-npm` when CI manages frontend
+installation separately, and `--force` to replace generated application files.
+React is the turnkey renderer today. Vue remains available through its official
+adapters and will receive the same installer preset next.
 
 For a tenant-aware starter panel, provide the Eloquent tenant model while
 installing. The generated provider imports the model and calls `tenant()` for
@@ -187,7 +197,10 @@ This generates routes such as `/{team}/workspace` and keeps the tenant
 configuration in application-owned PHP, where it can be reviewed and extended.
 Omit `--tenant-route-key` to use the model's normal Laravel route key.
 
-Vue applications can install `@inlayphp/panels-vue` instead. The root package is the recommended all-in-one installation. It deliberately does not install roles, database permissions, media management, Spatie adapters, or imports. Applications opt into those capabilities explicitly.
+The root package is the recommended all-in-one installation and includes the
+storage-neutral media catalog and Media Manager. Roles, database permissions,
+Spatie adapters, imports, two-factor authentication, and CMS features remain
+separate plugins so a default panel stays understandable.
 
 Install only the features an application uses. A Form and Table application typically needs:
 

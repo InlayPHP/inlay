@@ -1025,7 +1025,7 @@ it('generates application-owned rich content blocks without overwriting by defau
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->add($command);
+        $console->addCommand($command);
 
         $status = $console->run(new ArrayInput([
             'command' => 'make:inlay-rich-content-block',
@@ -2639,7 +2639,7 @@ it('recomputes computed fields inside each selected Builder block', function ():
             Block::make('article')->schema([
                 TextInput::make('title'),
                 TextInput::make('slug')->computed(
-                    static fn (\Inlay\Forms\Support\Get $get): string => strtolower(str_replace(' ', '-', (string) $get('title'))),
+                    static fn (Get $get): string => strtolower(str_replace(' ', '-', (string) $get('title'))),
                 ),
             ]),
         ]),
@@ -2903,7 +2903,7 @@ it('generates a standalone form page with its route hint', function (): void {
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->add($command);
+        $console->addCommand($command);
         $output = new BufferedOutput;
 
         $status = $console->run(new ArrayInput([
@@ -3184,7 +3184,7 @@ it('generates a reusable schema fragment', function (): void {
         $console->setAutoExit(false);
         $command = new MakeSchemaCommand($files);
         $command->setLaravel($app);
-        $console->add($command);
+        $console->addCommand($command);
         $output = new BufferedOutput;
 
         $status = $console->run(new ArrayInput([
@@ -3668,7 +3668,7 @@ it('scaffolds a community schema view package for PHP, React, and Vue', function
         $console->setAutoExit(false);
         $command = new MakeSchemaPackageCommand($files);
         $command->setLaravel($app);
-        $console->add($command);
+        $console->addCommand($command);
 
         $status = $console->run(new ArrayInput([
             'command' => 'make:inlay-schema-package',
