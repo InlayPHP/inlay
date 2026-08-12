@@ -70,6 +70,15 @@ it('keeps every Composer package on the PHP 8.3 and Laravel 12 platform floor', 
     expect($violations)->toBe([], 'Package platform constraints must remain aligned with the supported Laravel baseline.');
 });
 
+it('keeps the media asset uniqueness key within MySQL index limits', function (): void {
+    $migration = file_get_contents(__DIR__.'/../packages/media/database/migrations/2026_01_01_000000_create_inlay_media_tables.php');
+
+    expect($migration)
+        ->toContain('$table->string(\'disk\', 50);')
+        ->toContain('$table->string(\'path\', 500);')
+        ->not->toContain('$table->string(\'path\', 1024);');
+});
+
 it('coordinates every public non-CMS package on the 0.3 release line', function (): void {
     $composerManifests = array_merge(
         [__DIR__.'/../composer.json'],

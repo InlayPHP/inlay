@@ -22,8 +22,10 @@ return new class extends Migration
         Schema::create('inlay_media_assets', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('folder_id')->nullable()->constrained('inlay_media_folders')->nullOnDelete();
-            $table->string('disk');
-            $table->string('path', 1024);
+            // Keep the composite unique key within MySQL's 3072-byte limit
+            // under utf8mb4 while leaving room for normal object-storage keys.
+            $table->string('disk', 50);
+            $table->string('path', 500);
             $table->string('file_name');
             $table->string('mime_type', 191);
             $table->string('extension', 32);

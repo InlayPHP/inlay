@@ -35,6 +35,10 @@ php artisan vendor:publish --tag=inlay-media-migrations
 php artisan migrate
 ```
 
+The published asset migration uses 50-character disk names and 500-character
+object paths so the composite uniqueness key remains valid on MySQL with
+`utf8mb4`, including Laravel Cloud's default database configuration.
+
 That is the complete clean-core installation. No panel plugin registration or JavaScript package is required for service-level use. Laravel package discovery registers `MediaServiceProvider`; applications which disable discovery may register `Inlay\Media\MediaServiceProvider` manually.
 
 Laravel discovers `Inlay\Media\MediaServiceProvider`. Publish configuration only when the defaults need changing:
