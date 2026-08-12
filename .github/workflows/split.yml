@@ -81,7 +81,7 @@ jobs:
                       split_repository: 'widgets'
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
               with:
                   # splitsh-lite replays history, so a shallow clone produces a
                   # mirror with none of it.
