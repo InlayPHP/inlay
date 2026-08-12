@@ -10,7 +10,7 @@
     "paths": {
       "@/layouts/inlay-panel-layout": ["./inlay-panel-layout.tsx"],
       "@inertiajs/react": [
-        "../../demo/node_modules/@inertiajs/react/types/index.d.ts"
+        "../../packages/panel/react/node_modules/@inertiajs/react/types/index.d.ts"
       ],
       "@inlayphp/forms-react": ["../../packages/form/react/dist/index.d.ts"],
       "@inlayphp/media-manager-react": [
@@ -23,16 +23,16 @@
       "@inlayphp/tables-react": ["../../packages/table/react/dist/index.d.ts"],
       "@inlayphp/theme": ["../../packages/theme/frontend/dist/index.d.ts"],
       "@inlayphp/ui-react": ["../../packages/ui/react/dist/index.d.ts"],
-      "react": ["../../demo/node_modules/@types/react/index.d.ts"],
+      "react": ["../../node_modules/@types/react/index.d.ts"],
       "react/jsx-runtime": [
-        "../../demo/node_modules/@types/react/jsx-runtime.d.ts"
+        "../../node_modules/@types/react/jsx-runtime.d.ts"
       ],
-      "*": ["../../demo/node_modules/*", "../../node_modules/*"]
+      "*": ["../../node_modules/*"]
     },
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022",
-    "typeRoots": ["../../demo/node_modules/@types"],
+    "typeRoots": ["../../node_modules/@types"],
     "types": ["react", "react-dom"]
   },
   "include": ["./*.tsx"]
