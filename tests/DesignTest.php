@@ -10,6 +10,7 @@ use Inlay\Theme\Theme;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Tests\Fixtures\ConsoleCommandRegistrar;
 
 it('provides one PHP façade for presets, variables, and CSS output', function (): void {
     $theme = Design::default()->named('brand')->tokens([
@@ -64,7 +65,7 @@ it('generates an application theme class and CSS file without overwriting by def
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->addCommand($command);
+        ConsoleCommandRegistrar::add($console, $command);
 
         $status = $console->run(new ArrayInput([
             'command' => 'make:inlay-theme',
@@ -124,7 +125,7 @@ it('rejects traversal in generated theme paths', function (): void {
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->addCommand($command);
+        ConsoleCommandRegistrar::add($console, $command);
 
         $status = $console->run(new ArrayInput([
             'command' => 'make:inlay-theme',

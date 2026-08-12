@@ -81,6 +81,7 @@ use Inlay\Tables\TablePage;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Tests\Fixtures\ConsoleCommandRegistrar;
 
 final class TableQueryAuthor extends Model
 {
@@ -3088,7 +3089,7 @@ it('generates a standalone table page with its route hint', function (): void {
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->addCommand($command);
+        ConsoleCommandRegistrar::add($console, $command);
         $output = new BufferedOutput;
 
         $status = $console->run(new ArrayInput([

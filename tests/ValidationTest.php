@@ -18,6 +18,7 @@ use Inlay\Validation\ValidationServiceProvider;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Tests\Fixtures\ConsoleCommandRegistrar;
 
 function makeValidationRunner(?Container $container = null): ValidationRunner
 {
@@ -75,7 +76,7 @@ it('generates application-owned validation classes without overwriting by defaul
         $command->setLaravel($app);
         $console = new ConsoleApplication;
         $console->setAutoExit(false);
-        $console->addCommand($command);
+        ConsoleCommandRegistrar::add($console, $command);
         $output = new BufferedOutput;
 
         $status = $console->run(new ArrayInput([

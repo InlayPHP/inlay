@@ -19,6 +19,7 @@ use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
+use Tests\Fixtures\ConsoleCommandRegistrar;
 
 function runInlayInstall(string $root, array $arguments = []): int
 {
@@ -35,7 +36,7 @@ function runInlayInstall(string $root, array $arguments = []): int
     $command->setLaravel($app);
     $console = new ConsoleApplication;
     $console->setAutoExit(false);
-    $console->addCommand($command);
+    ConsoleCommandRegistrar::add($console, $command);
 
     return $console->run(new ArrayInput(['command' => 'inlay:install', ...$arguments]), new BufferedOutput);
 }
@@ -156,7 +157,7 @@ it('creates the first panel user without shipping default credentials', function
     $command->setLaravel($app);
     $console = new ConsoleApplication;
     $console->setAutoExit(false);
-    $console->addCommand($command);
+    ConsoleCommandRegistrar::add($console, $command);
 
     $status = $console->run(new ArrayInput([
         'command' => 'inlay:make-user',

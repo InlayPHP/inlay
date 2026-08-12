@@ -87,6 +87,7 @@ use PHPUnit\Framework\AssertionFailedError;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Tests\Fixtures\ConsoleCommandRegistrar;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class ResourceTestValidation extends Validation
@@ -1617,7 +1618,7 @@ function inlayResourceGenerator(): array
     $command->setLaravel($app);
     $console = new ConsoleApplication;
     $console->setAutoExit(false);
-    $console->addCommand($command);
+    ConsoleCommandRegistrar::add($console, $command);
 
     return [
         'run' => fn (array $input): int => $console->run(
