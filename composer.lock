@@ -1136,13 +1136,13 @@
             "dist": {
                 "type": "path",
                 "url": "packages/actions",
-                "reference": "1c6a3e4349c03b4c180fbf15eec34940abfe9490"
+                "reference": "9056152813c3274894bcba4c0f7070dd72fb3b6f"
             },
             "require": {
-                "illuminate/container": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/validation": "^12.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/validation": "^12.0 || ^13.0",
                 "inlayphp/support": "^0.2 || dev-main",
                 "php": "^8.3"
             },
@@ -1174,12 +1174,12 @@
             "dist": {
                 "type": "path",
                 "url": "packages/authorization",
-                "reference": "027d08ff90d38bc9b7ad0120cc6a523b5f86cf14"
+                "reference": "9502c1ced8c572b2a265e20a075e9f71451d08d2"
             },
             "require": {
-                "illuminate/auth": "^12.0",
-                "illuminate/contracts": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/auth": "^12.0 || ^13.0",
+                "illuminate/contracts": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "php": "^8.3"
             },
             "type": "library",
@@ -1236,11 +1236,11 @@
             "dist": {
                 "type": "path",
                 "url": "packages/design",
-                "reference": "554594ce31a04e1f2cefc7f5649aa7fe5ca5907e"
+                "reference": "612d826d1e48e8eb9619f624d8d9134717886c27"
             },
             "require": {
-                "illuminate/console": "^12.0",
-                "illuminate/filesystem": "^12.0",
+                "illuminate/console": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
                 "inlayphp/theme": "dev-main",
                 "php": "^8.3"
             },
@@ -1272,16 +1272,16 @@
             "dist": {
                 "type": "path",
                 "url": "packages/form",
-                "reference": "2945c1a96bcd50c554206325efe351decce8418b"
+                "reference": "283b2303c50bf3a1f9266a4df004602d97f485d4"
             },
             "require": {
-                "illuminate/container": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/filesystem": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/routing": "^12.0",
-                "illuminate/support": "^12.0",
-                "illuminate/validation": "^12.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/routing": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
+                "illuminate/validation": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/actions": "^0.3 || dev-main",
                 "inlayphp/schemas": "dev-main",
@@ -1321,11 +1321,11 @@
             "dist": {
                 "type": "path",
                 "url": "packages/infolist",
-                "reference": "e56265f99c23528f1d719175bb92d26a9fb6425e"
+                "reference": "92f20f98bfb3e979e41e2ff65f770bfceca477fb"
             },
             "require": {
-                "illuminate/contracts": "^12.0",
-                "illuminate/database": "^12.0",
+                "illuminate/contracts": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
                 "inlayphp/schemas": "dev-main",
                 "inlayphp/support": "dev-main",
                 "php": "^8.3"
@@ -1354,12 +1354,12 @@
             "dist": {
                 "type": "path",
                 "url": "packages/notifications",
-                "reference": "be9f24c7663708b5dd0456fb08017fd6b061ac6c"
+                "reference": "57bb8a911a91a4e68922e5c5bbbe930b8425e4bc"
             },
             "require": {
-                "illuminate/container": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "inlayphp/support": "dev-main",
                 "php": "^8.3"
             },
@@ -1391,16 +1391,16 @@
             "dist": {
                 "type": "path",
                 "url": "packages/panel",
-                "reference": "f53fb388e91a7c5519de211f9e034903430022fc"
+                "reference": "51216edc891fbe987220ed3b11911442de892d63"
             },
             "require": {
-                "illuminate/auth": "^12.0",
-                "illuminate/container": "^12.0",
-                "illuminate/hashing": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/routing": "^12.0",
-                "illuminate/support": "^12.0",
-                "illuminate/validation": "^12.0",
+                "illuminate/auth": "^12.0 || ^13.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/hashing": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/routing": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
+                "illuminate/validation": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/authorization": "dev-main",
                 "inlayphp/core": "dev-main",
@@ -1442,16 +1442,16 @@
             "dist": {
                 "type": "path",
                 "url": "packages/resources",
-                "reference": "9129e6fe9ef03e7a897edaa96151387f614ed8f1"
+                "reference": "13dc098bf65eb538c72668691e5464adc5ed5d74"
             },
             "require": {
-                "illuminate/console": "^12.0",
-                "illuminate/container": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/filesystem": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/routing": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/console": "^12.0 || ^13.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/routing": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/actions": "dev-main",
                 "inlayphp/authorization": "dev-main",
@@ -1494,11 +1494,11 @@
             "dist": {
                 "type": "path",
                 "url": "packages/schemas",
-                "reference": "98642a088532cc63c133f728c05704e145d44cf6"
+                "reference": "bbf77d654eea6a9ae8d9636576f7eab72fb394cb"
             },
             "require": {
-                "illuminate/container": "^12.0",
-                "illuminate/contracts": "^12.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/contracts": "^12.0 || ^13.0",
                 "inlayphp/actions": "^0.3 || dev-main",
                 "inlayphp/support": "dev-main",
                 "league/commonmark": "^2.8",
@@ -1555,15 +1555,15 @@
             "dist": {
                 "type": "path",
                 "url": "packages/table",
-                "reference": "29834b2f4d5a97276adce101a93c8f4b98ff2493"
+                "reference": "07114390d02a25b1923ac3a01318d02120d415c0"
             },
             "require": {
-                "illuminate/container": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/pagination": "^12.0",
-                "illuminate/routing": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/pagination": "^12.0 || ^13.0",
+                "illuminate/routing": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/actions": "dev-main",
                 "inlayphp/schemas": "dev-main",
@@ -1627,15 +1627,15 @@
             "dist": {
                 "type": "path",
                 "url": "packages/validation",
-                "reference": "85a6e9e8a6f14b1c1bb163ed51b3778c1934373b"
+                "reference": "65601d2db1a7923f365156d8bbe8ef5fe026a240"
             },
             "require": {
-                "illuminate/console": "^12.0",
-                "illuminate/container": "^12.0",
-                "illuminate/contracts": "^12.0",
-                "illuminate/filesystem": "^12.0",
-                "illuminate/support": "^12.0",
-                "illuminate/validation": "^12.0",
+                "illuminate/console": "^12.0 || ^13.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/contracts": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
+                "illuminate/validation": "^12.0 || ^13.0",
                 "php": "^8.3"
             },
             "type": "library",
@@ -1666,11 +1666,11 @@
             "dist": {
                 "type": "path",
                 "url": "packages/widgets",
-                "reference": "289bbfe70444a85a59fc35e8952b99348aa216fc"
+                "reference": "b7017ec89d521f5ed6ed22b9cd43c41d263d0821"
             },
             "require": {
-                "illuminate/contracts": "^12.0",
-                "illuminate/http": "^12.0",
+                "illuminate/contracts": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
                 "inlayphp/actions": "dev-main",
                 "inlayphp/support": "dev-main",
                 "inlayphp/tables": "dev-main",
@@ -7085,14 +7085,14 @@
             "dist": {
                 "type": "path",
                 "url": "packages/authorization-spatie",
-                "reference": "afcf923c0513c72c22f2590be6a5fedab4cb426b"
+                "reference": "482da2f38252a8e9e37e56c7012a54368c026cd7"
             },
             "require": {
-                "illuminate/auth": "^12.0",
-                "illuminate/console": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/auth": "^12.0 || ^13.0",
+                "illuminate/console": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "inlayphp/authorization": "dev-main",
                 "php": "^8.3",
                 "spatie/laravel-permission": "^6.0 || ^7.0 || ^8.0"
@@ -7152,15 +7152,15 @@
             "dist": {
                 "type": "path",
                 "url": "packages/media",
-                "reference": "79809869568d200253d4a926e89fb6750a6f39a2"
+                "reference": "a64a6668cd43ee791774761caa7e0755a3cb6547"
             },
             "require": {
-                "illuminate/config": "^12.0",
-                "illuminate/contracts": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/filesystem": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/config": "^12.0 || ^13.0",
+                "illuminate/contracts": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "php": "^8.3"
             },
             "type": "library",
@@ -7191,16 +7191,16 @@
             "dist": {
                 "type": "path",
                 "url": "packages/media-manager",
-                "reference": "f4fb3a0303cf1d29271cde9280b5c3d898bc059d"
+                "reference": "1bda1b4cf1a5bcc0814baa6ebc8a593d0e8c8483"
             },
             "require": {
-                "illuminate/auth": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/filesystem": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/routing": "^12.0",
-                "illuminate/support": "^12.0",
-                "illuminate/validation": "^12.0",
+                "illuminate/auth": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/routing": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
+                "illuminate/validation": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/actions": "dev-main",
                 "inlayphp/authorization": "dev-main",
@@ -7236,13 +7236,13 @@
             "dist": {
                 "type": "path",
                 "url": "packages/media-spatie",
-                "reference": "feb403f0e5e0ca340ee359e599b73c95b8ebb70c"
+                "reference": "afbdae0ce5098d5f44713776542308b9ae9dc04f"
             },
             "require": {
-                "illuminate/config": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/filesystem": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/config": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/filesystem": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "inlayphp/media": "dev-main",
                 "php": "^8.3",
                 "spatie/laravel-medialibrary": "^11.23.2"
@@ -7275,13 +7275,13 @@
             "dist": {
                 "type": "path",
                 "url": "packages/permission-manager",
-                "reference": "dbd91bbb7ea353c406105481ad12916212504141"
+                "reference": "a7b6b8d7278b8c62d525725d823d4547ec6acd7d"
             },
             "require": {
-                "illuminate/database": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/support": "^12.0",
-                "illuminate/validation": "^12.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
+                "illuminate/validation": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/actions": "dev-main",
                 "inlayphp/authorization": "dev-main",
@@ -7363,14 +7363,14 @@
             "dist": {
                 "type": "path",
                 "url": "packages/two-factor-authentication",
-                "reference": "5c8de26b320054bfd3e915872be30260ec115a1e"
+                "reference": "d69db5bdd056bf7561613379b8fc795b752cb19d"
             },
             "require": {
-                "illuminate/auth": "^12.0",
-                "illuminate/container": "^12.0",
-                "illuminate/database": "^12.0",
-                "illuminate/http": "^12.0",
-                "illuminate/support": "^12.0",
+                "illuminate/auth": "^12.0 || ^13.0",
+                "illuminate/container": "^12.0 || ^13.0",
+                "illuminate/database": "^12.0 || ^13.0",
+                "illuminate/http": "^12.0 || ^13.0",
+                "illuminate/support": "^12.0 || ^13.0",
                 "inertiajs/inertia-laravel": "^3.0",
                 "inlayphp/forms": "dev-main",
                 "inlayphp/panels": "dev-main",

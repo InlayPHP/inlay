@@ -5,11 +5,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "illuminate/auth": "^12.0",
-        "illuminate/container": "^12.0",
-        "illuminate/database": "^12.0",
-        "illuminate/http": "^12.0",
-        "illuminate/support": "^12.0",
+        "illuminate/auth": "^12.0 || ^13.0",
+        "illuminate/container": "^12.0 || ^13.0",
+        "illuminate/database": "^12.0 || ^13.0",
+        "illuminate/http": "^12.0 || ^13.0",
+        "illuminate/support": "^12.0 || ^13.0",
         "inertiajs/inertia-laravel": "^3.0",
         "inlayphp/forms": "dev-main",
         "inlayphp/panels": "dev-main"
