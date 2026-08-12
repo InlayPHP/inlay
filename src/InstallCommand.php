@@ -646,6 +646,10 @@ final class UserResource extends Resource
         return \$operation !== ResourceOperation::Delete || ! \$record?->is(\$user);
     }
 
+    /**
+     * @param  array<string, mixed>  \$data
+     * @return array<string, mixed>
+     */
     protected static function mutateDataBeforeUpdate(array \$data, Model \$record): array
     {
         if ((\$data['password'] ?? '') === '') {

@@ -95,6 +95,9 @@ PHP);
             ->toContain('App\\Providers\\Inlay\\AdminPanelProvider::class');
 
         expect($files->exists($root.'/app/Inlay/Resources/UserResource.php'))->toBeTrue()
+            ->and($files->get($root.'/app/Inlay/Resources/UserResource.php'))
+            ->toContain('@param  array<string, mixed>  $data')
+            ->toContain('@return array<string, mixed>')
             ->and($files->exists($root.'/app/Validation/UserRules.php'))->toBeTrue()
             ->and($files->exists($root.'/database/migrations/2026_01_01_000000_create_inlay_media_tables.php'))->toBeTrue()
             ->and($files->exists($root.'/database/migrations/2026_08_02_010000_create_inlay_media_collections.php'))->toBeTrue()
