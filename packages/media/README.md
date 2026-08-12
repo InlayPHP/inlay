@@ -38,6 +38,9 @@ php artisan migrate
 The published asset migration uses 50-character disk names and 500-character
 object paths so the composite uniqueness key remains valid on MySQL with
 `utf8mb4`, including Laravel Cloud's default database configuration.
+The folder and asset table creation is guarded with `Schema::hasTable()` so a
+deployment can safely finish a migration that created the folder table before
+the migration record was written.
 
 That is the complete clean-core installation. No panel plugin registration or JavaScript package is required for service-level use. Laravel package discovery registers `MediaServiceProvider`; applications which disable discovery may register `Inlay\Media\MediaServiceProvider` manually.
 

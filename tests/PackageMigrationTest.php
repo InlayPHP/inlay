@@ -74,6 +74,8 @@ it('keeps the media asset uniqueness key within MySQL index limits', function ()
     $migration = file_get_contents(__DIR__.'/../packages/media/database/migrations/2026_01_01_000000_create_inlay_media_tables.php');
 
     expect($migration)
+        ->toContain("if (! Schema::hasTable('inlay_media_folders'))")
+        ->toContain("if (! Schema::hasTable('inlay_media_assets'))")
         ->toContain('$table->string(\'disk\', 50);')
         ->toContain('$table->string(\'path\', 500);')
         ->not->toContain('$table->string(\'path\', 1024);');
