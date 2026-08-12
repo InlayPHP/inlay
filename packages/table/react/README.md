@@ -131,9 +131,7 @@ showing server validation errors inline.
 Tailwind CSS 4 projects may need:
 
 ```css
-@source '../../vendor/inlayphp/tables/react/src/**/*.{ts,tsx}';
-@source '../../vendor/inlayphp/actions/react/src/**/*.{ts,tsx}';
-@source '../../node_modules/@inlayphp/ui/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Contract and exports

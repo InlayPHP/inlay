@@ -110,8 +110,7 @@ Theme values become inherited `--inlay-*` variables and otherwise fall back to p
 With Tailwind CSS 4, include the adapter source if package utilities are not discovered automatically:
 
 ```css
-@source '../../vendor/inlayphp/forms/vue/src/**/*.{vue,ts}';
-@source '../../node_modules/@inlayphp/ui/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Test, typecheck and build

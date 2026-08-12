@@ -72,7 +72,7 @@ Both controls accept `className`; `ActionButton` also accepts all standard butto
 With Tailwind CSS 4, include the package source when it is outside automatic detection:
 
 ```css
-@source '../../node_modules/@inlayphp/actions-react/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Development

@@ -13,6 +13,7 @@ use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
 use Illuminate\Validation\DatabasePresenceVerifier;
 use Illuminate\Validation\Factory as ValidatorFactory;
+use Inlay\Installer\DoctorCommand;
 use Inlay\Installer\InstallCommand;
 use Inlay\Installer\MakeUserCommand;
 use Symfony\Component\Console\Application as ConsoleApplication;
@@ -39,6 +40,24 @@ function runInlayInstall(string $root, array $arguments = []): int
     ConsoleCommandRegistrar::add($console, $command);
 
     return $console->run(new ArrayInput(['command' => 'inlay:install', ...$arguments]), new BufferedOutput);
+}
+
+/** @return array{int, string} */
+function runInlayDoctor(string $root, array $arguments = []): array
+{
+    $files = new Filesystem;
+    $app = new Application($root);
+    $app->useAppPath($root.'/app');
+
+    $command = new DoctorCommand($files);
+    $command->setLaravel($app);
+    $console = new ConsoleApplication;
+    $console->setAutoExit(false);
+    ConsoleCommandRegistrar::add($console, $command);
+    $output = new BufferedOutput;
+    $status = $console->run(new ArrayInput(['command' => 'inlay:doctor', ...$arguments]), $output);
+
+    return [$status, $output->fetch()];
 }
 
 final class InstallerCommandUser extends Model
@@ -107,7 +126,7 @@ PHP);
             ->and($files->get($root.'/bootstrap/app.php'))
             ->toContain("route('inlay.admin.login')")
             ->and($files->get($root.'/resources/css/app.css'))
-            ->toContain("@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx}';")
+            ->toContain("@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';")
             ->and($files->exists($root.'/resources/js/pages/inlay/auth/login.tsx'))->toBeTrue()
             ->and($files->exists($root.'/resources/js/pages/users/index.tsx'))->toBeTrue();
 
@@ -127,10 +146,85 @@ PHP);
             expect($lint->isSuccessful())->toBeTrue($lint->getErrorOutput().$lint->getOutput());
         }
 
-        expect(runInlayInstall($root, ['--no-npm' => true]))->toBe(1);
+        $files->append($root.'/app/Inlay/Resources/UserResource.php', "\n// application customization\n");
+        expect(runInlayInstall($root, ['--no-npm' => true]))->toBe(0)
+            ->and($files->get($root.'/app/Inlay/Resources/UserResource.php'))
+            ->toContain('// application customization');
         expect(runInlayInstall($root, ['--force' => true, '--renderer' => 'vue', '--no-npm' => true]))->toBe(0)
             ->and($files->get($root.'/app/Providers/Inlay/AdminPanelProvider.php'))
             ->toContain("->renderComponent('InlayPanelLayout')");
+    } finally {
+        $files->deleteDirectory($root);
+    }
+});
+
+it('fails before writing panel files when the React frontend is incomplete', function (): void {
+    $files = new Filesystem;
+    $root = sys_get_temp_dir().'/inlay-install-preflight-'.bin2hex(random_bytes(6));
+
+    try {
+        $files->ensureDirectoryExists($root.'/app');
+        $files->put($root.'/package.json', json_encode(['private' => true], JSON_THROW_ON_ERROR));
+
+        expect(runInlayInstall($root, ['--no-npm' => true]))->toBe(1)
+            ->and($files->exists($root.'/app/Providers/Inlay/AdminPanelProvider.php'))->toBeFalse()
+            ->and($files->exists($root.'/config/inlay-panels.php'))->toBeFalse();
+    } finally {
+        $files->deleteDirectory($root);
+    }
+});
+
+it('diagnoses the panel installation and compiled Inlay CSS', function (): void {
+    $files = new Filesystem;
+    $root = sys_get_temp_dir().'/inlay-doctor-'.bin2hex(random_bytes(6));
+
+    try {
+        $files->ensureDirectoryExists($root.'/app/Providers/Inlay');
+        $files->ensureDirectoryExists($root.'/app/Models');
+        $files->ensureDirectoryExists($root.'/app/Inlay/Resources');
+        $files->ensureDirectoryExists($root.'/config');
+        $files->ensureDirectoryExists($root.'/resources/css');
+        $files->ensureDirectoryExists($root.'/database/migrations');
+        $files->ensureDirectoryExists($root.'/public/build/assets');
+        $files->put($root.'/config/inlay-panels.php', "<?php return ['providers' => [App\\Providers\\Inlay\\AdminPanelProvider::class]];\n");
+        $files->put($root.'/app/Providers/Inlay/AdminPanelProvider.php', <<<'PHP'
+<?php
+final class AdminPanelProvider extends PanelProvider
+{
+    // UserResource::class MediaManagerPlugin
+}
+PHP);
+        $files->put($root.'/app/Models/User.php', '<?php class User implements PanelAccount {}');
+        $files->put($root.'/app/Inlay/Resources/UserResource.php', '<?php');
+        $files->put($root.'/database/migrations/2026_01_01_000000_create_inlay_media_tables.php', '<?php');
+        $files->put($root.'/database/migrations/2026_08_02_010000_create_inlay_media_collections.php', '<?php');
+        $files->put($root.'/package.json', json_encode([
+            'dependencies' => ['@inlayphp/panels-react' => '^0.3.0'],
+        ], JSON_THROW_ON_ERROR));
+        $files->put($root.'/resources/css/app.css', "@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';\n");
+        $files->put($root.'/public/build/manifest.json', json_encode([
+            'resources/css/app.css' => ['file' => 'assets/app.css'],
+        ], JSON_THROW_ON_ERROR));
+        $files->put($root.'/public/build/assets/app.css', '.text-\\(--inlay-text\\){}.ring-\\(--inlay-border\\){}.min-h-\\(--inlay-control-height\\){}');
+
+        [$status, $output] = runInlayDoctor($root, ['--production' => true]);
+        expect($status)->toBe(0)
+            ->and($output)->toContain('Inlay is ready.')
+            ->toContain('Compiled production assets contain Inlay utilities');
+
+        $files->put($root.'/public/build/manifest.json', json_encode([
+            'resources/js/app.tsx' => [
+                'file' => 'assets/app.js',
+                'css' => ['assets/app.css'],
+            ],
+        ], JSON_THROW_ON_ERROR));
+        [$scriptEntryStatus] = runInlayDoctor($root, ['--production' => true]);
+        expect($scriptEntryStatus)->toBe(0);
+
+        $files->put($root.'/public/build/assets/app.css', '/* missing package utilities */');
+        [$brokenStatus, $brokenOutput] = runInlayDoctor($root, ['--production' => true]);
+        expect($brokenStatus)->toBe(1)
+            ->and($brokenOutput)->toContain('Inlay doctor found 1 problem(s).');
     } finally {
         $files->deleteDirectory($root);
     }
@@ -207,6 +301,7 @@ it('scaffolds a tenant-aware panel provider when a tenant model is supplied', fu
             '--tenant-model' => 'App\\Models\\Team',
             '--tenant-parameter' => 'team',
             '--tenant-route-key' => 'slug',
+            '--renderer' => 'none',
         ]))->toBe(0);
 
         expect($files->get($root.'/app/Providers/Inlay/WorkspacePanelProvider.php'))

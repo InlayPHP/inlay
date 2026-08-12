@@ -147,7 +147,12 @@ The picker renders an accessible dialog surface, supports controlled or internal
 
 `theme` controls accent, radius, surface, muted surface, text, muted text, border, and danger tokens. `classNames` targets `root`, `header`, `toolbar`, `sidebar`, `breadcrumbs`, `content`, `grid`, `card`, `list`, `drawer`, `dropzone`, and `empty`. Stable `data-slot` attributes allow narrowly scoped CSS. `renderPreview` replaces preview rendering without changing selection semantics.
 
-The package ships Tailwind utility markup, not compiled CSS. With Tailwind v4, add an `@source` entry for `node_modules/@inlayphp/media-manager-react/src` using the correct path from the application stylesheet.
+The package ships Tailwind utility markup, not compiled CSS. With Tailwind v4,
+scan all installed Inlay renderers from the application stylesheet:
+
+```css
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
+```
 
 ## Security and verification
 

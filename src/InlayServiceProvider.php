@@ -12,6 +12,7 @@ final class InlayServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                DoctorCommand::class,
                 InstallCommand::class,
                 MakeUserCommand::class,
             ]);

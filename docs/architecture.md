@@ -35,7 +35,8 @@ packages/
     vue/         # Read-only Vue entry renderers
 ```
 
-The frontend packages should eventually be linked from `vendor/inlayphp/{support,schemas,actions,forms,infolists,tables}/{react,vue}`.
+Published frontend packages are installed from npm under `node_modules/@inlayphp`;
+the monorepo uses pnpm workspaces only while developing them together.
 
 ## Package dependencies
 

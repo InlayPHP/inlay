@@ -10,7 +10,7 @@ Include both renderer trees in the Tailwind CSS source scan when an application
 can render either adapter:
 
 ```css
-@source '../../../../packages/**/src/**/*.{ts,tsx,vue}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 @source '../js/**/*.{ts,tsx,vue}';
 
 @layer base {

@@ -93,7 +93,13 @@ Custom renderers receive `{ widget, theme }`. This is the intended extension poi
 
 `classNames` targets `root`, `grid`, `widget`, `stats`, `stat`, `chart`, and `table`. Stable hooks include `data-slot="widget-dashboard"`, `widget-grid`, `widget`, `widget-surface`, `widget-actions`, `stats-overview`, `stat`, `chart-widget`, and `widget-table`; each wrapper also has `data-widget={name}`.
 
-The package contains Tailwind utility markup, not compiled CSS. Tailwind v4 applications should add an `@source` entry for `node_modules/@inlayphp/widgets-react/src`, adjusted relative to the app stylesheet.
+The package contains Tailwind utility markup, not compiled CSS. Tailwind v4
+applications should scan all installed Inlay renderers from the application
+stylesheet:
+
+```css
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
+```
 
 ## Accessibility and security
 

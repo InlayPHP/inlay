@@ -160,15 +160,29 @@ php artisan inlay:install --panels
 The installer creates and registers `AdminPanelProvider`, enables the default
 theme, authentication and account settings, generates a working User Resource,
 bundles the Media Manager, publishes its migrations, redirects guests to the
-panel login, and scaffolds the official React pages. It detects npm, pnpm, Yarn,
-or Bun and installs the required renderer packages. Run the normal migration
-and frontend build commands used by the application, then open `/admin`.
+panel login, scaffolds the official React pages, and configures Tailwind to scan
+the installed `@inlayphp/*` npm packages. It detects npm, pnpm, Yarn, or Bun and
+installs the required renderer packages. Run the printed migration, user, and
+frontend build commands, then open `/admin`.
 
 ```bash
 php artisan migrate
 php artisan inlay:make-user
 npm run build
+php artisan inlay:doctor --production
 ```
+
+The installer writes this Tailwind CSS 4 source rule automatically. Keep it in
+the application stylesheet when deploying from a standalone repository:
+
+```css
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
+```
+
+`inlay:doctor` checks panel registration, the official renderer dependency,
+Tailwind source discovery, generated User and Media files, and compiled CSS.
+Run it without `--production` before building, or with `--production` after the
+Vite build to prove the deployed stylesheet contains Inlay utilities.
 
 `inlay:make-user` uses hidden password and confirmation prompts. Its `--name`,
 `--email`, and `--password` options are available for controlled automation, but
@@ -179,6 +193,11 @@ Use `--panel=reports` for another panel id, `--without-media` or
 installation separately, and `--force` to replace generated application files.
 React is the turnkey renderer today. Vue remains available through its official
 adapters and will receive the same installer preset next.
+
+The installer is repeatable. Running it again preserves application-owned
+providers, Resources, pages, and validation files while restoring missing
+supporting files. Use `--force` only when you intentionally want to replace the
+generated application code.
 
 For a tenant-aware starter panel, provide the Eloquent tenant model while
 installing. The generated provider imports the model and calls `tenant()` for
@@ -257,7 +276,12 @@ return $panel->plugins([
 
 Use `@inlayphp/media-manager-vue` and `@inlayphp/permission-manager-vue` for a Vue panel. Both official plugin renderers expose the same page registries and contracts as their React counterparts. Install `inlayphp/imports` with its React or Vue renderer only when an application needs import workflows.
 
-This repository currently consumes its packages through Composer and pnpm path repositories. The same package names are intended for registry distribution when the project is published.
+All public Composer packages are available from Packagist and the official
+React/Vue renderers are available from npm. The monorepo uses local workspaces
+only for development and release verification.
+
+See [Installation and deployment](docs/installation.md) for clean Laravel,
+standalone Forms/Tables, custom renderer, CI, and Laravel Cloud workflows.
 
 ## Quick start: a PHP-first Resource
 

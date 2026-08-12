@@ -89,7 +89,7 @@ Named scoped slots `upload`, `mapping`, `preview`, `progress`, and `result` repl
 ## Tailwind and development
 
 ```css
-@source '../../node_modules/@inlayphp/imports-vue/src/**/*.{ts,vue}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ```bash

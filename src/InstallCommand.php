@@ -13,7 +13,7 @@ use Symfony\Component\Process\Process;
 final class InstallCommand extends Command
 {
     protected $signature = 'inlay:install
-        {--panels : Install the complete administration panel preset}
+        {--panels : Install the complete administration panel preset (the default)}
         {--panel=admin : Panel identifier and URL segment}
         {--renderer=react : Frontend renderer hint: react, vue, or none}
         {--tenant-model= : Fully-qualified Eloquent tenant model (for example App\\Models\\Team)}
@@ -58,6 +58,10 @@ final class InstallCommand extends Command
             return self::FAILURE;
         }
 
+        if ($createPanel && $renderer === 'react' && ! $this->option('no-frontend') && ! $this->frontendPreflight()) {
+            return self::FAILURE;
+        }
+
         $appNamespace = rtrim((string) $this->laravel->getNamespace(), '\\');
         $class = Str::studly(str_replace('-', ' ', $panel)).'PanelProvider';
         $namespace = $this->providerNamespace($appNamespace, $directory);
@@ -66,27 +70,21 @@ final class InstallCommand extends Command
 
         if ($createPanel) {
             if ($this->files->exists($providerPath) && ! $this->option('force')) {
-                $this->components->error("Panel provider already exists: {$providerPath}. Use --force to overwrite it.");
-
-                return self::FAILURE;
+                $this->components->info("Panel provider already exists; keeping {$fqcn}");
+            } else {
+                $this->files->ensureDirectoryExists(dirname($providerPath));
+                $this->files->put($providerPath, $this->providerSource(
+                    $namespace,
+                    $class,
+                    $panel,
+                    $tenantModel,
+                    $tenantParameter,
+                    $tenantRouteKey ?: null,
+                    $installUsers,
+                    $installMedia,
+                ));
+                $this->components->info("Created {$fqcn}");
             }
-
-            if ($installUsers && ! $this->canScaffoldUserResource($appNamespace)) {
-                return self::FAILURE;
-            }
-
-            $this->files->ensureDirectoryExists(dirname($providerPath));
-            $this->files->put($providerPath, $this->providerSource(
-                $namespace,
-                $class,
-                $panel,
-                $tenantModel,
-                $tenantParameter,
-                $tenantRouteKey ?: null,
-                $installUsers,
-                $installMedia,
-            ));
-            $this->components->info("Created {$fqcn}");
 
             if ($installUsers && ! $this->scaffoldUserResource($appNamespace, $panel)) {
                 return self::FAILURE;
@@ -101,6 +99,10 @@ final class InstallCommand extends Command
 
             if ($renderer !== 'none' && ! $this->option('no-frontend')) {
                 $frontendReady = $this->scaffoldFrontend($renderer, $panel);
+                if (! $frontendReady && $renderer === 'react') {
+                    return self::FAILURE;
+                }
+
                 if ($frontendReady && $renderer === 'react' && ! $this->option('no-npm') && ! $this->installFrontendDependencies()) {
                     return self::FAILURE;
                 }
@@ -127,7 +129,8 @@ final class InstallCommand extends Command
         if (! $createPanel) {
             $this->line('Configuration only: no panel preset or frontend files were generated.');
         } elseif ($renderer === 'react') {
-            $this->line('Frontend: the official React packages and page wrappers are ready. Run your normal build command.');
+            $this->line('Frontend: the official React packages, page wrappers, and Tailwind source scanning are ready.');
+            $this->line('Next: php artisan migrate && php artisan inlay:make-user && '.$this->frontendBuildCommand());
         } elseif ($renderer === 'vue') {
             $this->line('Next: pnpm add @inlayphp/panels-vue and resolve the inlayPanel prop with <Panel />.');
         } else {
@@ -336,28 +339,15 @@ PHP;
         $files = $this->userResourceFiles($namespace, $panel);
 
         foreach ($files as $path => $source) {
-            $this->files->ensureDirectoryExists(dirname($path));
-            $this->files->put($path, $source);
-            $this->components->info('Created '.Str::after($path, $this->laravel->basePath().DIRECTORY_SEPARATOR));
-        }
+            if ($this->files->exists($path) && ! $this->option('force')) {
+                $this->components->info('User resource file already exists; keeping '.Str::after($path, $this->laravel->basePath().DIRECTORY_SEPARATOR));
 
-        return true;
-    }
-
-    private function canScaffoldUserResource(string $appNamespace): bool
-    {
-        if ($this->option('force')) {
-            return true;
-        }
-
-        foreach (array_keys($this->userResourceFiles(rtrim($appNamespace, '\\'), 'unused')) as $path) {
-            if (! $this->files->exists($path)) {
                 continue;
             }
 
-            $this->components->error("User resource file already exists: {$path}. Use --force to overwrite it.");
-
-            return false;
+            $this->files->ensureDirectoryExists(dirname($path));
+            $this->files->put($path, $source);
+            $this->components->info('Created '.Str::after($path, $this->laravel->basePath().DIRECTORY_SEPARATOR));
         }
 
         return true;
@@ -507,20 +497,58 @@ PHP;
             $this->components->info("Created {$relative}");
         }
 
-        $this->configureTailwindSources();
+        return $this->configureTailwindSources();
+    }
 
-        return true;
+    private function frontendPreflight(): bool
+    {
+        $missing = [];
+
+        foreach (['package.json', 'resources/css/app.css'] as $relativePath) {
+            if (! $this->files->exists($this->laravel->basePath($relativePath))) {
+                $missing[] = $relativePath;
+            }
+        }
+
+        if ($missing === []) {
+            try {
+                $package = json_decode(
+                    $this->files->get($this->laravel->basePath('package.json')),
+                    true,
+                    flags: JSON_THROW_ON_ERROR,
+                );
+            } catch (\JsonException) {
+                $this->components->error('package.json is not valid JSON. No application files were changed.');
+
+                return false;
+            }
+
+            if (! is_array($package)) {
+                $this->components->error('package.json must contain a JSON object. No application files were changed.');
+
+                return false;
+            }
+
+            if (! str_contains($this->files->get($this->laravel->basePath('resources/css/app.css')), 'tailwindcss')) {
+                $this->components->error('resources/css/app.css does not import Tailwind CSS 4. No application files were changed.');
+                $this->line('Add Tailwind CSS 4, or rerun with --no-frontend for a custom renderer.');
+
+                return false;
+            }
+
+            return true;
+        }
+
+        $this->components->error('The React preset needs '.implode(' and ', $missing).'.');
+        $this->line('Add the missing Inertia frontend files, or rerun with --no-frontend for a custom renderer.');
+
+        return false;
     }
 
     private function installFrontendDependencies(): bool
     {
         $basePath = $this->laravel->basePath();
-        $command = match (true) {
-            $this->files->exists($basePath.'/pnpm-lock.yaml') => ['pnpm', 'install'],
-            $this->files->exists($basePath.'/yarn.lock') => ['yarn', 'install'],
-            $this->files->exists($basePath.'/bun.lock'), $this->files->exists($basePath.'/bun.lockb') => ['bun', 'install'],
-            default => ['npm', 'install'],
-        };
+        $command = $this->frontendInstallCommand();
 
         $this->components->info('Installing the official renderer with '.$command[0].'…');
 
@@ -540,6 +568,28 @@ PHP;
         }
 
         return true;
+    }
+
+    /** @return list<string> */
+    private function frontendInstallCommand(): array
+    {
+        $basePath = $this->laravel->basePath();
+
+        return match (true) {
+            $this->files->exists($basePath.'/pnpm-lock.yaml') => ['pnpm', 'install'],
+            $this->files->exists($basePath.'/yarn.lock') => ['yarn', 'install'],
+            $this->files->exists($basePath.'/bun.lock'), $this->files->exists($basePath.'/bun.lockb') => ['bun', 'install'],
+            default => ['npm', 'install'],
+        };
+    }
+
+    private function frontendBuildCommand(): string
+    {
+        return match ($this->frontendInstallCommand()[0]) {
+            'yarn' => 'yarn build',
+            'bun' => 'bun run build',
+            default => $this->frontendInstallCommand()[0].' run build',
+        };
     }
 
     private function userResourceSource(string $appNamespace, string $panel): string
@@ -793,22 +843,24 @@ PHP;
         );
     }
 
-    private function configureTailwindSources(): void
+    private function configureTailwindSources(): bool
     {
         $path = $this->laravel->basePath('resources/css/app.css');
         if (! $this->files->exists($path)) {
-            $this->components->warn('Add Tailwind source scanning for node_modules/@inlayphp after creating resources/css/app.css.');
+            $this->components->error('resources/css/app.css is missing, so Inlay component styles cannot be generated.');
 
-            return;
+            return false;
         }
 
-        $source = "@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx}';";
+        $source = "@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';";
         $contents = $this->files->get($path);
         if (str_contains($contents, $source)) {
-            return;
+            return true;
         }
 
         $this->files->put($path, rtrim($contents)."\n\n{$source}\n");
-        $this->components->info('Configured Tailwind to scan the Inlay React packages');
+        $this->components->info('Configured Tailwind to scan the installed Inlay renderer packages');
+
+        return true;
     }
 }

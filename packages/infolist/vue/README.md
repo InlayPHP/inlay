@@ -83,7 +83,7 @@ Theme keys are `accent`, `radius`, `surface`, `text`, `muted`, `border`, and `da
 With Tailwind CSS 4:
 
 ```css
-@source '../../vendor/inlayphp/infolists/vue/src/**/*.{vue,ts}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Built-in behavior and exports

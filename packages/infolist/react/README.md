@@ -86,7 +86,7 @@ Theme keys are `accent`, `radius`, `surface`, `text`, `muted`, `border`, and `da
 Stable `data-slot` and `data-entry` attributes are also available. PHP `extraAttributes` are filtered to exclude event handlers, raw HTML, style, refs and React internals.
 
 ```css
-@source '../../vendor/inlayphp/infolists/react/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Built-in rendering

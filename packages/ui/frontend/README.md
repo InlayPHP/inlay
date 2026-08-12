@@ -89,12 +89,11 @@ following to the application's CSS entry point (adjust the relative path for you
 layout):
 
 ```css
-@source '../../../../packages/ui/frontend/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
-If the package is installed from Composer or npm instead of a local monorepo, point
-`@source` at the installed `@inlayphp/ui` source directory, or include the exported
-class vocabulary in your Tailwind content configuration. Without this entry the
+The universal npm glob keeps React and Vue adapters covered as packages are added.
+Without this entry the
 generic `ring-1` utility is emitted but its semantic control color can fall back to
 `currentColor` (usually a harsh black).
 

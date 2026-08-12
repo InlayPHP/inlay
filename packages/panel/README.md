@@ -23,6 +23,8 @@ its migrations, and scaffolds the official React entry points. Installing
 
 After migrating a new Laravel application, run `php artisan inlay:make-user` to
 create the first panel login without shipping a public default password.
+Run `php artisan inlay:doctor --production` after the frontend build to verify
+panel registration, migrations, renderer dependencies, and compiled Inlay CSS.
 
 The installer can also generate a tenant-aware provider, so a new multi-tenant
 panel does not need a hand-written first pass:

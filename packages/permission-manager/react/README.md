@@ -138,7 +138,12 @@ Use `className` for the page root, `classNames` for plugin chrome, and `tableCla
 
 `PermissionManagerClassNames` supports `root`, `header`, `surface`, `flash`, `form`, `table`, `auditSummary`, and `auditTable`. The permission matrix uses fieldsets, labelled checkboxes, searchable content, status text, and dangerous-operation color cues; audit rows use the same responsive, semantic Table renderer as other resources.
 
-The package contains Tailwind utility markup rather than a compiled stylesheet. Tailwind v4 applications should add an `@source` entry for `node_modules/@inlayphp/permission-manager-react/src`, adjusted relative to the application stylesheet.
+The package contains Tailwind utility markup rather than a compiled stylesheet.
+Tailwind v4 applications should scan all installed Inlay renderers:
+
+```css
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
+```
 
 ## Authorization and security
 

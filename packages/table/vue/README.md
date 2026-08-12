@@ -151,9 +151,7 @@ Tailwind CSS 4 projects may need to source this package, the shared UI vocabular
 and `actions-vue` explicitly:
 
 ```css
-@source '../../vendor/inlayphp/tables/vue/src/**/*.{ts,vue}';
-@source '../../vendor/inlayphp/actions/vue/src/**/*.{ts,vue}';
-@source '../../node_modules/@inlayphp/ui/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Contract and exports

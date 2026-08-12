@@ -146,7 +146,13 @@ Pass `onUpload`, `onCreateFolder`, `onAction`, `onUpdateAsset`, `onMoveAsset`, `
 
 `theme` controls accent, radius, surfaces, text, muted text, border, and danger CSS variables. `classNames` targets stable structural regions including `root`, `toolbar`, `sidebar`, `grid`, `card`, `drawer`, and `dropzone`. Named `preview`, `heading`, and `description` slots replace content while preserving behavior.
 
-The package contains Tailwind utility markup rather than compiled CSS. Tailwind v4 applications should add `@source "../node_modules/@inlayphp/media-manager-vue/src";`, adjusted relative to the app stylesheet.
+The package contains Tailwind utility markup rather than compiled CSS. Tailwind
+v4 applications should scan all installed Inlay renderers from the application
+stylesheet:
+
+```css
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
+```
 
 ## Security and verification
 

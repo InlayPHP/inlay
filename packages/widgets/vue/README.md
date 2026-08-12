@@ -92,7 +92,13 @@ All share the `inlay.widgets.v1` base contract: name, label, description, span, 
 
 `classNames` targets `root`, `grid`, `widget`, `stats`, `stat`, `chart`, and `table`. Stable `data-slot` hooks mirror the React renderer, including `widget-actions`, and widget wrappers expose `data-widget`.
 
-The package ships Tailwind utility markup rather than compiled CSS. Tailwind v4 applications should add an `@source` entry for `node_modules/@inlayphp/widgets-vue/src`, adjusted relative to the application stylesheet.
+The package ships Tailwind utility markup rather than compiled CSS. Tailwind v4
+applications should scan all installed Inlay renderers from the application
+stylesheet:
+
+```css
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
+```
 
 ## Accessibility and security
 

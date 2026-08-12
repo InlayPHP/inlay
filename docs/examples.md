@@ -181,7 +181,7 @@ When using Tailwind CSS 4, include the renderer-neutral class vocabulary in the
 application stylesheet so control, select, and button tokens are generated:
 
 ```css
-@source '../../../../packages/ui/frontend/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ```tsx

@@ -105,7 +105,7 @@ An initial `resource.preview` opens the preview step, but the user must upload t
 With Tailwind CSS 4, include package sources if dependency scanning does not find them:
 
 ```css
-@source '../../node_modules/@inlayphp/imports-react/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ```bash

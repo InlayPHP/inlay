@@ -123,11 +123,11 @@ For Tailwind CSS 4, make package source discoverable when it is outside normal a
 
 ```css
 @import 'tailwindcss';
-@source '../../vendor/inlayphp/forms/react/src/**/*.{ts,tsx}';
-@source '../../node_modules/@inlayphp/ui/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
-Adjust the source path for npm/workspace installation layouts.
+The path is relative to the application stylesheet. The full Inlay installer
+adds this rule automatically.
 
 ## Payload expectations
 

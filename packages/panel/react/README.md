@@ -16,7 +16,7 @@ pnpm add @inlayphp/panels-react @inlayphp/forms-react @inlayphp/ui-react @inlayp
 The server payload is produced by `inlayphp/panels`. Add the package source to Tailwind v4 when dependencies are not scanned automatically:
 
 ```css
-@source '../../vendor/inlayphp/panels/react/src/**/*.{ts,tsx}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Basic usage

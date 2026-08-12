@@ -66,7 +66,7 @@ The components use Tailwind utilities and the shared Inlay variables `--inlay-ac
 With Tailwind CSS 4, include the Vue source:
 
 ```css
-@source '../../node_modules/@inlayphp/actions-vue/src/**/*.{ts,vue}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 Use the lower-level composable when the default controls are not appropriate; the transport and workflow remain reusable.

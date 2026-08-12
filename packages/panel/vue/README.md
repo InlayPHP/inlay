@@ -16,7 +16,7 @@ pnpm add @inlayphp/panels-vue @inlayphp/forms-vue @inlayphp/ui vue
 Add this package's `src` directory to your Tailwind source scan when the consuming app does not scan dependencies automatically.
 
 ```css
-@source '../../vendor/inlayphp/panels/vue/src/**/*.{ts,vue}';
+@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';
 ```
 
 ## Basic usage
