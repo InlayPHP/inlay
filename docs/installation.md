@@ -1,6 +1,6 @@
 # Installation and deployment
 
-## Complete React panel
+## Complete React or Vue panel
 
 Start from any Laravel 13 application, including a brand-new application from
 `laravel new`:
@@ -11,14 +11,16 @@ php artisan inlay:install --panels
 ```
 
 The installer detects a plain Laravel application and scaffolds the missing
-Inertia 3 React entrypoint, root Blade view, `HandleInertiaRequests` middleware,
-and Vite/React dependencies. It then creates an application-owned panel
-provider, User CRUD, panel authentication and account settings, the Media
-Manager and migrations, React page wrappers, npm dependencies, and Tailwind
-source discovery. The original Laravel `resources/js/app.js` entrypoint is
-kept in Vite's inputs so the default welcome route remains valid. It prints the
-remaining commands for the package manager detected from the application's
-lockfile. A typical pnpm installation finishes with:
+Inertia 3 React or Vue entrypoint, root Blade view, `HandleInertiaRequests`
+middleware, and Vite/renderer dependencies. It then creates an
+application-owned panel provider, User CRUD, panel authentication and account
+settings, the Media Manager and migrations, renderer page wrappers, npm
+dependencies, and Tailwind source discovery. Existing starter-kit dependencies
+and entrypoints are preserved. The original Laravel `resources/js/app.js`
+entrypoint is kept in Vite's inputs when present so the default welcome route
+remains valid. Select the Vue preset with `--renderer=vue`; React is the default.
+It prints the remaining commands for the package manager detected from the
+application's lockfile. A typical pnpm installation finishes with:
 
 ```bash
 php artisan migrate
@@ -28,6 +30,16 @@ php artisan inlay:doctor --production
 ```
 
 Open `/admin` after the doctor reports `Inlay is ready.`
+
+For a Vue starter or a plain Laravel application using Vue:
+
+```bash
+php artisan inlay:install --panels --renderer=vue
+php artisan migrate
+php artisan inlay:make-user
+pnpm run build
+php artisan inlay:doctor --production
+```
 
 ## Tailwind CSS 4
 

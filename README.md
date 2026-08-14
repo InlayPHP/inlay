@@ -158,16 +158,17 @@ php artisan inlay:install --panels
 ```
 
 This works on a plain `laravel new` application too: the installer creates the
-missing Inertia React entrypoint (`resources/js/app.tsx`), root Blade view,
-`HandleInertiaRequests` middleware, and React/Vite dependencies before it
-creates the panel. It also creates and registers `AdminPanelProvider`, enables
-the default theme, authentication and account settings, generates a working
-User Resource, bundles the Media Manager, publishes its migrations, redirects
-guests to the panel login, scaffolds the official React pages, and configures
-Tailwind to scan the installed `@inlayphp/*` npm packages. The original Laravel
-`resources/js/app.js` entrypoint is kept in the Vite inputs so the stock welcome
-route continues to work. It detects npm, pnpm, Yarn, or Bun and installs the
-required renderer packages. Run the printed migration, user, and frontend build
+missing Inertia entrypoint (`resources/js/app.tsx` for React or
+`resources/js/app.ts` for Vue), root Blade view, `HandleInertiaRequests`
+middleware, and renderer/Vite dependencies before it creates the panel. It also
+creates and registers `AdminPanelProvider`, enables the default theme,
+authentication and account settings, generates a working User Resource, bundles
+the Media Manager, publishes its migrations, redirects guests to the panel
+login, scaffolds the official renderer pages, and configures Tailwind to scan
+the installed `@inlayphp/*` npm packages. The original Laravel `app.js`
+entrypoint is kept in the Vite inputs when present, so a stock welcome route
+continues to work. It detects npm, pnpm, Yarn, or Bun and installs the required
+renderer packages. Run the printed migration, user, and frontend build
 commands, then open `/admin`.
 
 ```bash
@@ -196,8 +197,16 @@ putting passwords directly in shell history is not recommended.
 Use `--panel=reports` for another panel id, `--without-media` or
 `--without-users` for a smaller preset, `--no-npm` when CI manages frontend
 installation separately, and `--force` to replace generated application files.
-React is the turnkey renderer today. Vue remains available through its official
-adapters and will receive the same installer preset next.
+React and Vue are both turnkey renderer presets. Select Vue explicitly when the
+application uses the Vue starter kit (or when starting from a plain Laravel
+application):
+
+```bash
+php artisan inlay:install --panels --renderer=vue
+```
+
+The installer preserves existing starter-kit dependencies and application-owned
+Vue entrypoints while adding the Inlay page wrappers and Vite/Tailwind wiring.
 
 The installer is repeatable. Running it again preserves application-owned
 providers, Resources, pages, and validation files while restoring missing

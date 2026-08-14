@@ -206,6 +206,88 @@ it('fails before writing panel files when the React frontend is incomplete', fun
     }
 });
 
+it('scaffolds the Vue preset while preserving an existing starter package', function (): void {
+    $files = new Filesystem;
+    $root = sys_get_temp_dir().'/inlay-install-vue-'.bin2hex(random_bytes(6));
+
+    try {
+        $files->ensureDirectoryExists($root.'/app/Models');
+        $files->ensureDirectoryExists($root.'/bootstrap');
+        $files->ensureDirectoryExists($root.'/resources/css');
+        $files->ensureDirectoryExists($root.'/resources/js');
+        $files->put($root.'/app/Models/User.php', <<<'PHP'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+}
+PHP);
+        $files->put($root.'/bootstrap/app.php', <<<'PHP'
+<?php
+
+use Illuminate\Foundation\Configuration\Middleware;
+
+return Application::configure()
+    ->withMiddleware(function (Middleware $middleware): void {
+    });
+PHP);
+        $files->put($root.'/package.json', json_encode([
+            'private' => true,
+            'dependencies' => [
+                '@inertiajs/vue3' => '^3.0.0',
+                'starter-only-package' => '^1.2.3',
+                'vue' => '^3.5.0',
+            ],
+            'devDependencies' => ['starter-tooling' => '^4.5.6'],
+        ], JSON_THROW_ON_ERROR));
+        $files->put($root.'/resources/css/app.css', "@import 'tailwindcss';\n");
+        $files->put($root.'/vite.config.ts', <<<'TS'
+import tailwindcss from '@tailwindcss/vite';
+import laravel from 'laravel-vite-plugin';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+    plugins: [
+        laravel({ input: ['resources/css/app.css'], refresh: true }),
+        tailwindcss(),
+    ],
+});
+TS);
+
+        expect(runInlayInstall($root, ['--renderer' => 'vue', '--no-npm' => true]))->toBe(0)
+            ->and($files->exists($root.'/resources/js/app.ts'))->toBeTrue()
+            ->and($files->get($root.'/resources/js/app.ts'))->toContain("createInertiaApp")
+            ->and($files->exists($root.'/resources/views/app.blade.php'))->toBeTrue()
+            ->and($files->get($root.'/resources/views/app.blade.php'))->toContain("resources/js/app.ts")
+            ->and($files->exists($root.'/resources/js/pages/inlay/auth/login.vue'))->toBeTrue()
+            ->and($files->exists($root.'/resources/js/pages/inlay-media-manager/index.vue'))->toBeTrue()
+            ->and($files->get($root.'/vite.config.ts'))
+            ->toContain("import inertia from '@inertiajs/vite';")
+            ->toContain("import vue from '@vitejs/plugin-vue';")
+            ->toContain("inertia()")
+            ->toContain("vue()")
+            ->toContain("resources/js/app.ts");
+
+        $package = json_decode($files->get($root.'/package.json'), true, flags: JSON_THROW_ON_ERROR);
+        expect($package['dependencies'])
+            ->toHaveKey('starter-only-package', '^1.2.3')
+            ->toHaveKey('@inlayphp/panels-vue', '^0.3.0')
+            ->toHaveKey('@inlayphp/media-manager-vue', '^0.3.0')
+            ->toHaveKey('@inlayphp/resources-vue', '^0.3.0')
+            ->toHaveKey('@inlayphp/widgets-vue', '^0.3.0');
+        expect($package['devDependencies'])
+            ->toHaveKey('starter-tooling', '^4.5.6')
+            ->toHaveKey('@vitejs/plugin-vue', '^6.0.0')
+            ->toHaveKey('vue-tsc', '^2.2.0');
+    } finally {
+        $files->deleteDirectory($root);
+    }
+});
+
 it('diagnoses the panel installation and compiled Inlay CSS', function (): void {
     $files = new Filesystem;
     $root = sys_get_temp_dir().'/inlay-doctor-'.bin2hex(random_bytes(6));

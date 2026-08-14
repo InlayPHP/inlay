@@ -58,7 +58,7 @@ final class InstallCommand extends Command
             return self::FAILURE;
         }
 
-        if ($createPanel && $renderer === 'react' && ! $this->option('no-frontend') && ! $this->frontendPreflight()) {
+        if ($createPanel && in_array($renderer, ['react', 'vue'], true) && ! $this->option('no-frontend') && ! $this->frontendPreflight($renderer)) {
             return self::FAILURE;
         }
 
@@ -99,11 +99,11 @@ final class InstallCommand extends Command
 
             if ($renderer !== 'none' && ! $this->option('no-frontend')) {
                 $frontendReady = $this->scaffoldFrontend($renderer, $panel);
-                if (! $frontendReady && $renderer === 'react') {
+                if (! $frontendReady && in_array($renderer, ['react', 'vue'], true)) {
                     return self::FAILURE;
                 }
 
-                if ($frontendReady && $renderer === 'react' && ! $this->option('no-npm') && ! $this->installFrontendDependencies()) {
+                if ($frontendReady && in_array($renderer, ['react', 'vue'], true) && ! $this->option('no-npm') && ! $this->installFrontendDependencies()) {
                     return self::FAILURE;
                 }
             }
@@ -132,7 +132,8 @@ final class InstallCommand extends Command
             $this->line('Frontend: the official React packages, page wrappers, and Tailwind source scanning are ready.');
             $this->line('Next: php artisan migrate && php artisan inlay:make-user && '.$this->frontendBuildCommand());
         } elseif ($renderer === 'vue') {
-            $this->line('Next: pnpm add @inlayphp/panels-vue and resolve the inlayPanel prop with <Panel />.');
+            $this->line('Frontend: the official Vue packages, page wrappers, and Tailwind source scanning are ready.');
+            $this->line('Next: php artisan migrate && php artisan inlay:make-user && '.$this->frontendBuildCommand());
         } else {
             $this->line('Next: install one official renderer or provide your own renderer for inlay.panels.v1.');
         }
@@ -467,24 +468,22 @@ PHP;
 
     private function scaffoldFrontend(string $renderer, string $panel): bool
     {
-        if ($renderer !== 'react') {
-            $this->components->warn('The turnkey frontend preset currently targets React. Vue remains available through the documented manual adapter setup.');
-
-            return false;
-        }
-
         $packagePath = $this->laravel->basePath('package.json');
         if (! $this->files->exists($packagePath)) {
-            $this->components->warn('package.json was not found. Install the React adapter after adding Inertia to the application.');
+            $this->components->warn("package.json was not found. Install the {$renderer} adapter after adding Inertia to the application.");
 
             return false;
         }
 
-        if (! $this->updateFrontendDependencies($packagePath)) {
+        if (! $this->updateFrontendDependencies($packagePath, $renderer)) {
             return false;
         }
 
-        foreach ($this->reactFrontendFiles($panel) as $relative => $source) {
+        $files = $renderer === 'react'
+            ? $this->reactFrontendFiles($panel)
+            : $this->vueFrontendFiles($panel);
+
+        foreach ($files as $relative => $source) {
             $path = $this->laravel->basePath($relative);
             if ($this->files->exists($path) && ! $this->option('force')) {
                 $this->components->warn("Frontend file already exists and was not replaced: {$relative}");
@@ -497,7 +496,11 @@ PHP;
             $this->components->info("Created {$relative}");
         }
 
-        if (! $this->scaffoldReactApplication()) {
+        if ($renderer === 'react' && ! $this->scaffoldReactApplication()) {
+            return false;
+        }
+
+        if ($renderer === 'vue' && ! $this->scaffoldVueApplication()) {
             return false;
         }
 
@@ -533,6 +536,37 @@ PHP;
         }
 
         return $this->configureReactVite();
+    }
+
+    /**
+     * A plain Laravel application has no Inertia entrypoint. Generate the
+     * smallest Vue/Inertia bootstrap when the application has not already
+     * chosen one, while preserving an existing application-owned entrypoint.
+     */
+    private function scaffoldVueApplication(): bool
+    {
+        $entryPath = $this->laravel->basePath('resources/js/app.ts');
+        $viewPath = $this->laravel->resourcePath('views/app.blade.php');
+
+        if (! $this->files->exists($entryPath) || $this->option('force')) {
+            $this->files->ensureDirectoryExists(dirname($entryPath));
+            $this->files->put($entryPath, $this->vueApplicationSource());
+            $this->components->info('Created resources/js/app.ts');
+        }
+
+        if (! $this->files->exists($viewPath) || $this->option('force')) {
+            $this->files->ensureDirectoryExists(dirname($viewPath));
+            $this->files->put($viewPath, $this->vueApplicationViewSource());
+            $this->components->info('Created resources/views/app.blade.php');
+        }
+
+        $appNamespace = rtrim((string) $this->laravel->getNamespace(), '\\');
+
+        if (! $this->scaffoldInertiaMiddleware($appNamespace)) {
+            return false;
+        }
+
+        return $this->configureVueVite();
     }
 
     private function scaffoldInertiaMiddleware(string $appNamespace): bool
@@ -665,6 +699,61 @@ TSX;
 BLADE;
     }
 
+    private function vueApplicationSource(): string
+    {
+        return <<<'TS'
+import { createInertiaApp } from '@inertiajs/vue3';
+import { createApp, h } from 'vue';
+import type { DefineComponent } from 'vue';
+
+const pages = import.meta.glob<{ default: DefineComponent }>('./pages/**/*.vue', { eager: true });
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+createInertiaApp({
+    resolve: (name) => {
+        const page = pages[`./pages/${name}.vue`] as { default: DefineComponent } | undefined;
+
+        if (! page?.default) {
+            throw new Error(`Unknown Inertia page: ${name}`);
+        }
+
+        return page.default;
+    },
+    title: (title) => (title ? `${title} - ${appName}` : appName),
+    progress: {
+        color: '#4f46e5',
+    },
+    setup: ({ el, App, props, plugin }) => {
+        createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .mount(el);
+    },
+});
+TS;
+    }
+
+    private function vueApplicationViewSource(): string
+    {
+        return <<<'BLADE'
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        @vite(['resources/css/app.css', 'resources/js/app.ts'])
+        <x-inertia::head>
+            <title>{{ config('app.name', 'Laravel') }}</title>
+        </x-inertia::head>
+    </head>
+    <body class="font-sans antialiased">
+        <x-inertia::app />
+    </body>
+</html>
+BLADE;
+    }
+
     private function configureReactVite(): bool
     {
         $configPath = null;
@@ -755,6 +844,114 @@ BLADE;
         return false;
     }
 
+    private function configureVueVite(): bool
+    {
+        $configPath = null;
+        foreach (['vite.config.js', 'vite.config.mjs', 'vite.config.ts'] as $relative) {
+            $candidate = $this->laravel->basePath($relative);
+            if ($this->files->exists($candidate)) {
+                $configPath = $candidate;
+
+                break;
+            }
+        }
+
+        if ($configPath === null) {
+            $configPath = $this->laravel->basePath('vite.config.js');
+            $this->files->put($configPath, $this->vueViteConfigSource(
+                $this->files->exists($this->laravel->basePath('resources/js/app.js')),
+            ));
+            $this->components->info('Created vite.config.js for Inertia Vue');
+
+            return true;
+        }
+
+        $contents = $this->files->get($configPath);
+        $hasInertiaImport = str_contains($contents, "@inertiajs/vite");
+        $hasVueImport = str_contains($contents, '@vitejs/plugin-vue');
+        $hasInertiaInput = str_contains($contents, 'resources/js/app.ts');
+        $hasLegacyEntry = $this->files->exists($this->laravel->basePath('resources/js/app.js'));
+        $hasLegacyInput = str_contains($contents, 'resources/js/app.js');
+
+        if ($hasInertiaImport && $hasVueImport && $hasInertiaInput && (! $hasLegacyEntry || $hasLegacyInput)) {
+            return true;
+        }
+
+        if ($this->option('force') || $this->looksLikeLaravelViteConfig($contents) || str_contains($contents, 'laravel-vite-plugin')) {
+            if (! $hasInertiaImport) {
+                $contents = "import inertia from '@inertiajs/vite';\n".$contents;
+            }
+
+            if (! $hasVueImport) {
+                $contents = "import vue from '@vitejs/plugin-vue';\n".$contents;
+            }
+
+            if (! $hasInertiaInput) {
+                $contents = preg_replace_callback(
+                    "/(['\"]resources\\/js\\/)app\\.js(['\"])/",
+                    static fn (array $matches): string => $matches[1]."app.js', 'resources/js/app.ts".$matches[2],
+                    $contents,
+                    1,
+                ) ?? $contents;
+
+                if (! str_contains($contents, 'resources/js/app.ts')) {
+                    $contents = preg_replace(
+                        '/(input:\s*\[)/',
+                        "$1'resources/js/app.ts', ",
+                        $contents,
+                        1,
+                    ) ?? $contents;
+                }
+            }
+
+            if (! str_contains($contents, 'inertia()')) {
+                $contents = preg_replace('/(plugins:\s*\[)/', "$1\n        inertia(),", $contents, 1) ?? $contents;
+            }
+
+            if (! str_contains($contents, 'vue()')) {
+                $contents = preg_replace('/(plugins:\s*\[)/', "$1\n        vue(),", $contents, 1) ?? $contents;
+            }
+
+            $this->files->put($configPath, $contents);
+            $this->components->info('Configured vite.config for Inertia Vue');
+
+            return true;
+        }
+
+        $this->components->warn("Could not safely update {$configPath}; add the Inertia and Vue Vite plugins manually.");
+
+        return false;
+    }
+
+    private function vueViteConfigSource(bool $includeLegacyEntry): string
+    {
+        $inputs = $includeLegacyEntry
+            ? "['resources/css/app.css', 'resources/js/app.js', 'resources/js/app.ts']"
+            : "['resources/css/app.css', 'resources/js/app.ts']";
+
+        $source = <<<'JS'
+import inertia from '@inertiajs/vite';
+import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
+import laravel from 'laravel-vite-plugin';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: __INPUTS__,
+            refresh: true,
+        }),
+        inertia(),
+        vue(),
+        tailwindcss(),
+    ],
+});
+JS;
+
+        return str_replace('__INPUTS__', $inputs, $source);
+    }
+
     private function looksLikeLaravelViteConfig(string $contents): bool
     {
         return str_contains($contents, 'laravel-vite-plugin')
@@ -791,7 +988,7 @@ JS;
         return str_replace('__INPUTS__', $inputs, $source);
     }
 
-    private function frontendPreflight(): bool
+    private function frontendPreflight(string $renderer = 'react'): bool
     {
         $missing = [];
 
@@ -822,7 +1019,7 @@ JS;
 
             if (! str_contains($this->files->get($this->laravel->basePath('resources/css/app.css')), 'tailwindcss')) {
                 $this->components->error('resources/css/app.css does not import Tailwind CSS 4. No application files were changed.');
-                $this->line('Add Tailwind CSS 4, or rerun with --no-frontend for a custom renderer.');
+                $this->line("Add Tailwind CSS 4, or rerun with --renderer=none for a custom renderer.");
 
                 return false;
             }
@@ -830,7 +1027,7 @@ JS;
             return true;
         }
 
-        $this->components->error('The React preset needs '.implode(' and ', $missing).'.');
+        $this->components->error("The {$renderer} preset needs ".implode(' and ', $missing).'.');
         $this->line('Add the missing Inertia frontend files, or rerun with --no-frontend for a custom renderer.');
 
         return false;
@@ -1066,7 +1263,7 @@ final class UserRules extends Validation
 PHP;
     }
 
-    private function updateFrontendDependencies(string $path): bool
+    private function updateFrontendDependencies(string $path, string $renderer = 'react'): bool
     {
         try {
             $package = json_decode($this->files->get($path), true, flags: JSON_THROW_ON_ERROR);
@@ -1083,7 +1280,24 @@ PHP;
         }
 
         $dependencies = is_array($package['dependencies'] ?? null) ? $package['dependencies'] : [];
-        foreach ([
+        $requiredDependencies = $renderer === 'vue' ? [
+            '@inertiajs/vue3' => '^3.0.0',
+            '@inertiajs/vite' => '^3.0.0',
+            '@inlayphp/actions' => '^0.3.0',
+            '@inlayphp/actions-vue' => '^0.3.0',
+            '@inlayphp/core' => '^0.3.0',
+            '@inlayphp/forms-vue' => '^0.3.0',
+            '@inlayphp/media-manager-vue' => '^0.3.0',
+            '@inlayphp/panels-vue' => '^0.3.0',
+            '@inlayphp/resources' => '^0.3.0',
+            '@inlayphp/resources-vue' => '^0.3.0',
+            '@inlayphp/tables-vue' => '^0.3.0',
+            '@inlayphp/theme' => '^0.3.0',
+            '@inlayphp/ui' => '^0.3.0',
+            '@inlayphp/ui-vue' => '^0.3.0',
+            '@inlayphp/widgets-vue' => '^0.3.0',
+            'vue' => '^3.5.0',
+        ] : [
             '@inertiajs/react' => '^3.0.0',
             '@inertiajs/vite' => '^3.0.0',
             '@inlayphp/actions' => '^0.3.0',
@@ -1101,17 +1315,23 @@ PHP;
             '@inlayphp/widgets-react' => '^0.3.0',
             'react' => '^19.0.0',
             'react-dom' => '^19.0.0',
-        ] as $name => $version) {
+        ];
+        foreach ($requiredDependencies as $name => $version) {
             $dependencies[$name] ??= $version;
         }
 
         $devDependencies = is_array($package['devDependencies'] ?? null) ? $package['devDependencies'] : [];
-        foreach ([
+        $requiredDevDependencies = $renderer === 'vue' ? [
+            '@vitejs/plugin-vue' => '^6.0.0',
+            'typescript' => '^5.7.0',
+            'vue-tsc' => '^2.2.0',
+        ] : [
             '@vitejs/plugin-react' => '^6.0.0',
             '@types/react' => '^19.0.0',
             '@types/react-dom' => '^19.0.0',
             'typescript' => '^5.7.0',
-        ] as $name => $version) {
+        ];
+        foreach ($requiredDevDependencies as $name => $version) {
             $devDependencies[$name] ??= $version;
         }
 
@@ -1121,7 +1341,7 @@ PHP;
         $package['devDependencies'] = $devDependencies;
         $encoded = json_encode($package, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)."\n";
         $this->files->put($path, $encoded);
-        $this->components->info('Added the official React renderer packages to package.json');
+        $this->components->info('Added the official '.ucfirst($renderer).' renderer packages to package.json');
 
         return true;
     }
@@ -1142,6 +1362,30 @@ PHP;
             'resources/js/pages/inlay-media-manager/index.tsx' => 'media-manager.tsx',
             'resources/js/pages/users/index.tsx' => 'users-index.tsx',
             'resources/js/pages/users/form.tsx' => 'users-form.tsx',
+        ];
+
+        return array_map(
+            fn (string $stub): string => str_replace('{{ panel }}', $panel, $this->files->get($stubs.'/'.$stub)),
+            $files,
+        );
+    }
+
+    /** @return array<string, string> */
+    private function vueFrontendFiles(string $panel): array
+    {
+        $stubs = $this->laravel->basePath('vendor/inlayphp/inlay/stubs/vue');
+        if (! $this->files->isDirectory($stubs)) {
+            $stubs = dirname(__DIR__).'/stubs/vue';
+        }
+
+        $files = [
+            'resources/js/layouts/inlay-panel-layout.vue' => 'inlay-panel-layout.vue',
+            'resources/js/pages/inlay/auth/login.vue' => 'login.vue',
+            'resources/js/pages/inlay/dashboard.vue' => 'dashboard.vue',
+            'resources/js/pages/inlay/account-settings.vue' => 'account-settings.vue',
+            'resources/js/pages/inlay-media-manager/index.vue' => 'media-manager.vue',
+            'resources/js/pages/users/index.vue' => 'users-index.vue',
+            'resources/js/pages/users/form.vue' => 'users-form.vue',
         ];
 
         return array_map(
