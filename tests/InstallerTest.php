@@ -262,6 +262,48 @@ PHP);
     }
 });
 
+it('merges an existing User interface without corrupting the class declaration', function (): void {
+    $files = new Filesystem;
+    $root = sys_get_temp_dir().'/inlay-install-interface-'.bin2hex(random_bytes(6));
+
+    try {
+        $files->ensureDirectoryExists($root.'/app/Models');
+        $files->ensureDirectoryExists($root.'/bootstrap');
+        $files->ensureDirectoryExists($root.'/resources/css');
+        $files->ensureDirectoryExists($root.'/resources/js');
+        $files->put($root.'/app/Models/User.php', <<<'PHP'
+<?php
+
+namespace App\Models;
+
+use IlluminateFoundationAuthUser as Authenticatable;
+
+class User extends Authenticatable implements ExistingUserContract
+{
+}
+PHP);
+        $files->put($root.'/bootstrap/app.php', <<<'PHP'
+<?php
+
+use IlluminateFoundation\Configuration\Middleware;
+
+return Application::configure()
+    ->withMiddleware(function (Middleware $middleware): void {
+    });
+PHP);
+        $files->put($root.'/package.json', json_encode(['private' => true], JSON_THROW_ON_ERROR));
+        $files->put($root.'/resources/css/app.css', "@import 'tailwindcss';\n");
+        $files->put($root.'/resources/js/app.js', "// Laravel's existing entrypoint\n");
+
+        expect(runInlayInstall($root, ['--panels' => true, '--no-npm' => true]))->toBe(0)
+            ->and($files->get($root.'/app/Models/User.php'))
+            ->toContain('class User extends Authenticatable implements ExistingUserContract, PanelAccount')
+            ->not->toContain('Authenticatableimplements');
+    } finally {
+        $files->deleteDirectory($root);
+    }
+});
+
 it('creates the first panel user without shipping default credentials', function (): void {
     $app = new Application(sys_get_temp_dir().'/inlay-user-'.bin2hex(random_bytes(6)));
     $app->instance('config', new Repository([
