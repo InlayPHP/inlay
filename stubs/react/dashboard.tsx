@@ -1,5 +1,5 @@
 import { Head, Link } from "@inertiajs/react";
-import InlayPanelLayout from "@/layouts/inlay-panel-layout";
+import InlayPanelLayout from "../../layouts/inlay-panel-layout";
 
 const destinations = [
   ["Users", "Create and manage panel accounts.", "/{{ panel }}/users"],

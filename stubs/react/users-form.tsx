@@ -6,7 +6,7 @@ import type {
   ResourceBreadcrumb,
   ResourceSubNavigationItem,
 } from "@inlayphp/resources-react";
-import InlayPanelLayout from "@/layouts/inlay-panel-layout";
+import InlayPanelLayout from "../../layouts/inlay-panel-layout";
 
 type PageProps = {
   breadcrumbs?: ResourceBreadcrumb[];

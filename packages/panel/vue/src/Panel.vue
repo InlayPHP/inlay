@@ -319,7 +319,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
     :style="cssVariables"
     @keydown="onKeydown"
   >
-    <header v-if="resource.topbar" :class="['sticky top-0 z-30 flex min-h-16 min-w-0 flex-wrap items-center gap-3 border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface)/95 px-4 backdrop-blur-md sm:px-6', classNames.header]" data-slot="header">
+    <header v-if="resource.topbar" :class="['sticky top-0 z-50 flex min-h-16 min-w-0 flex-wrap items-center gap-3 border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface)/95 px-4 backdrop-blur-md sm:px-6', classNames.header]" data-slot="header">
       <button
         :aria-expanded="mobileOpen"
         aria-label="Open navigation"

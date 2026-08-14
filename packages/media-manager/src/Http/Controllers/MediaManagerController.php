@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Inlay\Authorization\AuthorizationManager;
+use Inlay\PanelRegistry;
 use Inlay\Media\Enums\MediaVisibility;
 use Inlay\Media\Models\MediaAsset;
 use Inlay\Media\Models\MediaCollection;
@@ -40,14 +41,22 @@ final readonly class MediaManagerController
         private ?MediaStorageRegistry $storage = null,
     ) {}
 
-    public function index(Request $request): Response|JsonResponse
+    public function index(Request $request, ?PanelRegistry $panels = null): Response|JsonResponse
     {
         $this->authorization->authorize($request->user(), 'media.viewAny');
         $media = $this->payloads->build($request);
 
-        return $request->expectsJson()
-            ? new JsonResponse(['media' => $media])
-            : Inertia::render((string) $this->config->get('media-manager.component', 'inlay-media-manager/index'), ['media' => $media]);
+        if ($request->expectsJson()) {
+            return new JsonResponse(['media' => $media]);
+        }
+
+        $props = ['media' => $media];
+        $panelRegistry = $panels ?? (app()->bound(PanelRegistry::class) ? app(PanelRegistry::class) : null);
+        if ($panelRegistry !== null && ($panel = $panelRegistry->resolveForRequest($request)) !== null) {
+            $props['inlayPanel'] = $panel;
+        }
+
+        return Inertia::render((string) $this->config->get('media-manager.component', 'inlay-media-manager/index'), $props);
     }
 
     public function picker(Request $request): JsonResponse

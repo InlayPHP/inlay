@@ -2,17 +2,21 @@
 
 ## Complete React panel
 
-Start from a Laravel application with Inertia 3, React, Tailwind CSS 4, and a
-normal Vite entry point:
+Start from any Laravel 13 application, including a brand-new application from
+`laravel new`:
 
 ```bash
 composer require inlayphp/inlay:"^0.3"
 php artisan inlay:install --panels
 ```
 
-The installer creates an application-owned panel provider, User CRUD, panel
-authentication and account settings, the Media Manager and migrations, React
-page wrappers, npm dependencies, and Tailwind source discovery. It prints the
+The installer detects a plain Laravel application and scaffolds the missing
+Inertia 3 React entrypoint, root Blade view, `HandleInertiaRequests` middleware,
+and Vite/React dependencies. It then creates an application-owned panel
+provider, User CRUD, panel authentication and account settings, the Media
+Manager and migrations, React page wrappers, npm dependencies, and Tailwind
+source discovery. The original Laravel `resources/js/app.js` entrypoint is
+kept in Vite's inputs so the default welcome route remains valid. It prints the
 remaining commands for the package manager detected from the application's
 lockfile. A typical pnpm installation finishes with:
 

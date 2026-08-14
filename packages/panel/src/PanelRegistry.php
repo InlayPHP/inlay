@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inlay;
 
+use Illuminate\Http\Request;
 use Inlay\Contracts\PanelUser;
 use InvalidArgumentException;
 use LogicException;
@@ -59,6 +60,46 @@ final class PanelRegistry
         $id = $this->paths[$path] ?? null;
 
         return $id === null ? null : $this->panels[$id];
+    }
+
+    /**
+     * Resolve the panel that owns an incoming request.
+     *
+     * Panel routes carry an `inlayPanel` route default. The route name and
+     * path fallbacks keep the contract available to plugin controllers even
+     * when a custom router or middleware has stripped route defaults.
+     */
+    public function resolveForRequest(Request $request): ?Panel
+    {
+        $route = $request->route();
+        $id = is_object($route) ? $route->parameter('inlayPanel') : null;
+        if (is_string($id) && $id !== '') {
+            return $this->get($id);
+        }
+
+        $name = is_object($route) ? $route->getName() : null;
+        if (is_string($name) && preg_match('/^inlay\.([^.]+)\./', $name, $matches) === 1) {
+            $id = $matches[1];
+            if (isset($this->panels[$id])) {
+                return $this->panels[$id];
+            }
+        }
+
+        $path = '/'.trim($request->path(), '/');
+        $candidates = array_values(array_filter(
+            $this->all(),
+            static function (Panel $panel) use ($path): bool {
+                $prefix = rtrim('/'.trim($panel->pathValue(), '/'), '/');
+
+                return $path === $prefix || str_starts_with($path, $prefix.'/');
+            },
+        ));
+        usort(
+            $candidates,
+            static fn (Panel $left, Panel $right): int => strlen($right->pathValue()) <=> strlen($left->pathValue()),
+        );
+
+        return $candidates[0] ?? null;
     }
 
     public function default(): Panel

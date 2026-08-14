@@ -42,6 +42,7 @@ final class UserAccessController
         $table->query($model::query()->withCount('roles'), $request->query());
 
         return Inertia::render('inlay-permission-manager/users/index', [
+            'inlayPanel' => $panels->get((string) $request->route('inlayPanel')),
             'table' => $table,
             'userAccess' => ['baseUrl' => $base, 'label' => 'User access'],
         ]);
@@ -61,6 +62,7 @@ final class UserAccessController
             ->data(['roles' => $record->roles()->pluck('name')->all()]);
 
         return Inertia::render('inlay-permission-manager/users/form', [
+            'inlayPanel' => $panels->get((string) $request->route('inlayPanel')),
             'form' => $form,
             'record' => $record->only(['id', 'name', 'email']),
             'userAccess' => ['baseUrl' => $base, 'label' => 'User access'],

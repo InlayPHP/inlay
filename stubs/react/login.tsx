@@ -1,6 +1,6 @@
 import { Head, useForm } from "@inertiajs/react";
 import type { PanelResource } from "@inlayphp/panels-react";
-import { customThemeCss, recipeVariables } from "@inlayphp/theme";
+import { customThemeCss, recipeVariables, themeVariables } from "@inlayphp/theme";
 import {
   buttonPrimaryClass,
   controlClass,
@@ -19,6 +19,13 @@ export default function Login({ inlayPanel }: LoginProps) {
     darkTokens: inlayPanel.darkTheme ?? {},
   };
   const scope = `login-${inlayPanel.id}`;
+  const lightThemeVariables = themeVariables(theme, "light");
+  const darkThemeVariables = themeVariables(theme, "dark");
+  const darkThemeCss = Object.entries(darkThemeVariables)
+    .filter(([name, value]) => lightThemeVariables[name] !== value)
+    .map(([name, value]) => `${name}: ${value};`)
+    .join(" ");
+  const themeCss = `${customThemeCss(theme, scope)}${darkThemeCss ? `\n@media (prefers-color-scheme: dark) { :root:not([data-theme-mode="light"]) [data-inlay-theme-root="${scope}"] { ${darkThemeCss} } }\n.dark [data-inlay-theme-root="${scope}"], [data-inlay-theme-root="${scope}"].dark, [data-inlay-theme-root="${scope}"][data-theme-mode="dark"] { ${darkThemeCss} }` : ""}`;
 
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -28,11 +35,15 @@ export default function Login({ inlayPanel }: LoginProps) {
   return (
     <>
       <Head title={`Sign in to ${inlayPanel.brandName ?? "Inlay"}`} />
-      <style>{customThemeCss(theme, scope)}</style>
+      <style>{themeCss}</style>
       <main
         className="flex min-h-dvh items-center justify-center bg-(--inlay-background) p-6 font-[family-name:var(--inlay-font-family)] text-(--inlay-foreground)"
         data-inlay-theme-root={scope}
-        style={recipeVariables(theme) as CSSProperties}
+        style={{
+          ...recipeVariables(theme),
+          ...lightThemeVariables,
+          "--inlay-text": "var(--inlay-foreground)",
+        } as CSSProperties}
       >
         <section className="w-full max-w-md rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-6 shadow-(--inlay-shadow) sm:p-8">
           <p className="text-sm font-medium text-(--inlay-accent)">

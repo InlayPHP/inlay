@@ -497,7 +497,289 @@ PHP;
             $this->components->info("Created {$relative}");
         }
 
+        if (! $this->scaffoldReactApplication()) {
+            return false;
+        }
+
         return $this->configureTailwindSources();
+    }
+
+    /**
+     * A plain Laravel application has no Inertia entrypoint. Generate the
+     * smallest React/Inertia bootstrap when the application has not already
+     * chosen one, while preserving an existing application-owned entrypoint.
+     */
+    private function scaffoldReactApplication(): bool
+    {
+        $entryPath = $this->laravel->basePath('resources/js/app.tsx');
+        $viewPath = $this->laravel->resourcePath('views/app.blade.php');
+
+        if (! $this->files->exists($entryPath) || $this->option('force')) {
+            $this->files->ensureDirectoryExists(dirname($entryPath));
+            $this->files->put($entryPath, $this->reactApplicationSource());
+            $this->components->info('Created resources/js/app.tsx');
+        }
+
+        if (! $this->files->exists($viewPath) || $this->option('force')) {
+            $this->files->ensureDirectoryExists(dirname($viewPath));
+            $this->files->put($viewPath, $this->reactApplicationViewSource());
+            $this->components->info('Created resources/views/app.blade.php');
+        }
+
+        $appNamespace = rtrim((string) $this->laravel->getNamespace(), '\\');
+
+        if (! $this->scaffoldInertiaMiddleware($appNamespace)) {
+            return false;
+        }
+
+        return $this->configureReactVite();
+    }
+
+    private function scaffoldInertiaMiddleware(string $appNamespace): bool
+    {
+        $middlewarePath = $this->laravel->basePath('app/Http/Middleware/HandleInertiaRequests.php');
+        if (! $this->files->exists($middlewarePath) || $this->option('force')) {
+            $this->files->ensureDirectoryExists(dirname($middlewarePath));
+            $this->files->put($middlewarePath, $this->inertiaMiddlewareSource($appNamespace));
+            $this->components->info('Created app/Http/Middleware/HandleInertiaRequests.php');
+        }
+
+        $bootstrapPath = $this->laravel->basePath('bootstrap/app.php');
+        if (! $this->files->exists($bootstrapPath)) {
+            $this->components->error('bootstrap/app.php is missing, so Inertia middleware could not be registered.');
+
+            return false;
+        }
+
+        $contents = $this->files->get($bootstrapPath);
+        $reference = 'HandleInertiaRequests::class';
+        $import = "use {$appNamespace}\\Http\\Middleware\\HandleInertiaRequests;";
+
+        if (! str_contains($contents, $import)) {
+            $contents = preg_replace('/(<\?php\s*)/', "$1\n{$import}\n", $contents, 1, $count) ?? $contents;
+            if ($count !== 1) {
+                $this->components->warn('Could not safely import HandleInertiaRequests in bootstrap/app.php.');
+
+                return false;
+            }
+        }
+
+        if (! str_contains($contents, $reference)) {
+            $pattern = '/(->withMiddleware\(function\s*\(Middleware\s+\$middleware\)(?::\s*void)?\s*\{)/';
+            $replacement = "$1\n        \$middleware->web(append: [\n            {$reference},\n        ]);";
+            $contents = preg_replace($pattern, $replacement, $contents, 1, $count) ?? $contents;
+            if ($count !== 1) {
+                $this->components->warn('Could not safely register HandleInertiaRequests in bootstrap/app.php.');
+
+                return false;
+            }
+        }
+
+        $this->files->put($bootstrapPath, $contents);
+        $this->components->info('Registered HandleInertiaRequests in the web middleware');
+
+        return true;
+    }
+
+    private function inertiaMiddlewareSource(string $appNamespace): string
+    {
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace {$appNamespace}\Http\Middleware;
+
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+
+final class HandleInertiaRequests extends Middleware
+{
+    protected \$rootView = 'app';
+
+    public function share(Request \$request): array
+    {
+        return [
+            ...parent::share(\$request),
+            'auth' => [
+                'user' => \$request->user()?->only(['id', 'name', 'email']),
+            ],
+            'flash' => [
+                'success' => fn (): ?string => \$request->session()->get('success'),
+                'error' => fn (): ?string => \$request->session()->get('error'),
+            ],
+        ];
+    }
+}
+PHP;
+    }
+
+    private function reactApplicationSource(): string
+    {
+        return <<<'TSX'
+import { createInertiaApp } from "@inertiajs/react";
+
+const pages = import.meta.glob("./pages/**/*.tsx", { eager: true });
+const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+
+createInertiaApp({
+  resolve: (name) => {
+    const page = pages[`./pages/${name}.tsx`] as
+      | { default?: unknown }
+      | undefined;
+
+    if (!page?.default) {
+      throw new Error(`Unknown Inertia page: ${name}`);
+    }
+
+    return page;
+  },
+  title: (title) => (title ? `${title} - ${appName}` : appName),
+  progress: {
+    color: "#4f46e5",
+  },
+});
+TSX;
+    }
+
+    private function reactApplicationViewSource(): string
+    {
+        return <<<'BLADE'
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        @viteReactRefresh
+        @vite(['resources/css/app.css', 'resources/js/app.tsx'])
+        <x-inertia::head>
+            <title>{{ config('app.name', 'Laravel') }}</title>
+        </x-inertia::head>
+    </head>
+    <body class="font-sans antialiased">
+        <x-inertia::app />
+    </body>
+</html>
+BLADE;
+    }
+
+    private function configureReactVite(): bool
+    {
+        $configPath = null;
+        foreach (['vite.config.js', 'vite.config.mjs', 'vite.config.ts'] as $relative) {
+            $candidate = $this->laravel->basePath($relative);
+            if ($this->files->exists($candidate)) {
+                $configPath = $candidate;
+
+                break;
+            }
+        }
+
+        if ($configPath === null) {
+            $configPath = $this->laravel->basePath('vite.config.js');
+            $this->files->put($configPath, $this->reactViteConfigSource());
+            $this->components->info('Created vite.config.js for Inertia React');
+
+            return true;
+        }
+
+        $contents = $this->files->get($configPath);
+        $hasInertiaImport = str_contains($contents, "@inertiajs/vite");
+        $hasReactImport = str_contains($contents, '@vitejs/plugin-react');
+        $hasInertiaInput = str_contains($contents, 'resources/js/app.tsx');
+        $hasLegacyInput = str_contains($contents, 'resources/js/app.js');
+
+        if ($hasInertiaImport && $hasReactImport && $hasInertiaInput && $hasLegacyInput) {
+            return true;
+        }
+
+        if ($this->option('force') || $this->looksLikeLaravelViteConfig($contents) || ($hasInertiaImport && $hasReactImport && $hasInertiaInput)) {
+            if (! $hasInertiaImport) {
+                $contents = "import inertia from '@inertiajs/vite';\n".$contents;
+            }
+
+            if (! $hasReactImport) {
+                $contents = "import react from '@vitejs/plugin-react';\n".$contents;
+            }
+
+            // Keep Laravel's original app.js entrypoint. The default welcome
+            // view still references it, while the generated Inertia root view
+            // uses app.tsx. Building both entries lets the installer preserve
+            // the existing application route instead of turning it into a
+            // Vite manifest error.
+            if (! $hasLegacyInput && $hasInertiaInput) {
+                $contents = preg_replace_callback(
+                    "/(['\"]resources\\/js\\/)app\\.tsx(['\"])/",
+                    static fn (array $matches): string => $matches[1]."app.js', 'resources/js/app.tsx".$matches[2],
+                    $contents,
+                    1,
+                ) ?? $contents;
+            } elseif ($hasLegacyInput && ! $hasInertiaInput) {
+                $contents = preg_replace_callback(
+                    "/(['\"]resources\\/js\\/)app\\.js(['\"])/",
+                    static fn (array $matches): string => $matches[1]."app.js', 'resources/js/app.tsx".$matches[2],
+                    $contents,
+                    1,
+                ) ?? $contents;
+            }
+
+            if (! str_contains($contents, 'inertia()') || ! str_contains($contents, 'react()')) {
+                $plugins = [];
+                if (! str_contains($contents, 'inertia()')) {
+                    $plugins[] = '        inertia(),';
+                }
+                if (! str_contains($contents, 'react()')) {
+                    $plugins[] = '        react(),';
+                }
+                $contents = preg_replace(
+                    '/(plugins:\s*\[)/',
+                    "$1\n".implode("\n", $plugins),
+                    $contents,
+                    1,
+                ) ?? $contents;
+            }
+
+            $this->files->put($configPath, $contents);
+            $this->components->info('Configured vite.config for Inertia React');
+
+            return true;
+        }
+
+        $this->components->warn("Could not safely update {$configPath}; add the Inertia and React Vite plugins manually.");
+
+        return false;
+    }
+
+    private function looksLikeLaravelViteConfig(string $contents): bool
+    {
+        return str_contains($contents, 'laravel-vite-plugin')
+            && str_contains($contents, 'tailwindcss')
+            && str_contains($contents, 'resources/js/app.js');
+    }
+
+    private function reactViteConfigSource(): string
+    {
+        return <<<'JS'
+import inertia from '@inertiajs/vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import laravel from 'laravel-vite-plugin';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/app.tsx'],
+            refresh: true,
+        }),
+        inertia(),
+        react(),
+        tailwindcss(),
+    ],
+});
+JS;
     }
 
     private function frontendPreflight(): bool
@@ -793,6 +1075,8 @@ PHP;
 
         $dependencies = is_array($package['dependencies'] ?? null) ? $package['dependencies'] : [];
         foreach ([
+            '@inertiajs/react' => '^3.0.0',
+            '@inertiajs/vite' => '^3.0.0',
             '@inlayphp/actions' => '^0.3.0',
             '@inlayphp/actions-react' => '^0.3.0',
             '@inlayphp/core' => '^0.3.0',
@@ -806,12 +1090,26 @@ PHP;
             '@inlayphp/ui' => '^0.3.0',
             '@inlayphp/ui-react' => '^0.3.0',
             '@inlayphp/widgets-react' => '^0.3.0',
+            'react' => '^19.0.0',
+            'react-dom' => '^19.0.0',
         ] as $name => $version) {
             $dependencies[$name] ??= $version;
         }
 
+        $devDependencies = is_array($package['devDependencies'] ?? null) ? $package['devDependencies'] : [];
+        foreach ([
+            '@vitejs/plugin-react' => '^6.0.0',
+            '@types/react' => '^19.0.0',
+            '@types/react-dom' => '^19.0.0',
+            'typescript' => '^5.7.0',
+        ] as $name => $version) {
+            $devDependencies[$name] ??= $version;
+        }
+
         ksort($dependencies);
+        ksort($devDependencies);
         $package['dependencies'] = $dependencies;
+        $package['devDependencies'] = $devDependencies;
         $encoded = json_encode($package, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)."\n";
         $this->files->put($path, $encoded);
         $this->components->info('Added the official React renderer packages to package.json');

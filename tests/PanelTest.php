@@ -9,6 +9,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
 use Inlay\Authorization\AbilityRegistry;
 use Inlay\Resources\Contracts\HasTenants;
@@ -272,6 +273,25 @@ it('registers multiple panels with unique IDs and paths and resolves default and
     expect($registry->current()->id())->toBe('app');
     $registry->setCurrent(null);
     expect($registry->current()->id())->toBe('admin');
+});
+
+it('resolves the active panel from route defaults, route names, and paths', function (): void {
+    $registry = new PanelRegistry;
+    $registry->register(Panel::make('app')->path('/'));
+    $registry->register(Panel::make('admin')->path('/admin'), default: true);
+
+    $request = Request::create('/admin/users', 'GET');
+    $route = new Route(['GET'], '/admin/users', static fn (): null => null);
+    $route->name('inlay.admin.users.index')->bind($request);
+    $request->setRouteResolver(static fn (): Route => $route);
+
+    expect($registry->resolveForRequest($request)?->id())->toBe('admin');
+    expect($registry->resolveForRequest(Request::create('/admin/users', 'GET'))?->id())->toBe('admin');
+
+    $standalone = Request::create('/standalone/forms', 'GET');
+    $standaloneRegistry = new PanelRegistry;
+    $standaloneRegistry->register(Panel::make('admin')->path('/admin'));
+    expect($standaloneRegistry->resolveForRequest($standalone))->toBeNull();
 });
 
 it('builds an authorization-aware minimal directory for authenticated panel users', function (): void {

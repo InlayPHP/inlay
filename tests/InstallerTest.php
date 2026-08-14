@@ -128,13 +128,43 @@ PHP);
             ->and($files->get($root.'/resources/css/app.css'))
             ->toContain("@source '../../node_modules/@inlayphp/*/src/**/*.{ts,tsx,vue}';")
             ->and($files->exists($root.'/resources/js/pages/inlay/auth/login.tsx'))->toBeTrue()
+            ->and($files->get($root.'/resources/js/pages/inlay/auth/login.tsx'))
+            ->toContain('themeVariables(theme, "light")')
+            ->and($files->exists($root.'/resources/js/app.tsx'))->toBeTrue()
+            ->and($files->get($root.'/resources/js/app.tsx'))
+            ->toContain('createInertiaApp')
+            ->and($files->exists($root.'/resources/views/app.blade.php'))->toBeTrue()
+            ->and($files->get($root.'/resources/views/app.blade.php'))
+            ->toContain("@vite(['resources/css/app.css', 'resources/js/app.tsx'])")
+            ->and($files->exists($root.'/app/Http/Middleware/HandleInertiaRequests.php'))->toBeTrue()
+            ->and($files->get($root.'/app/Http/Middleware/HandleInertiaRequests.php'))
+            ->toContain('extends Middleware')
+            ->toContain("'auth'")
+            ->and($files->get($root.'/bootstrap/app.php'))
+            ->toContain('HandleInertiaRequests::class')
+            ->toContain('->web(append:')
+            ->and($files->exists($root.'/vite.config.js'))->toBeTrue()
+            ->and($files->get($root.'/vite.config.js'))
+            ->toContain("import inertia from '@inertiajs/vite';")
+            ->toContain("import react from '@vitejs/plugin-react';")
+            ->toContain("'resources/js/app.js'")
+            ->toContain("'resources/js/app.tsx'")
             ->and($files->exists($root.'/resources/js/pages/users/index.tsx'))->toBeTrue();
 
         $package = json_decode($files->get($root.'/package.json'), true, flags: JSON_THROW_ON_ERROR);
         expect($package['dependencies'])
+            ->toHaveKey('@inertiajs/react', '^3.0.0')
+            ->toHaveKey('@inertiajs/vite', '^3.0.0')
             ->toHaveKey('@inlayphp/panels-react', '^0.3.0')
             ->toHaveKey('@inlayphp/media-manager-react', '^0.3.0')
-            ->toHaveKey('@inlayphp/resources-react', '^0.3.0');
+            ->toHaveKey('@inlayphp/resources-react', '^0.3.0')
+            ->toHaveKey('react', '^19.0.0')
+            ->toHaveKey('react-dom', '^19.0.0');
+        expect($package['devDependencies'])
+            ->toHaveKey('@vitejs/plugin-react', '^6.0.0')
+            ->toHaveKey('@types/react', '^19.0.0')
+            ->toHaveKey('@types/react-dom', '^19.0.0')
+            ->toHaveKey('typescript', '^5.7.0');
 
         foreach ($files->allFiles($root.'/app') as $generated) {
             if ($generated->getExtension() !== 'php') {

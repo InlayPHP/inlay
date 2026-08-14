@@ -37,6 +37,8 @@ final class PanelServiceProvider extends ServiceProvider
         // PanelUser decision and tenant/session state are never cached globally.
         Inertia::share('inlayPanels', fn (): array => $this->app->make(PanelRegistry::class)
             ->directoryFor(request()->user()));
+        Inertia::share('inlayPanel', fn (): ?Panel => $this->app->make(PanelRegistry::class)
+            ->resolveForRequest(request()));
 
         $this->publishes([
             __DIR__.'/../config/inlay-panels.php' => config_path('inlay-panels.php'),

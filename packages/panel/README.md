@@ -390,16 +390,18 @@ Plugin IDs must be unique inside a panel. Use `hasPlugin()`, `getPlugin()`, `get
 
 ## Share with Inertia
 
-Resolve the current panel from `PanelRegistry` and share it as an Inertia prop:
+The panel service provider automatically shares the active panel as the
+`inlayPanel` prop on panel routes. It resolves the route default first, then
+the panel route name, then the request path, so Resource and plugin pages keep
+the same shell contract even when a custom router removes route defaults. No
+application middleware or controller boilerplate is required. Standalone
+routes receive no active panel.
+
+If a custom renderer needs to resolve the contract outside Inertia's shared
+props, use the same request-aware resolver:
 
 ```php
-use Inertia\Inertia;
-use Inlay\PanelRegistry;
-
-public function boot(PanelRegistry $panels): void
-{
-    Inertia::share('inlayPanel', fn () => $panels->current());
-}
+$panel = app(\Inlay\PanelRegistry::class)->resolveForRequest(request());
 ```
 
 The React and Vue adapters consume the same JSON payload. `colors` and `theme` are intentionally open token maps so applications can map them to CSS custom properties, Tailwind theme values, or a custom renderer without changing PHP schemas.

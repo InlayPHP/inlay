@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Inlay\Authorization\AbilityRegistry;
 use Inlay\Authorization\AuthorizationManager;
+use Inlay\PanelRegistry;
 use Spatie\Permission\Contracts\Permission;
 
 final class AccessAuditController
@@ -19,6 +20,7 @@ final class AccessAuditController
         Request $request,
         AuthorizationManager $authorization,
         AbilityRegistry $abilities,
+        PanelRegistry $panels,
     ): Response {
         $authorization->authorize($request->user(), 'access-audit.view');
         $guard = (string) config('inlay-authorization-spatie.default_guard', 'web');
@@ -50,6 +52,7 @@ final class AccessAuditController
         $synced = count(array_filter($rows, fn (array $row): bool => $row['synced']));
 
         return Inertia::render('inlay-permission-manager/audit/index', [
+            'inlayPanel' => $panels->get((string) $request->route('inlayPanel')),
             'audit' => [
                 'contract' => 'inlay.permission-manager.audit.v1',
                 'guard' => $guard,
