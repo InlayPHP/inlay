@@ -75,6 +75,7 @@ it('scaffolds a default panel provider and registers it in the panel config', fu
         $files->ensureDirectoryExists($root.'/app/Models');
         $files->ensureDirectoryExists($root.'/bootstrap');
         $files->ensureDirectoryExists($root.'/resources/css');
+        $files->ensureDirectoryExists($root.'/resources/js');
         $files->put($root.'/app/Models/User.php', <<<'PHP'
 <?php
 
@@ -100,6 +101,7 @@ PHP);
             'dependencies' => ['@inertiajs/react' => '^3.0.0'],
         ], JSON_THROW_ON_ERROR));
         $files->put($root.'/resources/css/app.css', "@import 'tailwindcss';\n");
+        $files->put($root.'/resources/js/app.js', "// Laravel's existing entrypoint\n");
 
         expect(runInlayInstall($root, ['--panels' => true, '--no-npm' => true]))->toBe(0)
             ->and($files->get($root.'/app/Providers/Inlay/AdminPanelProvider.php'))

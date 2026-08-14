@@ -420,9 +420,9 @@ PHP;
             '/class\s+User\s+extends\s+Authenticatable(?<interfaces>\s+implements\s+[^\{]+)?\s*\{/',
             static function (array $matches): string {
                 $interfaces = trim((string) ($matches['interfaces'] ?? ''));
-                $implements = $interfaces === '' ? ' implements PanelAccount' : $interfaces.', PanelAccount';
+                $implements = $interfaces === '' ? 'implements PanelAccount' : $interfaces.', PanelAccount';
 
-                return "class User extends Authenticatable{$implements}\n{\n    use InteractsWithPanelAccount;";
+                return "class User extends Authenticatable {$implements}\n{\n    use InteractsWithPanelAccount;";
             },
             $contents,
             1,
@@ -679,7 +679,9 @@ BLADE;
 
         if ($configPath === null) {
             $configPath = $this->laravel->basePath('vite.config.js');
-            $this->files->put($configPath, $this->reactViteConfigSource());
+            $this->files->put($configPath, $this->reactViteConfigSource(
+                $this->files->exists($this->laravel->basePath('resources/js/app.js')),
+            ));
             $this->components->info('Created vite.config.js for Inertia React');
 
             return true;
@@ -690,8 +692,9 @@ BLADE;
         $hasReactImport = str_contains($contents, '@vitejs/plugin-react');
         $hasInertiaInput = str_contains($contents, 'resources/js/app.tsx');
         $hasLegacyInput = str_contains($contents, 'resources/js/app.js');
+        $hasLegacyEntry = $this->files->exists($this->laravel->basePath('resources/js/app.js'));
 
-        if ($hasInertiaImport && $hasReactImport && $hasInertiaInput && $hasLegacyInput) {
+        if ($hasInertiaImport && $hasReactImport && $hasInertiaInput && (! $hasLegacyEntry || $hasLegacyInput)) {
             return true;
         }
 
@@ -709,14 +712,14 @@ BLADE;
             // uses app.tsx. Building both entries lets the installer preserve
             // the existing application route instead of turning it into a
             // Vite manifest error.
-            if (! $hasLegacyInput && $hasInertiaInput) {
+            if ($hasLegacyEntry && ! $hasLegacyInput && $hasInertiaInput) {
                 $contents = preg_replace_callback(
                     "/(['\"]resources\\/js\\/)app\\.tsx(['\"])/",
                     static fn (array $matches): string => $matches[1]."app.js', 'resources/js/app.tsx".$matches[2],
                     $contents,
                     1,
                 ) ?? $contents;
-            } elseif ($hasLegacyInput && ! $hasInertiaInput) {
+            } elseif ($hasLegacyEntry && $hasLegacyInput && ! $hasInertiaInput) {
                 $contents = preg_replace_callback(
                     "/(['\"]resources\\/js\\/)app\\.js(['\"])/",
                     static fn (array $matches): string => $matches[1]."app.js', 'resources/js/app.tsx".$matches[2],
@@ -759,9 +762,13 @@ BLADE;
             && str_contains($contents, 'resources/js/app.js');
     }
 
-    private function reactViteConfigSource(): string
+    private function reactViteConfigSource(bool $includeLegacyEntry): string
     {
-        return <<<'JS'
+        $inputs = $includeLegacyEntry
+            ? "['resources/css/app.css', 'resources/js/app.js', 'resources/js/app.tsx']"
+            : "['resources/css/app.css', 'resources/js/app.tsx']";
+
+        $source = <<<'JS'
 import inertia from '@inertiajs/vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -771,7 +778,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/js/app.tsx'],
+            input: __INPUTS__,
             refresh: true,
         }),
         inertia(),
@@ -780,6 +787,8 @@ export default defineConfig({
     ],
 });
 JS;
+
+        return str_replace('__INPUTS__', $inputs, $source);
     }
 
     private function frontendPreflight(): bool
