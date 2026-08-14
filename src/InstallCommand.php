@@ -21,7 +21,8 @@ final class InstallCommand extends Command
         {--tenant-route-key= : Tenant route key (defaults to the model route key)}
         {--path=app/Providers/Inlay : Relative directory for the generated panel provider}
         {--force : Overwrite the generated provider file}
-        {--without-media : Do not install the bundled media library}
+        {--media : Install and register the bundled Media Manager (opt-in)}
+        {--without-media : Legacy alias; media is disabled by default}
         {--without-users : Do not generate the default User resource}
         {--no-frontend : Do not scaffold the official renderer entry points}
         {--no-npm : Update frontend files without running the JavaScript package manager}
@@ -42,7 +43,13 @@ final class InstallCommand extends Command
         $tenantParameter = $this->identifier((string) $this->option('tenant-parameter'));
         $tenantRouteKey = $this->nullableIdentifier((string) ($this->option('tenant-route-key') ?? ''));
         $directory = $this->relativeDirectory((string) $this->option('path'));
-        $installMedia = ! (bool) $this->option('without-media');
+        if ((bool) $this->option('media') && (bool) $this->option('without-media')) {
+            $this->components->error('Use either --media or --without-media, not both. Media is disabled by default.');
+
+            return self::FAILURE;
+        }
+
+        $installMedia = (bool) $this->option('media');
         $installUsers = ! (bool) $this->option('without-users');
         $createPanel = ! (bool) $this->option('no-panel');
 
@@ -98,7 +105,7 @@ final class InstallCommand extends Command
             $this->configureGuestRedirect($panel);
 
             if ($renderer !== 'none' && ! $this->option('no-frontend')) {
-                $frontendReady = $this->scaffoldFrontend($renderer, $panel);
+                $frontendReady = $this->scaffoldFrontend($renderer, $panel, $installMedia);
                 if (! $frontendReady && in_array($renderer, ['react', 'vue'], true)) {
                     return self::FAILURE;
                 }
@@ -466,7 +473,7 @@ PHP;
         $this->components->info('Configured unauthenticated requests to use the panel login');
     }
 
-    private function scaffoldFrontend(string $renderer, string $panel): bool
+    private function scaffoldFrontend(string $renderer, string $panel, bool $installMedia): bool
     {
         $packagePath = $this->laravel->basePath('package.json');
         if (! $this->files->exists($packagePath)) {
@@ -475,13 +482,13 @@ PHP;
             return false;
         }
 
-        if (! $this->updateFrontendDependencies($packagePath, $renderer)) {
+        if (! $this->updateFrontendDependencies($packagePath, $renderer, $installMedia)) {
             return false;
         }
 
         $files = $renderer === 'react'
-            ? $this->reactFrontendFiles($panel)
-            : $this->vueFrontendFiles($panel);
+            ? $this->reactFrontendFiles($panel, $installMedia)
+            : $this->vueFrontendFiles($panel, $installMedia);
 
         foreach ($files as $relative => $source) {
             $path = $this->laravel->basePath($relative);
@@ -1263,7 +1270,7 @@ final class UserRules extends Validation
 PHP;
     }
 
-    private function updateFrontendDependencies(string $path, string $renderer = 'react'): bool
+    private function updateFrontendDependencies(string $path, string $renderer = 'react', bool $installMedia = false): bool
     {
         try {
             $package = json_decode($this->files->get($path), true, flags: JSON_THROW_ON_ERROR);
@@ -1287,7 +1294,6 @@ PHP;
             '@inlayphp/actions-vue' => '^0.3.0',
             '@inlayphp/core' => '^0.3.0',
             '@inlayphp/forms-vue' => '^0.3.0',
-            '@inlayphp/media-manager-vue' => '^0.3.0',
             '@inlayphp/panels-vue' => '^0.3.0',
             '@inlayphp/resources' => '^0.3.0',
             '@inlayphp/resources-vue' => '^0.3.0',
@@ -1304,7 +1310,6 @@ PHP;
             '@inlayphp/actions-react' => '^0.3.0',
             '@inlayphp/core' => '^0.3.0',
             '@inlayphp/forms-react' => '^0.3.0',
-            '@inlayphp/media-manager-react' => '^0.3.0',
             '@inlayphp/panels-react' => '^0.3.0',
             '@inlayphp/resources' => '^0.3.0',
             '@inlayphp/resources-react' => '^0.3.0',
@@ -1316,6 +1321,12 @@ PHP;
             'react' => '^19.0.0',
             'react-dom' => '^19.0.0',
         ];
+        if ($installMedia) {
+            $requiredDependencies[$renderer === 'vue'
+                ? '@inlayphp/media-manager-vue'
+                : '@inlayphp/media-manager-react'] = '^0.3.0';
+        }
+
         foreach ($requiredDependencies as $name => $version) {
             $dependencies[$name] ??= $version;
         }
@@ -1347,7 +1358,7 @@ PHP;
     }
 
     /** @return array<string, string> */
-    private function reactFrontendFiles(string $panel): array
+    private function reactFrontendFiles(string $panel, bool $installMedia = false): array
     {
         $stubs = $this->laravel->basePath('vendor/inlayphp/inlay/stubs/react');
         if (! $this->files->isDirectory($stubs)) {
@@ -1359,10 +1370,12 @@ PHP;
             'resources/js/pages/inlay/auth/login.tsx' => 'login.tsx',
             'resources/js/pages/inlay/dashboard.tsx' => 'dashboard.tsx',
             'resources/js/pages/inlay/account-settings.tsx' => 'account-settings.tsx',
-            'resources/js/pages/inlay-media-manager/index.tsx' => 'media-manager.tsx',
             'resources/js/pages/users/index.tsx' => 'users-index.tsx',
             'resources/js/pages/users/form.tsx' => 'users-form.tsx',
         ];
+        if ($installMedia) {
+            $files['resources/js/pages/inlay-media-manager/index.tsx'] = 'media-manager.tsx';
+        }
 
         return array_map(
             fn (string $stub): string => str_replace(
@@ -1375,7 +1388,7 @@ PHP;
     }
 
     /** @return array<string, string> */
-    private function vueFrontendFiles(string $panel): array
+    private function vueFrontendFiles(string $panel, bool $installMedia = false): array
     {
         $stubs = $this->laravel->basePath('vendor/inlayphp/inlay/stubs/vue');
         if (! $this->files->isDirectory($stubs)) {
@@ -1387,10 +1400,12 @@ PHP;
             'resources/js/pages/inlay/auth/login.vue' => 'login.vue',
             'resources/js/pages/inlay/dashboard.vue' => 'dashboard.vue',
             'resources/js/pages/inlay/account-settings.vue' => 'account-settings.vue',
-            'resources/js/pages/inlay-media-manager/index.vue' => 'media-manager.vue',
             'resources/js/pages/users/index.vue' => 'users-index.vue',
             'resources/js/pages/users/form.vue' => 'users-form.vue',
         ];
+        if ($installMedia) {
+            $files['resources/js/pages/inlay-media-manager/index.vue'] = 'media-manager.vue';
+        }
 
         return array_map(
             fn (string $stub): string => str_replace('{{ panel }}', $panel, $this->files->get($stubs.'/'.$stub)),

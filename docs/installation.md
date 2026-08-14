@@ -2,7 +2,7 @@
 
 ## Complete React or Vue panel
 
-Start from any Laravel 13 application, including a brand-new application from
+Start from any Laravel 12 or 13 application, including a brand-new application from
 `laravel new`:
 
 ```bash
@@ -14,11 +14,13 @@ The installer detects a plain Laravel application and scaffolds the missing
 Inertia 3 React or Vue entrypoint, root Blade view, `HandleInertiaRequests`
 middleware, and Vite/renderer dependencies. It then creates an
 application-owned panel provider, User CRUD, panel authentication and account
-settings, the Media Manager and migrations, renderer page wrappers, npm
-dependencies, and Tailwind source discovery. Existing starter-kit dependencies
-and entrypoints are preserved. The original Laravel `resources/js/app.js`
-entrypoint is kept in Vite's inputs when present so the default welcome route
-remains valid. Select the Vue preset with `--renderer=vue`; React is the default.
+settings, renderer page wrappers, npm dependencies, and Tailwind source
+discovery. Media is disabled by default; add `--media` to register the Media
+Manager, publish its migrations, and generate its renderer page. Existing
+starter-kit dependencies and entrypoints are preserved. The original Laravel
+`resources/js/app.js` entrypoint is kept in Vite's inputs when present so the
+default welcome route remains valid. Select the Vue preset with
+`--renderer=vue`; React is the default.
 It prints the remaining commands for the package manager detected from the
 application's lockfile. A typical pnpm installation finishes with:
 
@@ -82,14 +84,17 @@ Existing application-owned panel providers, Resources, validation classes, and
 page wrappers are preserved. Missing supporting files are restored. Pass
 `--force` only to regenerate those files intentionally.
 
-Useful smaller presets include:
+Useful presets include:
 
 ```bash
-php artisan inlay:install --panels --without-media
+php artisan inlay:install --panels --media
 php artisan inlay:install --panels --without-users
 php artisan inlay:install --panels --no-frontend
 php artisan inlay:install --renderer=none
 ```
+
+Media is disabled by default. `--without-media` remains accepted as a legacy
+alias for scripts that used the previous default.
 
 Use `--no-npm` when CI or a container build installs frontend dependencies in a
 separate phase. The installer still updates `package.json`, writes page wrappers,

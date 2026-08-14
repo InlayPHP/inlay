@@ -87,7 +87,9 @@ Individual packages may require fewer dependencies. For example, the schema and 
 | `inlayphp/resources` | Model-centric CRUD orchestration across tables, forms, infolists, pages, policies, and persistence |
 | `inlayphp/authorization` | Owned ability registry and Laravel Gate/Policy decision bridge |
 
-These packages are installed by `inlayphp/inlay`. They provide the panel and component framework without choosing a database permission system, media library, or import workflow.
+These packages are installed by `inlayphp/inlay`. They provide the panel and
+component framework without activating a database permission system, media
+library, or import workflow in the generated panel.
 
 ### Optional official Composer packages
 
@@ -162,10 +164,12 @@ missing Inertia entrypoint (`resources/js/app.tsx` for React or
 `resources/js/app.ts` for Vue), root Blade view, `HandleInertiaRequests`
 middleware, and renderer/Vite dependencies before it creates the panel. It also
 creates and registers `AdminPanelProvider`, enables the default theme,
-authentication and account settings, generates a working User Resource, bundles
-the Media Manager, publishes its migrations, redirects guests to the panel
-login, scaffolds the official renderer pages, and configures Tailwind to scan
-the installed `@inlayphp/*` npm packages. The original Laravel `app.js`
+authentication and account settings, generates a working User Resource,
+redirects guests to the panel login, scaffolds the official renderer pages, and
+configures Tailwind to scan the installed `@inlayphp/*` npm packages. Media is
+available as an explicit opt-in with `--media`, which registers the Media
+Manager, publishes its migrations, and adds its renderer page. The original
+Laravel `app.js`
 entrypoint is kept in the Vite inputs when present, so a stock welcome route
 continues to work. It detects npm, pnpm, Yarn, or Bun and installs the required
 renderer packages. Run the printed migration, user, and frontend build
@@ -194,8 +198,9 @@ Vite build to prove the deployed stylesheet contains Inlay utilities.
 `--email`, and `--password` options are available for controlled automation, but
 putting passwords directly in shell history is not recommended.
 
-Use `--panel=reports` for another panel id, `--without-media` or
-`--without-users` for a smaller preset, `--no-npm` when CI manages frontend
+Use `--panel=reports` for another panel id, `--media` to install the optional
+Media Manager, `--without-media` as a backwards-compatible no-op alias, or
+`--without-users` for a smaller preset. Use `--no-npm` when CI manages frontend
 installation separately, and `--force` to replace generated application files.
 React and Vue are both turnkey renderer presets. Select Vue explicitly when the
 application uses the Vue starter kit (or when starting from a plain Laravel

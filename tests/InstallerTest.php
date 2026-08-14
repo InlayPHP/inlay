@@ -103,7 +103,7 @@ PHP);
         $files->put($root.'/resources/css/app.css', "@import 'tailwindcss';\n");
         $files->put($root.'/resources/js/app.js', "// Laravel's existing entrypoint\n");
 
-        expect(runInlayInstall($root, ['--panels' => true, '--no-npm' => true]))->toBe(0)
+        expect(runInlayInstall($root, ['--panels' => true, '--media' => true, '--no-npm' => true]))->toBe(0)
             ->and($files->get($root.'/app/Providers/Inlay/AdminPanelProvider.php'))
             ->toContain('namespace App\\Providers\\Inlay;')
             ->toContain("->path('/admin')")
@@ -206,6 +206,54 @@ it('fails before writing panel files when the React frontend is incomplete', fun
     }
 });
 
+it('keeps media opt-in for the default panel preset', function (): void {
+    $files = new Filesystem;
+    $root = sys_get_temp_dir().'/inlay-install-no-media-'.bin2hex(random_bytes(6));
+
+    try {
+        $files->ensureDirectoryExists($root.'/app/Models');
+        $files->ensureDirectoryExists($root.'/bootstrap');
+        $files->ensureDirectoryExists($root.'/resources/css');
+        $files->ensureDirectoryExists($root.'/resources/js');
+        $files->put($root.'/app/Models/User.php', <<<'PHP'
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
+{
+}
+PHP);
+        $files->put($root.'/bootstrap/app.php', <<<'PHP'
+<?php
+
+use Illuminate\Foundation\Configuration\Middleware;
+
+return Application::configure()
+    ->withMiddleware(function (Middleware $middleware): void {
+    });
+PHP);
+        $files->put($root.'/package.json', json_encode([
+            'private' => true,
+            'dependencies' => [],
+        ], JSON_THROW_ON_ERROR));
+        $files->put($root.'/resources/css/app.css', "@import 'tailwindcss';\n");
+
+        expect(runInlayInstall($root, ['--no-npm' => true]))->toBe(0)
+            ->and($files->get($root.'/app/Providers/Inlay/AdminPanelProvider.php'))
+            ->not->toContain('MediaManagerPlugin')
+            ->and($files->exists($root.'/database/migrations/2026_01_01_000000_create_inlay_media_tables.php'))->toBeFalse()
+            ->and($files->exists($root.'/resources/js/pages/inlay-media-manager/index.tsx'))->toBeFalse();
+
+        $package = json_decode($files->get($root.'/package.json'), true, flags: JSON_THROW_ON_ERROR);
+        expect($package['dependencies'])->not->toHaveKey('@inlayphp/media-manager-react');
+    } finally {
+        $files->deleteDirectory($root);
+    }
+});
+
 it('scaffolds the Vue preset while preserving an existing starter package', function (): void {
     $files = new Filesystem;
     $root = sys_get_temp_dir().'/inlay-install-vue-'.bin2hex(random_bytes(6));
@@ -258,7 +306,7 @@ export default defineConfig({
 });
 TS);
 
-        expect(runInlayInstall($root, ['--renderer' => 'vue', '--no-npm' => true]))->toBe(0)
+        expect(runInlayInstall($root, ['--renderer' => 'vue', '--media' => true, '--no-npm' => true]))->toBe(0)
             ->and($files->exists($root.'/resources/js/app.ts'))->toBeTrue()
             ->and($files->get($root.'/resources/js/app.ts'))->toContain("createInertiaApp")
             ->and($files->exists($root.'/resources/views/app.blade.php'))->toBeTrue()
