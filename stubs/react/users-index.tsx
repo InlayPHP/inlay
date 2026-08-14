@@ -7,7 +7,7 @@ import type {
 } from "@inlayphp/resources-react";
 import { Table } from "@inlayphp/tables-react";
 import type { TableResource } from "@inlayphp/tables-react";
-import InlayPanelLayout from "../../layouts/inlay-panel-layout";
+import InlayPanelLayout from "./inlay-panel-layout";
 
 type PageProps = {
   breadcrumbs?: ResourceBreadcrumb[];

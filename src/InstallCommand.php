@@ -1365,7 +1365,11 @@ PHP;
         ];
 
         return array_map(
-            fn (string $stub): string => str_replace('{{ panel }}', $panel, $this->files->get($stubs.'/'.$stub)),
+            fn (string $stub): string => str_replace(
+                ['./inlay-panel-layout', '{{ panel }}'],
+                ['../../layouts/inlay-panel-layout', $panel],
+                $this->files->get($stubs.'/'.$stub),
+            ),
             $files,
         );
     }

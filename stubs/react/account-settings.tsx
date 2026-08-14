@@ -1,7 +1,7 @@
 import { Head, usePage } from "@inertiajs/react";
 import { AccountSettingsPage as AccountSettings } from "@inlayphp/panels-react";
 import type { AccountSettingsPageProps } from "@inlayphp/panels-react";
-import InlayPanelLayout from "../../layouts/inlay-panel-layout";
+import InlayPanelLayout from "./inlay-panel-layout";
 
 type PageProps = AccountSettingsPageProps & {
   flash?: { success?: string | null };
