@@ -132,6 +132,8 @@ PHP);
             ->and($files->exists($root.'/resources/js/pages/inlay/auth/login.tsx'))->toBeTrue()
             ->and($files->get($root.'/resources/js/pages/inlay/auth/login.tsx'))
             ->toContain('themeVariables(theme, "light")')
+            ->and($files->get($root.'/resources/js/pages/inlay/dashboard.tsx'))
+            ->toContain('/admin/media')
             ->and($files->exists($root.'/resources/js/app.tsx'))->toBeTrue()
             ->and($files->get($root.'/resources/js/app.tsx'))
             ->toContain('createInertiaApp')
@@ -244,6 +246,8 @@ PHP);
         expect(runInlayInstall($root, ['--no-npm' => true]))->toBe(0)
             ->and($files->get($root.'/app/Providers/Inlay/AdminPanelProvider.php'))
             ->not->toContain('MediaManagerPlugin')
+            ->and($files->get($root.'/resources/js/pages/inlay/dashboard.tsx'))
+            ->not->toContain('/admin/media')
             ->and($files->exists($root.'/database/migrations/2026_01_01_000000_create_inlay_media_tables.php'))->toBeFalse()
             ->and($files->exists($root.'/resources/js/pages/inlay-media-manager/index.tsx'))->toBeFalse();
 

@@ -1377,7 +1377,7 @@ PHP;
             $files['resources/js/pages/inlay-media-manager/index.tsx'] = 'media-manager.tsx';
         }
 
-        return array_map(
+        $rendered = array_map(
             fn (string $stub): string => str_replace(
                 ['./inlay-panel-layout', '{{ panel }}'],
                 ['../../layouts/inlay-panel-layout', $panel],
@@ -1385,6 +1385,16 @@ PHP;
             ),
             $files,
         );
+
+        if ($installMedia) {
+            $rendered['resources/js/pages/inlay/dashboard.tsx'] = str_replace(
+                '["Users", "Create and manage panel accounts.", "/'.$panel.'/users"],',
+                '["Users", "Create and manage panel accounts.", "/'.$panel.'/users"],\n  ["Media", "Upload and organize application media.", "/'.$panel.'/media"],',
+                $rendered['resources/js/pages/inlay/dashboard.tsx'],
+            );
+        }
+
+        return $rendered;
     }
 
     /** @return array<string, string> */
@@ -1407,10 +1417,20 @@ PHP;
             $files['resources/js/pages/inlay-media-manager/index.vue'] = 'media-manager.vue';
         }
 
-        return array_map(
+        $rendered = array_map(
             fn (string $stub): string => str_replace('{{ panel }}', $panel, $this->files->get($stubs.'/'.$stub)),
             $files,
         );
+
+        if ($installMedia) {
+            $rendered['resources/js/pages/inlay/dashboard.vue'] = str_replace(
+                "    ['Users', 'Create and manage panel accounts.', '/{$panel}/users'],",
+                "    ['Users', 'Create and manage panel accounts.', '/{$panel}/users'],\n    ['Media', 'Upload and organize application media.', '/{$panel}/media'],",
+                $rendered['resources/js/pages/inlay/dashboard.vue'],
+            );
+        }
+
+        return $rendered;
     }
 
     private function configureTailwindSources(): bool

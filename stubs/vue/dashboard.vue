@@ -12,7 +12,6 @@ defineProps<{
 
 const destinations = [
     ['Users', 'Create and manage panel accounts.', '/{{ panel }}/users'],
-    ['Media', 'Upload and organize application media.', '/{{ panel }}/media'],
     ['Account settings', 'Update your profile and password.', '/{{ panel }}/settings/account'],
 ] as const;
 </script>

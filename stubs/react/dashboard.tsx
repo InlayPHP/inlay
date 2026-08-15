@@ -3,7 +3,6 @@ import InlayPanelLayout from "./inlay-panel-layout";
 
 const destinations = [
   ["Users", "Create and manage panel accounts.", "/{{ panel }}/users"],
-  ["Media", "Upload and organize application media.", "/{{ panel }}/media"],
   [
     "Account settings",
     "Update your profile and password.",
