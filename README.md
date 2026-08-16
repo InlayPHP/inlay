@@ -965,6 +965,11 @@ Tables, schemas/infolists, centralized validation, actions/widgets, themes,
 plugins, standalone pages, and deployment. Each chapter links to the package
 README for the full method-level API.
 
+The same Markdown sources power the static documentation site in
+[`docs-site/`](docs-site/README.md). Run its local dev server while editing the
+guides, or let the included GitHub Pages workflow publish the generated site
+from `main`.
+
 - [Release checklist and split-package process](docs/release.md)
 - [Architecture and package boundaries](docs/architecture.md)
 - [User guide index](docs/guide/README.md)

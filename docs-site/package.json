@@ -1,0 +1,18 @@
+{
+  "name": "inlay-documentation-site",
+  "private": true,
+  "type": "module",
+  "description": "Static documentation site generated from the Inlay Markdown guides.",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node dev.mjs",
+    "clean": "node -e \"import('node:fs/promises').then(({rm}) => rm('dist', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1",
+    "marked": "^15.0.12"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">InlayPHP logo</title>
+  <desc id="description">Three precisely fitted layers with a lowercase i inlaid into the top tile.</desc>
+  <defs>
+    <mask id="inlaid-i">
+      <rect width="512" height="512" fill="white"/>
+      <circle cx="256" cy="154" r="24" fill="black"/>
+      <rect x="232" y="197" width="48" height="108" rx="20" fill="black"/>
+    </mask>
+  </defs>
+  <path fill="#18181b" d="M69 288a19 19 0 0 0-21 32l188 121a37 37 0 0 0 40 0l188-121a19 19 0 0 0-21-32L276 395a37 37 0 0 1-40 0L69 288Z"/>
+  <path fill="#818cf8" d="M69 221a19 19 0 0 0-21 32l188 121a37 37 0 0 0 40 0l188-121a19 19 0 0 0-21-32L276 328a37 37 0 0 1-40 0L69 221Z"/>
+  <path fill="#4f46e5" fill-rule="evenodd" mask="url(#inlaid-i)" d="M236 61a37 37 0 0 1 40 0l188 121a19 19 0 0 1 0 32L276 335a37 37 0 0 1-40 0L48 214a19 19 0 0 1 0-32L236 61Z"/>
+</svg>
