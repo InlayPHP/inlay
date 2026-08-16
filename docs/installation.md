@@ -1,5 +1,9 @@
 # Installation and deployment
 
+For the complete application walkthrough, start with the
+[Inlay user guide](guide/README.md). This page is the shorter installation and
+deployment reference.
+
 ## Complete React or Vue panel
 
 Start from any Laravel 12 or 13 application, including a brand-new application from

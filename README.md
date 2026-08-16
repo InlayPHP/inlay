@@ -235,10 +235,11 @@ This generates routes such as `/{team}/workspace` and keeps the tenant
 configuration in application-owned PHP, where it can be reviewed and extended.
 Omit `--tenant-route-key` to use the model's normal Laravel route key.
 
-The root package is the recommended all-in-one installation and includes the
-storage-neutral media catalog and Media Manager. Roles, database permissions,
-Spatie adapters, imports, two-factor authentication, and CMS features remain
-separate plugins so a default panel stays understandable.
+The root package is the recommended all-in-one installation foundation and
+includes the storage-neutral media catalog dependencies. Media Manager is
+activated only with `php artisan inlay:install --panels --media`; roles,
+database permissions, Spatie adapters, imports, two-factor authentication, and
+CMS features remain separate plugins so a default panel stays understandable.
 
 Install only the features an application uses. A Form and Table application typically needs:
 
@@ -958,8 +959,27 @@ they demonstrate.
 
 ## Documentation
 
+Start with the [Inlay user guide](docs/guide/README.md). It is organized as a
+progressive Laravel walkthrough: clean installation, panels, Resources, Forms,
+Tables, schemas/infolists, centralized validation, actions/widgets, themes,
+plugins, standalone pages, and deployment. Each chapter links to the package
+README for the full method-level API.
+
 - [Release checklist and split-package process](docs/release.md)
 - [Architecture and package boundaries](docs/architecture.md)
+- [User guide index](docs/guide/README.md)
+- [Getting started](docs/guide/01-getting-started.md)
+- [Panels](docs/guide/02-panels.md)
+- [Resources and CRUD](docs/guide/03-resources.md)
+- [Forms](docs/guide/04-forms.md)
+- [Tables](docs/guide/05-tables.md)
+- [Schemas and Infolists](docs/guide/12-schemas-and-infolists.md)
+- [Validation](docs/guide/06-validation.md)
+- [Actions, notifications, and widgets](docs/guide/07-actions-and-widgets.md)
+- [Themes and UI customization](docs/guide/08-themes.md)
+- [Plugins](docs/guide/09-plugins.md)
+- [Standalone Forms and Tables](docs/guide/10-standalone-pages.md)
+- [Testing and deployment](docs/guide/11-testing-and-deployment.md)
 - [Component matrix](docs/components.md)
 - [Focused Laravel, React, and Vue examples](docs/examples.md)
 - [Resources and CRUD lifecycle](packages/resources/README.md)

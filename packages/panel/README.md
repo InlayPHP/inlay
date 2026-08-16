@@ -17,8 +17,9 @@ composer require inlayphp/panels
 When using the full `inlayphp/inlay` package, install the complete default
 panel with `php artisan inlay:install --panels`. The root installer writes an
 application-owned `PanelProvider`, registers it in `config/inlay-panels.php`,
-generates User CRUD, enables account settings, bundles Media Manager, publishes
-its migrations, and scaffolds the official React entry points. Installing
+generates User CRUD, enables account settings, and scaffolds the official React
+entry points. Media Manager is intentionally opt-in through
+`php artisan inlay:install --panels --media`, so installing
 `inlayphp/panels` alone remains intentionally renderer-neutral.
 
 After migrating a new Laravel application, run `php artisan inlay:make-user` to
