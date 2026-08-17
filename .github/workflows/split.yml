@@ -23,7 +23,9 @@ on:
 env:
     # A personal access token with `repo` scope on the mirror organisation. The
     # default `GITHUB_TOKEN` cannot push to another repository.
-    GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
+    # Do not call this GITHUB_TOKEN: GitHub reserves that name and silently
+    # supplies the workflow bot token, which cannot push to mirror repositories.
+    SPLIT_TOKEN: ${{ secrets.SPLIT_TOKEN }}
 
 jobs:
     split:

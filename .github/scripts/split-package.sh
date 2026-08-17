@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-: "${GITHUB_TOKEN:?GITHUB_TOKEN is required}"
+: "${SPLIT_TOKEN:?SPLIT_TOKEN secret is required to publish package mirrors}"
 : "${PACKAGE_DIRECTORY:?PACKAGE_DIRECTORY is required}"
 : "${SPLIT_REPOSITORY:?SPLIT_REPOSITORY is required}"
 
@@ -20,7 +20,7 @@ git config user.name "solutionforestteam"
 git config user.email "solutionforestteam@users.noreply.github.com"
 
 split_sha="$(git subtree split --prefix="$PACKAGE_DIRECTORY")"
-remote_url="https://x-access-token:${GITHUB_TOKEN}@github.com/InlayPHP/${SPLIT_REPOSITORY}.git"
+remote_url="https://x-access-token:${SPLIT_TOKEN}@github.com/InlayPHP/${SPLIT_REPOSITORY}.git"
 
 echo "Split ${PACKAGE_DIRECTORY} at ${split_sha} into InlayPHP/${SPLIT_REPOSITORY}.git"
 
