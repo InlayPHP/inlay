@@ -133,6 +133,11 @@ visual changes and class hooks/slots for structural overrides.
 
 Supported class hooks are `root`, `header`, `brand`, `sidebar`, `topNavigation`, `navigation`, `group`, `groupLabel`, `item`, `activeItem`, `badge`, `main`, `breadcrumbs`, `userMenu`, and `overlay`. Stable `data-slot` attributes are also present throughout the shell.
 
+Common PHP icon names (`home`, `users`, `settings`, `folder`, `image`, and
+`table`) have dependency-free outline fallbacks based on the open-source Lucide
+paths (ISC licensed). Register an `icons` component or use the `icon` scoped
+slot whenever an application needs a branded replacement.
+
 Icons are registered by the string names emitted by PHP:
 
 ```ts

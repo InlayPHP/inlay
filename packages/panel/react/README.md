@@ -48,6 +48,13 @@ For Inertia or another SPA router, provide a link component or navigation callba
 
 Navigation groups and items are sorted, filtered, and activated from the PHP contract. Client-only conditions can receive `conditionValues`; conditional visibility fails closed when the context or path is unavailable. Use `theme`, `classNames`, `icons`, `renderers`, and named slots for customization.
 
+The renderer includes dependency-free outline fallbacks for common PHP icon
+names such as `home`, `users`, `settings`, `folder`, `image`, and `table`. They
+are based on the open-source Lucide icon paths (ISC licensed), so a navigation
+item remains recognizable even when an application has not registered an icon.
+Provide `icons` to replace any name with your own component, or use the
+`fallback` registry entry for a complete application icon system.
+
 ```tsx
 <Panel
   resource={panel}

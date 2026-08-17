@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/permission-manager-vue",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Vue role and permission management screens for Inlay panels.",
   "license": "MIT",
   "type": "module",

@@ -4,6 +4,7 @@ import { customThemeCss, recipeVariables, resolveThemeTokens } from '@inlayphp/t
 import type { ComponentType, CSSProperties, Dispatch, KeyboardEvent, MouseEvent, ReactNode, Ref, RefObject, SetStateAction } from 'react'
 import type { Condition, PanelIconRegistry, PanelLinkProps, PanelNavigationGroup, PanelNavigationItem, PanelProps, PanelRenderContext, PanelTenant } from './types'
 import { GlobalSearch } from './GlobalSearch'
+import { BuiltInIcon } from './BuiltInIcon'
 
 function resolvePath(source: unknown, path: string): { found: boolean; value: unknown } {
   let value = source
@@ -407,7 +408,7 @@ function Icon({ name, icons }: { name: string | null; icons: PanelIconRegistry }
   if (!icon) {
     const fallback = icons.fallback
     if (fallback && typeof fallback === 'function') return createElement(fallback, { name, className: 'size-5', 'aria-hidden': true })
-    return <span aria-hidden="true" className="inline-flex size-5 items-center justify-center text-xs" data-icon={name} data-slot="icon">•</span>
+    return <BuiltInIcon name={name} />
   }
   if (isValidElement(icon)) return icon
   if (typeof icon === 'function') return createElement(icon, { name, className: 'size-5', 'aria-hidden': true })

@@ -36,6 +36,13 @@ type TestPanelRendererTypes = {
 }
 
 describe('Panel', () => {
+  it('renders an open-source built-in icon when a navigation icon is not registered', () => {
+    render(<Panel resource={resource({ navigationItems: [item({ icon: 'home' })] })}><h1>Dashboard content</h1></Panel>)
+
+    expect(document.querySelector('svg[data-icon="home"]')).toBeInTheDocument()
+    expect(document.querySelector('span[data-icon="home"]')).not.toBeInTheDocument()
+  })
+
   it('searches authorized resources from the top bar and navigates to a result', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ results: [{ resource: 'users', label: 'Users', title: 'Ada Lovelace', url: '/admin/users/1/edit' }] }) })
     vi.stubGlobal('fetch', fetchMock)

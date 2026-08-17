@@ -3,6 +3,7 @@ import { computed, ref, toRaw, watch } from 'vue'
 import type { Component } from 'vue'
 import { isSafeUrl } from '@inlayphp/core'
 import type { PanelClassNames, PanelIconRegistry, PanelNavigationGroup, PanelNavigationItem, PanelRenderContext } from './types'
+import BuiltInIcon from './BuiltInIcon.vue'
 import { evaluateCondition, itemIsActive, itemIsVisible, safeAttributes, sortedGroups, sortedItems } from './utils'
 
 const props = withDefaults(defineProps<{
@@ -96,7 +97,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
         >
           <slot v-if="item.icon" name="icon" :item="item" :name="item.icon">
             <component v-if="icons[item.icon]" :is="rawComponent(icons[item.icon])" aria-hidden="true" class="size-5 shrink-0" />
-            <span v-else aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center text-xs" :data-icon="item.icon" data-slot="icon">•</span>
+            <BuiltInIcon v-else :name="item.icon" class-name="size-5 shrink-0" />
           </slot>
           <span :class="collapsed ? 'sr-only' : 'truncate'">{{ item.label }}</span>
           <span v-if="item.badge !== null" :class="['ml-auto rounded-full bg-(--inlay-panel-badge) px-2 py-0.5 text-xs', collapsed && 'sr-only', classNames.badge]" data-slot="navigation-badge">{{ item.badge }}</span>
@@ -168,7 +169,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
             >
               <slot v-if="item.icon" name="icon" :item="item" :name="item.icon">
                 <component v-if="icons[item.icon]" :is="rawComponent(icons[item.icon])" aria-hidden="true" class="size-5 shrink-0" />
-                <span v-else aria-hidden="true" class="flex size-5 shrink-0 items-center justify-center text-xs" :data-icon="item.icon" data-slot="icon">•</span>
+                <BuiltInIcon v-else :name="item.icon" class-name="size-5 shrink-0" />
               </slot>
               <span :class="collapsed ? 'sr-only' : 'truncate'">{{ item.label }}</span>
               <span v-if="item.badge !== null" :class="['ml-auto rounded-full bg-(--inlay-panel-badge) px-2 py-0.5 text-xs', collapsed && 'sr-only', classNames.badge]" data-slot="navigation-badge">{{ item.badge }}</span>

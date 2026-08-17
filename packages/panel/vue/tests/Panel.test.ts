@@ -70,6 +70,13 @@ function resource(overrides: Partial<PanelResource> = {}): PanelResource {
 type TestPanelRendererTypes = { schema: never; layout: Component; field: never; entry: never; column: never; filter: never; action: never }
 
 describe('Panel', () => {
+  it('renders an open-source built-in icon when a navigation icon is not registered', () => {
+    render(Panel, { props: { resource: resource({ navigationItems: [item({ icon: 'home' })] }) } })
+
+    expect(document.querySelector('svg[data-icon="home"]')).toBeTruthy()
+    expect(document.querySelector('span[data-icon="home"]')).toBeNull()
+  })
+
   it('searches authorized resources from the top bar and renders a result link', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ results: [{ resource: 'users', label: 'Users', title: 'Ada Lovelace', url: '/admin/users/1/edit' }] }) })
     vi.stubGlobal('fetch', fetchMock)
