@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/widgets-react",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "React renderer for Inlay dashboard widgets.",
   "license": "MIT",
   "type": "module",

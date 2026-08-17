@@ -202,7 +202,12 @@ export function Panel({ resource, children, className = '', classNames, theme, i
   const groupedNames = new Set(groups.flatMap((group) => group.items.map((item) => item.name)))
   const ungrouped = sorted(resource.navigationItems.filter((item) => !groupedNames.has(item.name) && itemVisible(item)))
   const userItems = sorted(resource.userMenuItems.filter(itemVisible))
-  const globalSearchPosition = resource.globalSearch?.position ?? 'header-end'
+  const requestedGlobalSearchPosition = resource.globalSearch?.position ?? 'header-end'
+  const globalSearchPosition = resource.navigationMode === 'top' && (requestedGlobalSearchPosition === 'sidebar' || requestedGlobalSearchPosition === 'sidebar-footer')
+    ? 'header-end'
+    : !resource.topbar && (requestedGlobalSearchPosition === 'header-start' || requestedGlobalSearchPosition === 'header-end')
+      ? 'sidebar-footer'
+      : requestedGlobalSearchPosition
   const globalSearch = resource.globalSearch
     ? <GlobalSearch config={resource.globalSearch} linkComponent={linkComponent} onNavigate={onNavigate} placement={globalSearchPosition} />
     : null

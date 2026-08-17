@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/notifications-react",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Accessible React notification renderer for Inlay.",
   "type": "module",
   "main": "./dist/index.js",

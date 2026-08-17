@@ -41,7 +41,12 @@ const tenantRoot = ref<HTMLElement | null>(null)
 const tenantButton = ref<HTMLButtonElement | null>(null)
 const tenantOptions = ref<HTMLElement | null>(null)
 const otherTenants = computed<PanelTenantOption[]>(() => (props.resource.tenant?.options ?? []).filter((option: PanelTenantOption) => option.key !== props.resource.tenant?.current?.key && isSafeUrl(option.url)))
-const globalSearchPosition = computed(() => props.resource.globalSearch?.position ?? 'header-end')
+const globalSearchPosition = computed(() => {
+  const requested = props.resource.globalSearch?.position ?? 'header-end'
+  if (props.resource.navigationMode === 'top' && (requested === 'sidebar' || requested === 'sidebar-footer')) return 'header-end'
+  if (!props.resource.topbar && (requested === 'header-start' || requested === 'header-end')) return 'sidebar-footer'
+  return requested
+})
 const userButton = ref<HTMLButtonElement | null>(null)
 const firstUserItem = ref<HTMLElement | null>(null)
 
