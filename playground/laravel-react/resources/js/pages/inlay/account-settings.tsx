@@ -1,6 +1,9 @@
 import { Head, usePage } from '@inertiajs/react';
 import { AccountSettingsPage as AccountSettings } from '@inlayphp/panels-react';
-import type { AccountSettingsPageProps, PanelResource } from '@inlayphp/panels-react';
+import type {
+    AccountSettingsPageProps,
+    PanelResource,
+} from '@inlayphp/panels-react';
 import AdminLayout from '@/layouts/admin-layout';
 
 type PageProps = AccountSettingsPageProps & {
@@ -20,7 +23,12 @@ export default function AccountSettingsPage(props: PageProps) {
     return (
         <AdminLayout>
             <Head title="Account settings" />
-            <AccountSettings {...props} errors={errors} flash={flash} theme={theme} />
+            <AccountSettings
+                {...props}
+                errors={errors}
+                flash={flash}
+                theme={theme}
+            />
         </AdminLayout>
     );
 }
