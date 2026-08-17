@@ -76,6 +76,7 @@ it('scaffolds a default panel provider and registers it in the panel config', fu
         $files->ensureDirectoryExists($root.'/bootstrap');
         $files->ensureDirectoryExists($root.'/resources/css');
         $files->ensureDirectoryExists($root.'/resources/js');
+        $files->ensureDirectoryExists($root.'/resources/views');
         $files->put($root.'/app/Models/User.php', <<<'PHP'
 <?php
 
@@ -134,9 +135,12 @@ PHP);
             ->toContain('themeVariables(theme, "light")')
             ->and($files->get($root.'/resources/js/pages/inlay/dashboard.tsx'))
             ->toContain('/admin/media')
+            ->not->toContain('\\n  ["Media"')
             ->and($files->exists($root.'/resources/js/app.tsx'))->toBeTrue()
             ->and($files->get($root.'/resources/js/app.tsx'))
             ->toContain('createInertiaApp')
+            ->toContain('resolve:')
+            ->toContain('import.meta.glob')
             ->and($files->exists($root.'/resources/views/app.blade.php'))->toBeTrue()
             ->and($files->get($root.'/resources/views/app.blade.php'))
             ->toContain("@vite(['resources/css/app.css', 'resources/js/app.tsx'])")
@@ -187,6 +191,44 @@ PHP);
         expect(runInlayInstall($root, ['--force' => true, '--renderer' => 'vue', '--no-npm' => true]))->toBe(0)
             ->and($files->get($root.'/app/Providers/Inlay/AdminPanelProvider.php'))
             ->toContain("->renderComponent('InlayPanelLayout')");
+    } finally {
+        $files->deleteDirectory($root);
+    }
+});
+
+it('completes the current Laravel React starter bootstrap instead of preserving a blank client', function (): void {
+    $files = new Filesystem;
+    $root = sys_get_temp_dir().'/inlay-install-react-starter-'.bin2hex(random_bytes(6));
+
+    try {
+        $files->ensureDirectoryExists($root.'/app/Models');
+        $files->ensureDirectoryExists($root.'/bootstrap');
+        $files->ensureDirectoryExists($root.'/resources/css');
+        $files->ensureDirectoryExists($root.'/resources/js');
+        $files->ensureDirectoryExists($root.'/resources/views');
+        $files->put($root.'/app/Models/User.php', "<?php\nnamespace App\\Models;\nuse Illuminate\\Foundation\\Auth\\User as Authenticatable;\nclass User extends Authenticatable {}\n");
+        $files->put($root.'/bootstrap/app.php', "<?php\nuse Illuminate\\Foundation\\Configuration\\Middleware;\nreturn Application::configure()->withMiddleware(function (Middleware \$middleware): void {});\n");
+        $files->put($root.'/package.json', json_encode(['private' => true, 'dependencies' => ['@inertiajs/react' => '^3.0.0']], JSON_THROW_ON_ERROR));
+        $files->put($root.'/resources/css/app.css', "@import 'tailwindcss';\n");
+        $files->put($root.'/resources/views/app.blade.php', <<<'BLADE'
+@vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+BLADE);
+        $files->put($root.'/resources/js/app.tsx', <<<'TSX'
+import { createInertiaApp } from '@inertiajs/react';
+
+createInertiaApp({
+    title: (title) => title ?? 'Laravel',
+});
+TSX);
+
+        expect(runInlayInstall($root, ['--no-npm' => true]))->toBe(0)
+            ->and($files->get($root.'/resources/js/app.tsx'))
+            ->toContain('resolve:')
+            ->toContain('import.meta.glob')
+            ->not->toContain("title: (title) => title ?? 'Laravel'")
+            ->and($files->get($root.'/resources/views/app.blade.php'))
+            ->toContain("@vite(['resources/css/app.css', 'resources/js/app.tsx'])")
+            ->not->toContain('resources/js/pages/{$page[\'component\']}.tsx');
     } finally {
         $files->deleteDirectory($root);
     }

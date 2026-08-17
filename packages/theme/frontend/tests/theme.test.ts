@@ -21,12 +21,25 @@ describe('theme helpers', () => {
   })
   it('resolves shared recipe variables from a theme and keeps sensible fallbacks', () => {
     expect(recipeVariables({ accent: '#7c3aed', 'space-card': '2rem', 'font-size-body': '1rem' })).toMatchObject({
+      '--inlay-accent': '#7c3aed',
       '--inlay-focus-ring-color': 'var(--inlay-accent)',
       '--inlay-space-card': '2rem',
       '--inlay-font-size-body': '1rem',
       '--inlay-motion-duration': '160ms',
     })
     expect(recipeVariables({ accent: '#7c3aed', 'focus-ring-color': '#f97316' })['--inlay-focus-ring-color']).toBe('#f97316')
+  })
+  it('keeps semantic surfaces available to standalone renderer roots', () => {
+    expect(recipeVariables(defaultTheme)).toMatchObject({
+      '--inlay-background': '#f6f7fb',
+      '--inlay-surface': '#ffffff',
+      '--inlay-border': 'rgb(24 24 27 / 0.12)',
+      '--inlay-font-family': 'ui-sans-serif, system-ui, sans-serif',
+    })
+    expect(recipeVariables(defaultTheme, 'dark')).toMatchObject({
+      '--inlay-background': '#09090b',
+      '--inlay-surface': '#18181b',
+    })
   })
   it('merges dark contract overrides while local overrides stay mode-neutral', () => {
     expect(resolveThemeTokens({ contract: 'inlay.themes.v1', name: 'brand', tokens: { surface: '#fff', 'table-row-hover': '#f8fafc' }, darkTokens: { surface: '#18181b', 'table-row-hover': '#27272a' } }, 'dark')).toMatchObject({ surface: '#18181b', 'table-row-hover': '#27272a' })

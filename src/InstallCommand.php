@@ -523,11 +523,18 @@ PHP;
     {
         $entryPath = $this->laravel->basePath('resources/js/app.tsx');
         $viewPath = $this->laravel->resourcePath('views/app.blade.php');
+        $entryExists = $this->files->exists($entryPath);
+        $entryContents = $entryExists ? $this->files->get($entryPath) : '';
+        $hasResolver = preg_match('/\bresolve\s*:/', $entryContents) === 1;
 
-        if (! $this->files->exists($entryPath) || $this->option('force')) {
+        // Laravel's current React starter ships an app.tsx that configures
+        // Inertia's title/progress only. It is not a usable client bootstrap
+        // until a page resolver is supplied, so replace that known-incomplete
+        // entrypoint while preserving application-owned resolvers.
+        if (! $entryExists || $this->option('force') || ! $hasResolver) {
             $this->files->ensureDirectoryExists(dirname($entryPath));
             $this->files->put($entryPath, $this->reactApplicationSource());
-            $this->components->info('Created resources/js/app.tsx');
+            $this->components->info($entryExists ? 'Completed the Inertia React entrypoint' : 'Created resources/js/app.tsx');
         }
 
         if (! $this->files->exists($viewPath) || $this->option('force')) {
@@ -535,6 +542,7 @@ PHP;
             $this->files->put($viewPath, $this->reactApplicationViewSource());
             $this->components->info('Created resources/views/app.blade.php');
         }
+        $this->normalizeInertiaRootView($viewPath, 'react');
 
         $appNamespace = rtrim((string) $this->laravel->getNamespace(), '\\');
 
@@ -554,11 +562,14 @@ PHP;
     {
         $entryPath = $this->laravel->basePath('resources/js/app.ts');
         $viewPath = $this->laravel->resourcePath('views/app.blade.php');
+        $entryExists = $this->files->exists($entryPath);
+        $entryContents = $entryExists ? $this->files->get($entryPath) : '';
+        $hasResolver = preg_match('/\bresolve\s*:/', $entryContents) === 1;
 
-        if (! $this->files->exists($entryPath) || $this->option('force')) {
+        if (! $entryExists || $this->option('force') || ! $hasResolver) {
             $this->files->ensureDirectoryExists(dirname($entryPath));
             $this->files->put($entryPath, $this->vueApplicationSource());
-            $this->components->info('Created resources/js/app.ts');
+            $this->components->info($entryExists ? 'Completed the Inertia Vue entrypoint' : 'Created resources/js/app.ts');
         }
 
         if (! $this->files->exists($viewPath) || $this->option('force')) {
@@ -566,6 +577,7 @@ PHP;
             $this->files->put($viewPath, $this->vueApplicationViewSource());
             $this->components->info('Created resources/views/app.blade.php');
         }
+        $this->normalizeInertiaRootView($viewPath, 'vue');
 
         $appNamespace = rtrim((string) $this->laravel->getNamespace(), '\\');
 
@@ -737,6 +749,32 @@ createInertiaApp({
     },
 });
 TS;
+    }
+
+    /**
+     * Laravel's starter views may list the current page as a second Vite
+     * entry. That works in dev but is not present in the production manifest
+     * when the resolver loads pages through import.meta.glob. Keep one stable
+     * application entry so both dev and production use the same contract.
+     */
+    private function normalizeInertiaRootView(string $path, string $renderer): void
+    {
+        if (! $this->files->exists($path)) {
+            return;
+        }
+
+        $contents = $this->files->get($path);
+        $extension = $renderer === 'vue' ? 'ts' : 'tsx';
+        $pageExtension = $renderer === 'vue' ? 'vue' : 'tsx';
+        $legacy = "@vite(['resources/css/app.css', 'resources/js/app.{$extension}', \"resources/js/pages/{\$page['component']}.{$pageExtension}\"])";
+        $stable = "@vite(['resources/css/app.css', 'resources/js/app.{$extension}'])";
+
+        if (! str_contains($contents, $legacy)) {
+            return;
+        }
+
+        $this->files->put($path, str_replace($legacy, $stable, $contents));
+        $this->components->info('Normalized the Inertia root view for production builds');
     }
 
     private function vueApplicationViewSource(): string
@@ -1389,7 +1427,7 @@ PHP;
         if ($installMedia) {
             $rendered['resources/js/pages/inlay/dashboard.tsx'] = str_replace(
                 '["Users", "Create and manage panel accounts.", "/'.$panel.'/users"],',
-                '["Users", "Create and manage panel accounts.", "/'.$panel.'/users"],\n  ["Media", "Upload and organize application media.", "/'.$panel.'/media"],',
+                "[\"Users\", \"Create and manage panel accounts.\", \"/{$panel}/users\"],\n  [\"Media\", \"Upload and organize application media.\", \"/{$panel}/media\"],",
                 $rendered['resources/js/pages/inlay/dashboard.tsx'],
             );
         }

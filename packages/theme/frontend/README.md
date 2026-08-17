@@ -51,8 +51,11 @@ const dark = themeVariables(brand, 'dark')
 ```
 
 The shared recipe variables are available when a custom shell or community
-component needs the same spacing, typography, focus, and motion contract as an
-Inlay renderer:
+component needs the same semantic color/surface bridge plus spacing,
+typography, focus, and motion contract as an Inlay renderer. This is important
+for standalone pages: mounting the result on the root element makes classes
+such as `bg-(--inlay-background)` and `border-(--inlay-border)` work without a
+Panel wrapper:
 
 ```ts
 import { recipeVariables } from '@inlayphp/theme'

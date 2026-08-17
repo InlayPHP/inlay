@@ -232,6 +232,14 @@ export function recipeVariables(theme: ThemeSource, mode: 'light' | 'dark' = 'li
     'motion-easing': 'cubic-bezier(0.2, 0, 0, 1)',
   }
 
+  // Include semantic variables as well as recipe variables. Standalone
+  // renderers (and the generated panel login page) mount this object directly
+  // on their root element, so omitting the semantic bridge leaves classes such
+  // as `bg-(--inlay-background)` unresolved outside a Panel shell.
+  const semanticVariables = Object.fromEntries(Object.entries(tokens).map(([name, value]) => [
+    `--inlay-${name}`,
+    String(value),
+  ]))
   const variables = Object.fromEntries(Object.entries(defaults).map(([name, fallback]) => [
     `--inlay-${name}`,
     String(tokens[name] ?? fallback),
@@ -241,7 +249,7 @@ export function recipeVariables(theme: ThemeSource, mode: 'light' | 'dark' = 'li
   // focus-ring-color token still wins for brands that need a separate ring.
   variables['--inlay-focus-ring-color'] = String(tokens['focus-ring-color'] ?? tokens['focus-ring'] ?? 'var(--inlay-accent)')
 
-  return variables
+  return { ...semanticVariables, ...variables }
 }
 
 /**
