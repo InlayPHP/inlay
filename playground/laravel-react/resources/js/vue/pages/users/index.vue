@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { Form } from '@inlayphp/forms-vue';
 import type { FormErrors, FormResource } from '@inlayphp/forms-vue';
 import { Panel } from '@inlayphp/panels-vue';
@@ -30,6 +31,12 @@ type PageProps = {
 
 defineProps<PageProps>();
 const page = usePage<PageProps>();
+const theme = computed(() => ({
+    contract: 'inlay.themes.v1' as const,
+    name: page.props.inlayPanel.themeName ?? page.props.inlayPanel.id,
+    tokens: page.props.inlayPanel.theme,
+    darkTokens: page.props.inlayPanel.darkTheme ?? {},
+}));
 
 function visitTab(tab: string): void {
     router.get(
@@ -86,7 +93,11 @@ function visitTab(tab: string): void {
                             The same PHP form contract rendered by Vue.
                         </p>
                     </header>
-                    <Form :errors="page.props.errors ?? {}" :resource="form" />
+                    <Form
+                        :errors="page.props.errors ?? {}"
+                        :resource="form"
+                        :theme="theme"
+                    />
                 </section>
 
                 <section
@@ -102,7 +113,7 @@ function visitTab(tab: string): void {
                             rendered by Vue.
                         </p>
                     </header>
-                    <Table :resource="table" />
+                    <Table :resource="table" :theme="theme" />
                 </section>
             </div>
         </ResourcePage>
