@@ -161,7 +161,9 @@ it('serializes a complete renderer-neutral panel contract with deterministic nav
             NavigationItem::make('profile')->label('Profile')->sort(10),
         ])
         ->spa()
-        ->renderComponent('AdminShell');
+        ->renderComponent('AdminShell')
+        ->globalSearchPosition('sidebar-footer')
+        ->globalSearchEndpoint('/control/_inlay/global-search');
     $payload = json_decode(json_encode($panel, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
 
     expect($payload)
@@ -185,6 +187,12 @@ it('serializes a complete renderer-neutral panel contract with deterministic nav
         ->topbar->toBeTrue()
         ->spa->toBeTrue()
         ->renderComponent->toBe('AdminShell')
+        ->and($payload['globalSearch'])->toMatchArray([
+            'endpoint' => '/control/_inlay/global-search',
+            'minChars' => 2,
+            'placeholder' => 'Search resources…',
+            'position' => 'sidebar-footer',
+        ])
         ->and(array_column($payload['navigationGroups'], 'name'))->toBe(['reports', 'main', 'settings'])
         ->and(array_column($payload['navigationGroups'][2]['items'], 'name'))->toBe(['users', 'roles', 'audit'])
         ->and(array_column($payload['navigationItems'], 'name'))->toBe(['dashboard'])
@@ -454,6 +462,7 @@ it('rejects duplicate panels, paths, navigation, unsafe attributes, and invalid 
     'color key' => [fn () => Panel::make('admin')->colors(['Primary Color' => '#fff'])],
     'empty color' => [fn () => Panel::make('admin')->colors(['primary' => ''])],
     'theme value' => [fn () => Panel::make('admin')->theme(['radius' => []])],
+    'global search position' => [fn () => Panel::make('admin')->globalSearchPosition('footer')],
     'unsafe attribute' => [fn () => NavigationItem::make('users')->extraAttributes(['onclick' => 'alert(1)'])],
     'duplicate item' => [fn () => Panel::make('admin')->navigationItems([NavigationItem::make('users'), NavigationItem::make('users')])],
     'duplicate route name' => [fn () => Panel::make('admin')->routes([

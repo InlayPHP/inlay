@@ -82,6 +82,9 @@ final class Panel implements JsonSerializable
 
     private ?string $globalSearchEndpoint = null;
 
+    /** @var 'header-start'|'header-end'|'sidebar'|'sidebar-footer' */
+    private string $globalSearchPosition = 'header-end';
+
     /** @var list<class-string> */
     private array $resources = [];
 
@@ -370,6 +373,34 @@ final class Panel implements JsonSerializable
     public function globalSearchEnabled(): bool
     {
         return $this->globalSearch;
+    }
+
+    /**
+     * Choose where the renderer places the compact resource search control.
+     *
+     * Header-end is the default and keeps the search near the account actions.
+     * Sidebar-footer is useful for an always-available search at the bottom of
+     * a left navigation rail.
+     *
+     * @param  'header-start'|'header-end'|'sidebar'|'sidebar-footer'  $position
+     */
+    public function globalSearchPosition(string $position): self
+    {
+        $position = trim($position);
+
+        if (! in_array($position, ['header-start', 'header-end', 'sidebar', 'sidebar-footer'], true)) {
+            throw new InvalidArgumentException('A global search position must be header-start, header-end, sidebar, or sidebar-footer.');
+        }
+
+        $this->globalSearchPosition = $position;
+
+        return $this;
+    }
+
+    /** @return 'header-start'|'header-end'|'sidebar'|'sidebar-footer' */
+    public function globalSearchPositionValue(): string
+    {
+        return $this->globalSearchPosition;
     }
 
     /** @internal Set by PanelRegistrar after the protected route exists. */
@@ -782,6 +813,7 @@ final class Panel implements JsonSerializable
                 'endpoint' => $this->globalSearchEndpoint,
                 'minChars' => 2,
                 'placeholder' => 'Search resources…',
+                'position' => $this->globalSearchPosition,
             ],
             'tenant' => $this->serializedTenant(),
         ];

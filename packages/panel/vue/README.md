@@ -161,6 +161,29 @@ Pass them with `<Panel :icons="icons" ... />`. The `icon` scoped slot can overri
 
 Named scoped slots are `brand`, `header-start`, `header-end`, `breadcrumbs`, `sidebar-footer`, `footer`, `icon`, `navigation-item`, `user-trigger`, and `user-menu-item`. The default slot renders the main page content. Layout slots receive a reactive `context` containing `resource`, `collapsed`, `mobileOpen`, `userMenuOpen`, and toggle/close actions.
 
+The PHP `globalSearchPosition()` setting accepts `header-start`, `header-end`,
+`sidebar`, or `sidebar-footer`. The default is the compact `header-end` control;
+`sidebar-footer` places it at the bottom of a left navigation rail. The search
+input is theme-aware, has `name="global-search"`, and responds to `/` and
+`⌘/Ctrl-K` shortcuts.
+
+These named slots are renderer-native panel render hooks. They let an application
+insert Vue components at stable shell locations without forking the panel:
+
+```vue
+<Panel :resource="panel">
+  <template #header-start><EnvironmentBadge /></template>
+  <template #header-end><QuickActions /></template>
+  <template #breadcrumbs><Breadcrumbs /></template>
+  <template #sidebar-footer><SupportLink /></template>
+  <template #footer><BuildVersion /></template>
+  <DashboardPage />
+</Panel>
+```
+
+Use the `renderers` prop when replacing a complete structural region such as the
+brand, navigation item, or user menu.
+
 ## Accessibility and behavior
 
 - Navigation landmarks and current links use accessible names and `aria-current`.

@@ -41,6 +41,7 @@ const tenantRoot = ref<HTMLElement | null>(null)
 const tenantButton = ref<HTMLButtonElement | null>(null)
 const tenantOptions = ref<HTMLElement | null>(null)
 const otherTenants = computed<PanelTenantOption[]>(() => (props.resource.tenant?.options ?? []).filter((option: PanelTenantOption) => option.key !== props.resource.tenant?.current?.key && isSafeUrl(option.url)))
+const globalSearchPosition = computed(() => props.resource.globalSearch?.position ?? 'header-end')
 const userButton = ref<HTMLButtonElement | null>(null)
 const firstUserItem = ref<HTMLElement | null>(null)
 
@@ -348,8 +349,8 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
         </component>
       </slot>
 
+      <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-start'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-start" />
       <div v-if="$slots['header-start']" data-slot="header-start"><slot name="header-start" :context="renderContext" /></div>
-      <GlobalSearch v-if="resource.globalSearch" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" />
       <!-- The tenant a panel is scoped to, and the ones the visitor may switch to. PHP decides both; the switcher only navigates. -->
       <div v-if="resource.tenant" ref="tenantRoot" class="relative" data-slot="tenant-switcher">
         <button :aria-controls="`${resource.id}-tenant-options`" :aria-expanded="tenantOpen" aria-haspopup="menu" aria-label="Switch tenant" class="rounded-(--inlay-panel-radius) px-3 py-2 text-sm ring-1 ring-(--inlay-panel-border)" :disabled="otherTenants.length === 0" ref="tenantButton" type="button" @click="tenantOpen = !tenantOpen" @keydown="onTenantTriggerKeydown">
@@ -380,6 +381,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       </NavigationMenu>
 
       <div class="ml-auto flex items-center gap-2" data-slot="header-actions">
+        <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-end'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-end" />
         <slot name="header" :resource="resource" />
         <div v-if="$slots['header-end']" data-slot="header-end"><slot name="header-end" :context="renderContext" /></div>
         <div v-if="showUserMenu" :class="['relative', classNames.userMenu]" data-slot="user-menu">
@@ -498,6 +500,12 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
           <template v-if="$slots.icon" #icon="slotProps"><slot name="icon" v-bind="slotProps" /></template>
           <template v-if="$slots['navigation-item']" #navigation-item="slotProps"><slot name="navigation-item" v-bind="slotProps" /></template>
         </NavigationMenu>
+        <div v-if="resource.globalSearch && globalSearchPosition === 'sidebar'" class="mt-3" data-slot="sidebar-search">
+          <GlobalSearch :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="sidebar" />
+        </div>
+        <div v-if="resource.globalSearch && globalSearchPosition === 'sidebar-footer'" class="mt-auto mb-3" data-slot="sidebar-search">
+          <GlobalSearch :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="sidebar-footer" />
+        </div>
         <div v-if="$slots['sidebar-footer']" class="mt-auto" data-slot="sidebar-footer"><slot name="sidebar-footer" :context="renderContext" /></div>
         <button
           v-if="resource.collapsible"
@@ -545,6 +553,9 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
           <template v-if="$slots.icon" #icon="slotProps"><slot name="icon" v-bind="slotProps" /></template>
           <template v-if="$slots['navigation-item']" #navigation-item="slotProps"><slot name="navigation-item" v-bind="slotProps" /></template>
         </NavigationMenu>
+        <div v-if="resource.globalSearch && (globalSearchPosition === 'sidebar' || globalSearchPosition === 'sidebar-footer')" class="mt-3" data-slot="sidebar-search">
+          <GlobalSearch :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" :placement="globalSearchPosition" />
+        </div>
       </aside>
 
       <div class="min-w-0 flex-1">

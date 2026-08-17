@@ -65,6 +65,16 @@ describe('Panel', () => {
     vi.unstubAllGlobals()
   })
 
+  it('keeps the global search compact and supports sidebar placement', () => {
+    const { container } = render(<Panel resource={resource({ globalSearch: { endpoint: '/admin/_inlay/global-search', minChars: 2, placeholder: 'Search resources…', position: 'sidebar-footer' } })}><h1>Dashboard content</h1></Panel>)
+
+    const search = container.querySelector('[data-slot="global-search"]')
+    expect(search).toHaveAttribute('data-placement', 'sidebar-footer')
+    expect(search?.querySelector('input[name="global-search"]')).toBeInTheDocument()
+    expect(search?.querySelector('svg[data-icon="search"]')).toBeInTheDocument()
+    expect(search?.className).toContain('w-full')
+  })
+
   it('switches tenants from the panel header', async () => {
     render(<Panel resource={resource({
       tenant: {

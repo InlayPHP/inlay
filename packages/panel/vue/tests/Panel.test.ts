@@ -91,6 +91,16 @@ describe('Panel', () => {
     vi.unstubAllGlobals()
   })
 
+  it('keeps the global search compact and supports sidebar placement', () => {
+    const view = render(Panel, { props: { resource: resource({ globalSearch: { endpoint: '/admin/_inlay/global-search', minChars: 2, placeholder: 'Search resources…', position: 'sidebar-footer' } }) } })
+
+    const search = view.container.querySelector('[data-slot="global-search"]')
+    expect(search?.getAttribute('data-placement')).toBe('sidebar-footer')
+    expect(search?.querySelector('input[name="global-search"]')).toBeTruthy()
+    expect(search?.querySelector('svg[data-icon="search"]')).toBeTruthy()
+    expect(search?.className).toContain('w-full')
+  })
+
   it('switches tenants from the panel header', async () => {
     const view = render(Panel, { props: { resource: resource({
       tenant: {

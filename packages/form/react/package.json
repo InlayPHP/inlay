@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/forms-react",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "React renderer for Inlay PHP-first forms.",
   "license": "MIT",
   "type": "module",

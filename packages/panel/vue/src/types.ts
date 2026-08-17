@@ -54,7 +54,7 @@ export interface PanelBreadcrumb {
 
 export type PanelTenantOption = { key: string; label: string; url: string }
 export type PanelTenant = { parameter: string; current: PanelTenantOption | null; options: PanelTenantOption[] }
-export type PanelGlobalSearch = { endpoint: string; minChars: number; placeholder: string }
+export type PanelGlobalSearch = { endpoint: string; minChars: number; placeholder: string; position?: 'header-start' | 'header-end' | 'sidebar' | 'sidebar-footer' }
 
 export interface PanelResource {
   contract: 'inlay.panels.v1'

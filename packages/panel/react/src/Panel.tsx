@@ -202,6 +202,10 @@ export function Panel({ resource, children, className = '', classNames, theme, i
   const groupedNames = new Set(groups.flatMap((group) => group.items.map((item) => item.name)))
   const ungrouped = sorted(resource.navigationItems.filter((item) => !groupedNames.has(item.name) && itemVisible(item)))
   const userItems = sorted(resource.userMenuItems.filter(itemVisible))
+  const globalSearchPosition = resource.globalSearch?.position ?? 'header-end'
+  const globalSearch = resource.globalSearch
+    ? <GlobalSearch config={resource.globalSearch} linkComponent={linkComponent} onNavigate={onNavigate} placement={globalSearchPosition} />
+    : null
 
   const navigation = (
     <Navigation
@@ -227,11 +231,12 @@ export function Panel({ resource, children, className = '', classNames, theme, i
       {resource.topbar ? <header className={`sticky top-0 z-50 flex min-h-16 min-w-0 flex-wrap items-center gap-3 border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface)/95 px-4 backdrop-blur-md sm:px-6 ${classNames?.header ?? ''}`} data-slot="header">
         <button aria-controls={`${resource.id}-navigation`} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} className="rounded-(--inlay-panel-radius) p-2 ring-1 ring-(--inlay-panel-border) lg:hidden" data-slot="mobile-navigation-trigger" onClick={actions.toggleMobile} type="button"><span aria-hidden="true">☰</span></button>
         {renderers?.brand ? renderers.brand(context) : <Brand className={classNames?.brand} icons={icons} linkComponent={linkComponent} onNavigate={onNavigate} resource={resource} />}
+        {globalSearchPosition === 'header-start' ? globalSearch : null}
         {slots?.headerStart ? <div data-slot="header-start">{resolveSlot(slots.headerStart, context)}</div> : null}
-        {resource.globalSearch ? <GlobalSearch config={resource.globalSearch} linkComponent={linkComponent} onNavigate={onNavigate} /> : null}
         <TenantSwitcher linkComponent={linkComponent} onNavigate={onNavigate} tenant={resource.tenant} />
         {resource.navigationMode === 'top' ? <div className={`${mobileOpen ? 'block' : 'hidden'} absolute inset-x-0 top-full border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface) p-3 lg:static lg:block lg:flex-1 lg:border-0 lg:p-0 ${classNames?.topNavigation ?? ''}`} id={`${resource.id}-navigation`}>{navigation}</div> : null}
         <div className="ml-auto flex items-center gap-2" data-slot="header-actions">
+          {globalSearchPosition === 'header-end' ? globalSearch : null}
           {slots?.headerEnd ? <div data-slot="header-end">{resolveSlot(slots.headerEnd, context)}</div> : null}
           {userItems.length ? renderers?.userMenu ? renderers.userMenu(userItems.map(sanitizeNavigationItem), context) : <UserMenu buttonRef={userButton} classNames={classNames} context={context} firstItemRef={firstUserItem} icons={icons} items={userItems} linkComponent={linkComponent} onNavigate={onNavigate} /> : null}
         </div>
@@ -241,7 +246,7 @@ export function Panel({ resource, children, className = '', classNames, theme, i
       </div> : null}
 
       <div className={`flex min-w-0 ${resource.topbar ? 'min-h-[calc(100dvh-4rem)]' : 'min-h-dvh'}`}>
-        {resource.navigationMode === 'sidebar' ? <><button aria-label="Close navigation" className={`${mobileOpen ? 'fixed' : 'hidden'} inset-0 z-40 bg-(--inlay-scrim) lg:hidden ${classNames?.mobileOverlay ?? classNames?.overlay ?? ''}`} data-slot="mobile-overlay" onClick={actions.closeMobile} type="button" /><aside aria-label="Primary" className={`${mobileOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-40 ${resource.topbar ? 'mt-16 lg:mt-0' : 'mt-0'} flex w-(--inlay-panel-sidebar-width) flex-col border-r border-(--inlay-panel-border) bg-(--inlay-panel-surface) p-3 transition-transform lg:static lg:translate-x-0 ${collapsed ? 'lg:w-(--inlay-panel-sidebar-collapsed-width)' : 'lg:w-(--inlay-panel-sidebar-width)'} ${classNames?.sidebar ?? ''}`} data-collapsed={collapsed} data-slot="sidebar" id={`${resource.id}-navigation`}>{navigation}{slots?.sidebarFooter ? <div className="mt-auto" data-slot="sidebar-footer">{resolveSlot(slots.sidebarFooter, context)}</div> : null}{resource.collapsible ? <button aria-expanded={!collapsed} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="mt-3 hidden rounded-(--inlay-panel-radius) p-2 text-sm ring-1 ring-(--inlay-panel-border) lg:block" data-slot="sidebar-collapse-trigger" onClick={actions.toggleCollapsed} type="button">{collapsed ? '→' : '←'}</button> : null}</aside></> : null}
+        {resource.navigationMode === 'sidebar' ? <><button aria-label="Close navigation" className={`${mobileOpen ? 'fixed' : 'hidden'} inset-0 z-40 bg-(--inlay-scrim) lg:hidden ${classNames?.mobileOverlay ?? classNames?.overlay ?? ''}`} data-slot="mobile-overlay" onClick={actions.closeMobile} type="button" /><aside aria-label="Primary" className={`${mobileOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-40 ${resource.topbar ? 'mt-16 lg:mt-0' : 'mt-0'} flex w-(--inlay-panel-sidebar-width) flex-col border-r border-(--inlay-panel-border) bg-(--inlay-panel-surface) p-3 transition-transform lg:static lg:translate-x-0 ${collapsed ? 'lg:w-(--inlay-panel-sidebar-collapsed-width)' : 'lg:w-(--inlay-panel-sidebar-width)'} ${classNames?.sidebar ?? ''}`} data-collapsed={collapsed} data-slot="sidebar" id={`${resource.id}-navigation`}>{navigation}{globalSearchPosition === 'sidebar' ? <div className="mt-3" data-slot="sidebar-search">{globalSearch}</div> : null}{globalSearchPosition === 'sidebar-footer' ? <div className="mt-auto mb-3" data-slot="sidebar-search">{globalSearch}</div> : null}{slots?.sidebarFooter ? <div data-slot="sidebar-footer">{resolveSlot(slots.sidebarFooter, context)}</div> : null}{resource.collapsible ? <button aria-expanded={!collapsed} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="mt-3 hidden rounded-(--inlay-panel-radius) p-2 text-sm ring-1 ring-(--inlay-panel-border) lg:block" data-slot="sidebar-collapse-trigger" onClick={actions.toggleCollapsed} type="button">{collapsed ? '→' : '←'}</button> : null}</aside></> : null}
 
         <div className="min-w-0 flex-1">
         {resource.breadcrumbs && slots?.breadcrumbs ? <nav aria-label="Breadcrumb" className={`px-4 pt-4 lg:px-6 ${classNames?.breadcrumbs ?? ''}`} data-slot="breadcrumbs">{resolveSlot(slots.breadcrumbs, context)}</nav> : null}

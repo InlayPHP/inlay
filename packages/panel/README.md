@@ -293,6 +293,17 @@ URL. The default endpoint is `GET /{panel-path}/_inlay/global-search?q=...`; set
 `->globalSearch(false)` on a panel to omit both the route and the UI. The response is
 `inlay.resources.global-search.v1` and is safe for custom renderers to consume.
 
+The standard renderer keeps this control compact near the account actions. Move it
+without replacing the shell when a different information architecture fits better:
+
+```php
+Panel::make('admin')
+    ->globalSearchPosition('sidebar-footer'); // header-start, header-end, sidebar, or sidebar-footer
+```
+
+`sidebar-footer` places the search at the bottom of a sidebar. Top navigation falls
+back to the header when a sidebar-only position is not available.
+
 ## Tenancy
 
 Scope a panel to a tenant:

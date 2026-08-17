@@ -142,6 +142,36 @@ Direct component overrides take precedence over the shared Core registry. Unknow
 
 The shell exposes stable `data-slot` attributes plus typed class hooks for the root, header, brand, sidebar, top navigation, groups, items, active items, badges, main content, breadcrumbs, user menu, and mobile overlay. Supply an icon map keyed by the PHP icon names, or replace brand, navigation-item, and user-menu renderers entirely.
 
+### Search placement and render regions
+
+The PHP `globalSearchPosition()` setting accepts `header-start`, `header-end`,
+`sidebar`, or `sidebar-footer`. The default is the compact `header-end` control;
+`sidebar-footer` is useful for a left-rail search. The search input includes a
+theme-aware search icon, keeps its `name="global-search"`, and remains available
+through `/` and `⌘/Ctrl-K` keyboard shortcuts.
+
+Panel layout regions are component-level render hooks. Supply `slots` to add React
+components at stable locations without forking the shell:
+
+```tsx
+<Panel
+  resource={panel}
+  slots={{
+    headerStart: <EnvironmentBadge />,
+    headerEnd: <QuickActions />,
+    breadcrumbs: <Breadcrumbs />,
+    sidebarFooter: <SupportLink />,
+    footer: <BuildVersion />,
+  }}
+>
+  {children}
+</Panel>
+```
+
+Use `renderers` when replacing a complete structural region (`brand`,
+`navigationItem`, or `userMenu`). These hooks can contain ordinary React
+components while the PHP panel contract remains unchanged.
+
 ## Accessibility and testing
 
 The standard renderer includes labelled navigation landmarks, `aria-current`, expandable state, a mobile navigation dialog with Escape handling, and keyboard-aware user menus. Test custom renderers with Testing Library after replacing structural slots so these behaviors remain intact.

@@ -88,6 +88,7 @@ export type PanelGlobalSearch = {
   endpoint: string
   minChars: number
   placeholder: string
+  position?: 'header-start' | 'header-end' | 'sidebar' | 'sidebar-footer'
 }
 
 export type PanelLinkProps = {
