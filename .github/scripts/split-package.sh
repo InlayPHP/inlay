@@ -19,18 +19,6 @@ fi
 git config user.name "solutionforestteam"
 git config user.email "solutionforestteam@users.noreply.github.com"
 
-token_login="$(curl --fail --silent --show-error \
-    --header "Authorization: Bearer ${SPLIT_TOKEN}" \
-    --header 'Accept: application/vnd.github+json' \
-    https://api.github.com/user | sed -n 's/.*"login"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
-
-if [[ -z "$token_login" ]]; then
-    echo 'SPLIT_TOKEN did not authenticate as a GitHub user.' >&2
-    exit 78
-fi
-
-echo "Mirror token identity: ${token_login}"
-
 # actions/checkout persists a bot Authorization extraheader in the clone. It
 # takes precedence over credentials in remote_url, so remove it before using
 # the mirror PAT. This is separate from credential.helper and must be cleared
