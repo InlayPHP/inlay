@@ -27,6 +27,14 @@ jobs:
             composer-flags: ''
     steps:
       - uses: actions/checkout@v5
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependencies }}-${{ hashFiles('composer.lock', 'packages/*/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ matrix.php }}-${{ matrix.dependencies }}-
+            composer-${{ runner.os }}-
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -34,7 +42,7 @@ jobs:
           coverage: none
       - run: composer validate --no-check-publish
       - run: for manifest in packages/*/composer.json; do composer validate --no-check-publish "$manifest"; done
-      - run: composer update --no-interaction --prefer-dist ${{ matrix.composer-flags }}
+      - run: bash .github/scripts/composer-retry.sh update --no-interaction --prefer-dist ${{ matrix.composer-flags }}
       - run: composer test
       - run: composer lint
 
@@ -44,6 +52,14 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-8.4-playground-${{ hashFiles('playground/laravel-react/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-8.4-playground-
+            composer-${{ runner.os }}-
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
@@ -55,7 +71,7 @@ jobs:
         working-directory: playground/laravel-react
       - run: sed -i 's#^APP_URL=.*#APP_URL=http://localhost:8000#' .env
         working-directory: playground/laravel-react
-      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: bash ../../.github/scripts/composer-retry.sh install --no-interaction --prefer-dist --no-progress
         working-directory: playground/laravel-react
       # Laravel's clean checkout does not contain ignored runtime folders.
       # Wayfinder boots Artisan during the Vite build and the view compiler
@@ -93,6 +109,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-frontend-${{ hashFiles('composer.lock', 'packages/*/composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-frontend-
+            composer-${{ runner.os }}-
       - uses: pnpm/action-setup@v6
         with:
           version: 9.15.9
@@ -113,5 +137,5 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
-      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: bash .github/scripts/composer-retry.sh install --no-interaction --prefer-dist --no-progress
       - run: vendor/bin/pest tests/PackageExportsTest.php

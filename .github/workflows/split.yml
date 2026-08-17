@@ -87,21 +87,9 @@ jobs:
                   # mirror with none of it.
                   fetch-depth: 0
 
-            - if: "!startsWith(github.ref, 'refs/tags/')"
-              uses: danharrin/monorepo-split-github-action@v2.4.0
-              with:
-                  package_directory: 'packages/${{ matrix.package.local_path }}'
-                  repository_organization: 'InlayPHP'
-                  repository_name: '${{ matrix.package.split_repository }}'
-                  user_name: 'solutionforestteam'
-                  user_email: 'solutionforestteam@users.noreply.github.com'
-
-            - if: "startsWith(github.ref, 'refs/tags/')"
-              uses: danharrin/monorepo-split-github-action@v2.4.0
-              with:
-                  tag: ${{ github.ref_name }}
-                  package_directory: 'packages/${{ matrix.package.local_path }}'
-                  repository_organization: 'InlayPHP'
-                  repository_name: '${{ matrix.package.split_repository }}'
-                  user_name: 'solutionforestteam'
-                  user_email: 'solutionforestteam@users.noreply.github.com'
+            - name: Split package history and publish mirror
+              env:
+                  PACKAGE_DIRECTORY: 'packages/${{ matrix.package.local_path }}'
+                  SPLIT_REPOSITORY: '${{ matrix.package.split_repository }}'
+                  SPLIT_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+              run: bash .github/scripts/split-package.sh
