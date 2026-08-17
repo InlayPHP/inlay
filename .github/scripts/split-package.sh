@@ -43,8 +43,10 @@ fi
 # Mirrors are generated, read-only repositories. Force-updating main keeps them
 # deterministic while preserving the full package-only history produced by
 # `git subtree split`. Release tags are mirrored explicitly for Composer.
-git push --force "$remote_url" "${split_sha}:refs/heads/main"
+# checkout persists the workflow bot credential in git's helper. Clear it for
+# these commands so the mirror PAT embedded in remote_url is authoritative.
+git -c credential.helper= push --force "$remote_url" "${split_sha}:refs/heads/main"
 
 if [[ -n "${SPLIT_TAG:-}" ]]; then
-    git push --force "$remote_url" "${split_sha}:refs/tags/${SPLIT_TAG}"
+    git -c credential.helper= push --force "$remote_url" "${split_sha}:refs/tags/${SPLIT_TAG}"
 fi
