@@ -18,7 +18,12 @@ on:
             - main
         tags:
             - '*'
-    workflow_dispatch: {}
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: Optional release tag to mirror from the selected ref
+                required: false
+                type: string
 
 env:
     # A personal access token with `repo` scope on the mirror organisation. The
@@ -93,5 +98,5 @@ jobs:
               env:
                   PACKAGE_DIRECTORY: 'packages/${{ matrix.package.local_path }}'
                   SPLIT_REPOSITORY: '${{ matrix.package.split_repository }}'
-                  SPLIT_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+                  SPLIT_TAG: ${{ inputs.tag || (startsWith(github.ref, 'refs/tags/') && github.ref_name || '') }}
               run: bash .github/scripts/split-package.sh
