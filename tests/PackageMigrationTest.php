@@ -110,7 +110,7 @@ it('coordinates every public non-CMS package on the 0.3 release line', function 
             continue;
         }
 
-        expect($manifest['version'] ?? null)->toBe('0.3.0', "{$name} must use the coordinated npm release line.");
+        expect($manifest['version'] ?? null)->toBe('0.3.1', "{$name} must use the coordinated npm release line.");
 
         foreach (['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'] as $section) {
             foreach ($manifest[$section] ?? [] as $dependency => $constraint) {

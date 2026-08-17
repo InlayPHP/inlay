@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/actions-react",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Accessible React action controls for Inlay.",
   "license": "MIT",
   "type": "module",
