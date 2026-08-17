@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/tables-react",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "React renderer for Inlay PHP-first tables.",
   "license": "MIT",
   "type": "module",

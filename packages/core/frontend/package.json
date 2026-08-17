@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/core",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Framework-neutral contracts and extension registries for Inlay renderers.",
   "type": "module",
   "sideEffects": false,

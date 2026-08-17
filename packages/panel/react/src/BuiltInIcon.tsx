@@ -16,6 +16,7 @@ const icons: Record<string, ReactNode> = {
   'table-2': <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />,
   table: <path d="M4 5h16v14H4zM4 10h16M10 5v14M16 5v14" />,
   shield: <path d="M12 3 20 6v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6Z" />,
+  search: <><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></>,
   default: <><circle cx="12" cy="12" r="9" /><path d="M12 8v4l3 2" /></>,
 }
 

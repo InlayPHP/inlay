@@ -43,6 +43,12 @@ describe('Panel', () => {
     expect(document.querySelector('span[data-icon="home"]')).not.toBeInTheDocument()
   })
 
+  it('maps the search fallback to a magnifying-glass icon', () => {
+    render(<Panel resource={resource({ navigationItems: [item({ icon: 'search' })] })}><h1>Dashboard content</h1></Panel>)
+
+    expect(document.querySelector('svg[data-icon="search"] circle')).toBeInTheDocument()
+  })
+
   it('uses a built-in icon for the user-menu trigger', () => {
     render(<Panel resource={resource({ userMenuItems: [item({ name: 'profile', label: 'Profile', url: '/profile' })] })}><h1>Dashboard content</h1></Panel>)
 

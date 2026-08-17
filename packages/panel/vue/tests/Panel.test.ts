@@ -77,6 +77,12 @@ describe('Panel', () => {
     expect(document.querySelector('span[data-icon="home"]')).toBeNull()
   })
 
+  it('maps the search fallback to a magnifying-glass icon', () => {
+    render(Panel, { props: { resource: resource({ navigationItems: [item({ icon: 'search' })] }) } })
+
+    expect(document.querySelector('svg[data-icon="search"] circle')).toBeTruthy()
+  })
+
   it('searches authorized resources from the top bar and renders a result link', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ results: [{ resource: 'users', label: 'Users', title: 'Ada Lovelace', url: '/admin/users/1/edit' }] }) })
     vi.stubGlobal('fetch', fetchMock)

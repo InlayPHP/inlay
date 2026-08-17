@@ -14,6 +14,7 @@ const paths: Record<string, string[]> = {
     'table-2': ['M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18'],
     table: ['M4 5h16v14H4zM4 10h16M10 5v14M16 5v14'],
     shield: ['M12 3 20 6v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6Z'],
+    search: ['circle,11,11,8', 'm21 21-4.3-4.3'],
     default: ['circle,12,12,9', 'M12 8v4l3 2'],
 }
 </script>
