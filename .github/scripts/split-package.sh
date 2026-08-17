@@ -31,6 +31,12 @@ fi
 
 echo "Mirror token identity: ${token_login}"
 
+# actions/checkout persists a bot Authorization extraheader in the clone. It
+# takes precedence over credentials in remote_url, so remove it before using
+# the mirror PAT. This is separate from credential.helper and must be cleared
+# explicitly.
+git config --local --unset-all http.https://github.com/.extraheader 2>/dev/null || true
+
 split_sha="$(git subtree split --prefix="$PACKAGE_DIRECTORY")"
 remote_url="https://x-access-token:${SPLIT_TOKEN}@github.com/InlayPHP/${SPLIT_REPOSITORY}.git"
 
