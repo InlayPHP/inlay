@@ -23,7 +23,6 @@ const paths: Record<string, string[]> = {
         :class="className ?? 'size-5'"
         :data-icon="name"
         aria-hidden="true"
-        data-slot="icon"
         fill="none"
         focusable="false"
         role="img"

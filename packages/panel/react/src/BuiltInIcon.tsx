@@ -20,5 +20,5 @@ const icons: Record<string, ReactNode> = {
 }
 
 export function BuiltInIcon({ name, className = 'size-5', 'aria-hidden': ariaHidden = true }: { name: string; className?: string; 'aria-hidden'?: boolean }) {
-  return <svg aria-hidden={ariaHidden} className={className} data-icon={name} data-slot="icon" fill="none" focusable="false" role="img" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">{icons[name] ?? icons.default}</svg>
+  return <svg aria-hidden={ariaHidden} className={className} data-icon={name} fill="none" focusable="false" role="img" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">{icons[name] ?? icons.default}</svg>
 }

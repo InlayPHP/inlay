@@ -43,6 +43,14 @@ describe('Panel', () => {
     expect(document.querySelector('span[data-icon="home"]')).not.toBeInTheDocument()
   })
 
+  it('uses a built-in icon for the user-menu trigger', () => {
+    render(<Panel resource={resource({ userMenuItems: [item({ name: 'profile', label: 'Profile', url: '/profile' })] })}><h1>Dashboard content</h1></Panel>)
+
+    const trigger = screen.getByRole('button', { name: 'User menu' })
+    expect(trigger.querySelector('svg[data-icon="user-circle"]')).toBeInTheDocument()
+    expect(trigger).not.toHaveTextContent('●')
+  })
+
   it('searches authorized resources from the top bar and navigates to a result', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ results: [{ resource: 'users', label: 'Users', title: 'Ada Lovelace', url: '/admin/users/1/edit' }] }) })
     vi.stubGlobal('fetch', fetchMock)

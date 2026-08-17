@@ -92,10 +92,10 @@ export const infolistSlotVocabulary: SlotVocabulary = {
  * breadcrumb landmark sat inside `main` in React and outside it in Vue, was named
  * "Breadcrumb" in one and "Breadcrumbs" in the other, and Vue rendered it even with
  * no breadcrumbs to show — an empty navigation landmark that assistive technology
- * announces. React drew a placeholder dot beside the brand where Vue drew nothing,
+ * announces. React drew a placeholder icon beside the brand where Vue drew nothing,
  * and Vue had no way to show a registered brand icon at all. An unresolved
- * navigation icon showed a neutral dot in React and the first letter of the icon
- * name in Vue. The mobile scrim stayed in React's tree hidden and was mounted on
+ * navigation icon now uses the panel's built-in open-source outline fallback in
+ * both renderers. The mobile scrim stayed in React's tree hidden and was mounted on
  * demand in Vue, so a host could not style it without opening the drawer.
  */
 export const panelSlotVocabulary: Record<'sidebar' | 'top', SlotVocabulary> = {

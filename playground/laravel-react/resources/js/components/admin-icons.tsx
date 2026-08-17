@@ -1,6 +1,5 @@
 import type { PanelIconProps, PanelIconRegistry } from '@inlayphp/panels-react';
 import {
-    CircleDot,
     Home,
     KeyRound,
     Layers3,
@@ -35,5 +34,4 @@ export const adminIcons: PanelIconRegistry = {
     users: icon(Users),
     'user-check': icon(UserCheck),
     'user-circle': icon(UserCircle),
-    fallback: icon(CircleDot),
 };
