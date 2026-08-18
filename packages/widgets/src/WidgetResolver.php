@@ -22,7 +22,7 @@ final class WidgetResolver
     ) {}
 
     /** @param iterable<Widget|ProvidesWidgets|class-string<ProvidesWidgets>> $sources */
-    public function resolve(iterable $sources, Request $request): WidgetDashboard
+    public function resolve(iterable $sources, Request $request, ?Dashboard $dashboard = null): WidgetDashboard
     {
         $widgets = [];
         foreach ($sources as $source) {
@@ -40,7 +40,7 @@ final class WidgetResolver
             }
         }
 
-        return WidgetDashboard::make()->widgets($widgets);
+        return WidgetDashboard::make()->dashboard($dashboard)->widgets($widgets);
     }
 
     /** @return list<Widget> */

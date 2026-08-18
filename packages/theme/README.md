@@ -21,7 +21,7 @@ For framework-neutral TypeScript helpers, use `@inlayphp/theme` from `packages/t
 ## Presets
 
 - `Theme::base()` is a neutral zinc foundation.
-- `Theme::orbit()` is the canonical Inlay operations workspace with a cool-white canvas, light sidebar, restrained purple accent, 44px controls, and readable status roles.
+- `Theme::orbit()` is the canonical Inlay operations workspace with a cool-white canvas, light sidebar, restrained purple accent, 44px controls, a 1600px dashboard surface, and readable status roles.
 - `Theme::default()` is the Orbit preset under the stable default name.
 - `Theme::highContrast()` provides a stronger light/dark contrast preset for accessibility-sensitive applications.
 - `Theme::make('brand')` creates an empty custom contract.
@@ -65,7 +65,7 @@ The built-in base contract includes:
 - surfaces: `background`, `surface`, `surface-muted`, `hover`, `border`, `control-border`, `badge`;
 - states: `danger`, `danger-surface`, `success`, `success-surface`, `warning`, `warning-surface`, `info`, `info-surface`;
 - overlays: `overlay` for dialog backdrops and `scrim` for navigation/drawer layers;
-- geometry: `radius`, `control-height`, `button-xs-height`, `button-sm-height`, `button-height`, `button-lg-height`, `icon-button-size`, `topbar-height`, `sidebar-width`, `collapsed-sidebar-width`;
+- geometry: `radius`, `control-height`, `button-xs-height`, `button-sm-height`, `button-height`, `button-lg-height`, `icon-button-size`, `topbar-height`, `sidebar-width`, `collapsed-sidebar-width`, `dashboard-max-width`;
 - navigation surfaces: `sidebar-surface`, `sidebar-foreground`, `sidebar-muted`, `sidebar-border`, `sidebar-hover`, `sidebar-active`, `sidebar-active-foreground`, `sidebar-badge`;
 - recipe spacing: `space-control-x`, `space-control-y`, `space-button-x`, `space-button-y`, `space-card`, `space-dialog`, `space-menu-x`, `space-menu-y`, `space-table-x`, `space-table-y`, `space-stack`, `space-inline`, `space-field`;
 - recipe typography: `font-family`, `font-size-body`, `font-size-control`, `font-size-label`, `font-size-caption`, `font-size-heading`, `font-size-title`, `line-height-body`, `line-height-control`, `line-height-tight`, `font-weight-label`, `font-weight-heading`;

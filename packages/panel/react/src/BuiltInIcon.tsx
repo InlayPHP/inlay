@@ -17,6 +17,8 @@ const icons: Record<string, ReactNode> = {
   table: <path d="M4 5h16v14H4zM4 10h16M10 5v14M16 5v14" />,
   shield: <path d="M12 3 20 6v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6Z" />,
   search: <><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></>,
+  'chevron-left': <path d="m15 18-6-6 6-6" />,
+  'chevron-right': <path d="m9 18 6-6-6-6" />,
   default: <><circle cx="12" cy="12" r="9" /><path d="M12 8v4l3 2" /></>,
 }
 

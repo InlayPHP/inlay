@@ -1574,7 +1574,7 @@ The filter form sits behind a toggle by default. Keep it open above the table, c
 
 ```php
 $table
-    ->filtersLayout('above-content') // or 'below-content', 'above-content-collapsible', 'modal', or 'dropdown'
+    ->filtersLayout('above-content') // or 'chips', 'below-content', 'above-content-collapsible', 'modal', or 'dropdown'
     ->filtersFormColumns(2)
     ->filters([
         SelectFilter::make('role')->options([...]),
@@ -1584,6 +1584,23 @@ $table
 ```
 
 `above-content` and `below-content` keep the form open before or after the table; `dropdown` keeps it behind a toggle. Columns and spans are validated in PHP (1–6) and travel as `filtersLayout`, `filtersFormColumns`, and each filter's `columnSpan`. React and Vue apply them through CSS custom properties, so the form stays single-column on small screens and only adopts the declared grid from the `sm` breakpoint up. A span wider than the grid is clamped to it.
+
+Use `chips` for a compact status/filter toolbar. Select filters with serialized
+options render as an “All” chip plus one chip per option; choosing a chip updates
+the query immediately and hides the full filter form. This is useful for the
+default dashboard table style and remains fully PHP-defined:
+
+```php
+$table
+    ->deferFilters(false)
+    ->filtersLayout('chips')
+    ->filters([
+        SelectFilter::make('status')->options([
+            'paid' => 'Paid',
+            'pending' => 'Pending',
+        ]),
+    ]);
+```
 
 `above-content-collapsible` keeps the panel in the same position as `above-content`, but
 adds the normal Filters toggle so a page can reclaim vertical space when the controls

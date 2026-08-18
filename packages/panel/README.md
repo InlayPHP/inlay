@@ -304,6 +304,11 @@ Panel::make('admin')
 `sidebar-footer` places the search at the bottom of a sidebar. Top navigation falls
 back to the header when a sidebar-only position is not available.
 
+When `collapsible()` is enabled, the desktop collapse trigger is rendered in the
+leading side of the top bar in both renderers. It remains a keyboard-safe
+control when the rail is collapsed and exposes
+`data-slot="sidebar-collapse-trigger"` for theme overrides.
+
 ## Tenancy
 
 Scope a panel to a tenant:
@@ -431,6 +436,24 @@ $panel
 ```
 
 The panel dashboard resolves these providers into an `inlayWidgets` prop. Render it with `WidgetDashboard` from `@inlayphp/widgets-react` or `@inlayphp/widgets-vue`.
+
+The page header is PHP-owned too. Use `Inlay\Widgets\Dashboard` for the
+eyebrow, heading, description, and header actions; the stock renderers emit
+the same header, widget tabs, and action dialog without dashboard-specific JSX
+or Vue templates:
+
+```php
+use Inlay\Actions\Action;
+use Inlay\Widgets\Dashboard;
+
+$panel->dashboard(Dashboard::make()
+    ->eyebrow('Resource management')
+    ->heading('Orders overview')
+    ->description('A PHP-defined dashboard with shared Inlay surfaces.')
+    ->headerActions([
+        Action::make('create-order')->label('New order')->url('/admin/orders')->method('post'),
+    ]));
+```
 
 For an application with many providers, use the explicit discovery boundary:
 

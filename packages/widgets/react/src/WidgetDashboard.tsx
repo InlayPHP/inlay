@@ -6,6 +6,8 @@ import { ActionButton, ActionDialog, useActionRuntime } from '@inlayphp/actions-
 import { ActionForm } from '@inlayphp/forms-react'
 import type { ActionExecutor, ActionExecutionInput, ActionResource } from '@inlayphp/actions'
 import { isSafeUrl } from '@inlayphp/core'
+import { Form } from '@inlayphp/forms-react'
+import { Infolist } from '@inlayphp/infolists-react'
 import { customThemeVariables, recipeVariables, themeToken } from '@inlayphp/theme'
 import { Table } from '@inlayphp/tables-react'
 import type { ChartWidget, StatsOverviewWidget, WidgetDashboardProps, WidgetResource, WidgetStat, WidgetTheme } from './types'
@@ -17,6 +19,7 @@ import type { ChartWidget, StatsOverviewWidget, WidgetDashboardProps, WidgetReso
  * dashboard is narrowed rather than overflowing it.
  */
 const dashboardSpanClasses = ['', 'md:col-span-1', 'md:col-span-2', 'md:col-span-3', 'md:col-span-4', 'md:col-span-5', 'md:col-span-6', 'md:col-span-7', 'md:col-span-8', 'md:col-span-9', 'md:col-span-10', 'md:col-span-11', 'md:col-span-12']
+const dashboardStartClasses = ['', 'md:col-start-1', 'md:col-start-2', 'md:col-start-3', 'md:col-start-4', 'md:col-start-5', 'md:col-start-6', 'md:col-start-7', 'md:col-start-8', 'md:col-start-9', 'md:col-start-10', 'md:col-start-11', 'md:col-start-12']
 
 function spanClass(columnSpan: number | 'full', columns: number): string {
   if (columnSpan === 'full') return 'md:col-span-full'
@@ -24,7 +27,19 @@ function spanClass(columnSpan: number | 'full', columns: number): string {
   return dashboardSpanClasses[width] ?? 'md:col-span-12'
 }
 
+function startClass(columnStart: number | null | undefined, columns: number): string {
+  if (columnStart == null) return ''
+  const start = Math.max(1, Math.min(columnStart, columns))
+
+  return dashboardStartClasses[start] ?? ''
+}
+
 export function WidgetDashboard({ resource, theme, className = '', classNames = {}, icons = {}, renderers = {}, empty, onRefresh, actionExecutor, actionInput }: WidgetDashboardProps) {
+  const tabs = resource.tabs ?? []
+  const [activeTab, setActiveTab] = useState(tabs[0]?.name ?? 'overview')
+  useEffect(() => {
+    if (!tabs.some((tab) => tab.name === activeTab)) setActiveTab(tabs[0]?.name ?? 'overview')
+  }, [activeTab, tabs])
   const token = (names: string | string[], fallback: string) => themeToken(theme, names, fallback) ?? fallback
   const style = {
     ...customThemeVariables(theme),
@@ -74,10 +89,18 @@ export function WidgetDashboard({ resource, theme, className = '', classNames = 
     '--inlay-button-lg-height': token(['button-lg-height', 'button-large-height'], 'var(--inlay-panel-button-lg-height, 2.75rem)'),
     '--inlay-icon-button-size': token('icon-button-size', 'var(--inlay-panel-icon-button-size, var(--inlay-button-height, 2.5rem))'),
     '--inlay-shadow': 'var(--inlay-widget-shadow)',
+    maxWidth: token('dashboard-max-width', '100rem'),
+    width: '100%',
+    marginInline: 'auto',
   } as CSSProperties
-  const widgets = resource.widgets.filter((widget) => widget.visible)
+  const selectedTab = tabs.length > 1 ? tabs.find((tab) => tab.name === activeTab) : null
+  const selectedNames = selectedTab ? new Set(selectedTab.widgets) : null
+  const widgets = resource.widgets.filter((widget) => widget.visible && (!selectedNames || selectedNames.has(widget.name)))
+  const headerActions = resource.headerActions ?? []
   return <section aria-label="Dashboard widgets" className={`text-(--inlay-widget-text) ${classNames.root ?? ''} ${className}`.trim()} data-contract={resource.contract} data-slot="widget-dashboard" style={style}>
-      {widgets.length ? <div className={`grid grid-cols-1 gap-4 md:grid-cols-(--inlay-dashboard-columns) lg:gap-6 ${classNames.grid ?? ''}`} data-columns={resource.columns} data-slot="widget-grid" style={{ '--inlay-dashboard-columns': `repeat(${resource.columns}, minmax(0, 1fr))` } as CSSProperties}>{widgets.map((widget) => <WidgetSlot key={widget.name} onRefresh={onRefresh} widget={widget} wrapperClassName={`${classNames.widget ?? ''} ${spanClass(widget.columnSpan, resource.columns)}`}><WidgetRenderer actionExecutor={actionExecutor} actionInput={actionInput} classNames={classNames} icons={icons} renderers={renderers} theme={theme} widget={widget} /></WidgetSlot>)}</div> : (empty ?? <div className="rounded-(--inlay-widget-radius) border border-dashed border-(--inlay-widget-border) bg-(--inlay-widget-surface) px-6 py-12 text-center text-sm text-(--inlay-widget-muted)">No dashboard widgets yet.</div>)}
+      {resource.eyebrow || resource.heading || resource.description || headerActions.length ? <header className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between" data-slot="dashboard-header"><div>{resource.eyebrow ? <p className="mb-1.5 text-xs font-semibold tracking-wide text-(--inlay-widget-accent) uppercase">{resource.eyebrow}</p> : null}{resource.heading ? <h1 className="text-3xl font-semibold tracking-tight">{resource.heading}</h1> : null}{resource.description ? <p className="mt-1.5 max-w-[58ch] text-sm text-(--inlay-widget-muted)">{resource.description}</p> : null}</div>{headerActions.length ? <WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} /> : null}</header> : null}
+      {tabs.length > 1 ? <div className="mb-6 flex gap-5 overflow-x-auto overflow-y-hidden border-b border-(--inlay-widget-border)" data-slot="dashboard-tabs" role="tablist">{tabs.map((tab) => <button aria-selected={tab.name === activeTab} className={`-mb-px min-h-11 shrink-0 border-b-2 px-0.5 text-sm font-medium transition-colors ${tab.name === activeTab ? 'border-(--inlay-widget-accent) text-(--inlay-widget-accent)' : 'border-transparent text-(--inlay-widget-muted) hover:text-(--inlay-widget-text)'}`} key={tab.name} onClick={() => setActiveTab(tab.name)} role="tab" type="button">{tab.label}</button>)}</div> : null}
+      {widgets.length ? <div className={`grid grid-cols-1 gap-4 md:grid-cols-(--inlay-dashboard-columns) lg:gap-6 ${classNames.grid ?? ''}`} data-columns={resource.columns} data-slot="widget-grid" style={{ '--inlay-dashboard-columns': `repeat(${resource.columns}, minmax(0, 1fr))` } as CSSProperties}>{widgets.map((widget) => <WidgetSlot key={widget.name} onRefresh={onRefresh} widget={widget} wrapperClassName={`${classNames.widget ?? ''} ${spanClass(widget.columnSpan, resource.columns)} ${startClass(widget.columnStart, resource.columns)}`}><WidgetRenderer actionExecutor={actionExecutor} actionInput={actionInput} classNames={classNames} icons={icons} renderers={renderers} theme={theme} widget={widget} /></WidgetSlot>)}</div> : (empty ?? <div className="rounded-(--inlay-widget-radius) border border-dashed border-(--inlay-widget-border) bg-(--inlay-widget-surface) px-6 py-12 text-center text-sm text-(--inlay-widget-muted)">No dashboard widgets yet.</div>)}
   </section>
 }
 
@@ -133,6 +156,8 @@ function WidgetRenderer({ widget, theme, icons, renderers, classNames, actionExe
   if (custom) return createElement(custom, { widget, theme })
   if (widget.type === 'stats-overview') return <StatsOverview actionExecutor={actionExecutor} actionInput={actionInput} className={classNames.stats} icons={icons} statClassName={classNames.stat} widget={widget} />
   if (widget.type === 'chart') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}><Chart className={classNames.chart} widget={widget} /></Surface>
+  if (widget.type === 'form') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}>{widget.form ? <Form resource={widget.form as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No form data.</p>}</Surface>
+  if (widget.type === 'infolist') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}>{widget.infolist ? <Infolist resource={widget.infolist as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No infolist data.</p>}</Surface>
   return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}><div className={classNames.table} data-slot="widget-table">{widget.table ? <Table resource={widget.table as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No table data.</p>}</div></Surface>
 }
 

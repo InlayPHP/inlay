@@ -18,7 +18,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --external react --external @inertiajs/react --external @inlayphp/actions --external @inlayphp/actions-react --external @inlayphp/core --external @inlayphp/forms-react --external @inlayphp/tables-react --external @inlayphp/theme",
+    "build": "tsup src/index.ts --format esm --dts --clean --external react --external @inertiajs/react --external @inlayphp/actions --external @inlayphp/actions-react --external @inlayphp/core --external @inlayphp/forms-react --external @inlayphp/infolists-react --external @inlayphp/tables-react --external @inlayphp/theme",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
@@ -29,6 +29,7 @@
     "react": "^19.0.0",
     "@inlayphp/core": "workspace:^",
     "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/infolists-react": "workspace:^",
     "@inlayphp/tables-react": "workspace:^",
     "@inlayphp/theme": "workspace:^"
   },
@@ -38,6 +39,7 @@
     "@inlayphp/actions-react": "workspace:^",
     "@inlayphp/core": "workspace:^",
     "@inlayphp/forms-react": "workspace:^",
+    "@inlayphp/infolists-react": "workspace:^",
     "@inlayphp/tables-react": "workspace:^",
     "@inlayphp/theme": "workspace:^",
     "@testing-library/jest-dom": "^6.6.3",

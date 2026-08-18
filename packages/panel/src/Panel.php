@@ -22,6 +22,7 @@ use Inlay\Theme\Theme;
 use Inlay\Widgets\Contracts\ProvidesWidgets;
 use Inlay\Widgets\WidgetDiscovery;
 use Inlay\Widgets\Widget;
+use Inlay\Widgets\Dashboard;
 use InvalidArgumentException;
 use JsonSerializable;
 
@@ -103,6 +104,8 @@ final class Panel implements JsonSerializable
     private string $loginComponent = 'auth/login';
 
     private string $dashboardComponent = 'admin/dashboard';
+
+    private ?Dashboard $dashboard = null;
 
     private bool $accountSettings = false;
 
@@ -649,6 +652,19 @@ final class Panel implements JsonSerializable
     public function dashboardComponentName(): string
     {
         return $this->dashboardComponent;
+    }
+
+    /** Configure PHP-owned dashboard presentation metadata. */
+    public function dashboard(Dashboard $dashboard): self
+    {
+        $this->dashboard = $dashboard;
+
+        return $this;
+    }
+
+    public function dashboardDefinition(): ?Dashboard
+    {
+        return $this->dashboard;
     }
 
     public function accountSettings(bool $enabled = true): self

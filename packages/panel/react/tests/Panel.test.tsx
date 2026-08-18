@@ -165,6 +165,8 @@ describe('Panel', () => {
     expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('main')).toHaveAttribute('data-component', 'PanelLayout')
 
+    expect(within(screen.getByRole('banner')).getByRole('button', { name: 'Collapse sidebar' })).toHaveClass('size-9', 'lg:inline-flex')
+
     await userEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }))
     expect(sidebar).toHaveAttribute('data-collapsed', 'true')
     expect(screen.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument()

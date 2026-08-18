@@ -222,6 +222,8 @@ describe('Panel', () => {
     expect(screen.getByRole('navigation', { name: 'Breadcrumb' })).toHaveTextContent('HomeDashboard')
     expect(screen.getByRole('heading', { name: 'Dashboard content' })).toBeInTheDocument()
     const collapse = screen.getByRole('button', { name: 'Collapse navigation' })
+    expect(collapse.parentElement?.getAttribute('data-slot')).toBe('header')
+    expect(collapse).toHaveClass('size-9', 'lg:inline-flex')
     await user.click(collapse)
     expect(screen.getByRole('complementary')).toHaveAttribute('data-collapsed', 'true')
     expect(screen.getByRole('button', { name: 'Expand navigation' })).toBeInTheDocument()
