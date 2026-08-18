@@ -14,7 +14,7 @@ export default function Dashboard() {
   return (
     <InlayPanelLayout>
       <Head title="Dashboard" />
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto w-full max-w-[1600px] space-y-7">
         <div>
           <p className="font-medium text-(--inlay-accent)">Administration</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">
@@ -24,7 +24,7 @@ export default function Dashboard() {
             Manage the application from one PHP-configured panel.
           </p>
         </div>
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {destinations.map(([title, description, href]) => (
             <Link
               className="rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-5 transition hover:bg-(--inlay-hover)"

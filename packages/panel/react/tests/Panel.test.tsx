@@ -358,7 +358,7 @@ describe('Panel', () => {
 
   it('falls back to the panel ID when brandName is null and sanitizes attributes', () => {
     render(<Panel resource={resource({ brandName: null, navigationItems: [item({ extraAttributes: { 'data-testid': 'safe-link', className: 'custom-link', children: 'unsafe', onClick: 'unsafe' } })] })}><p>Content</p></Panel>)
-    expect(screen.getByText('Admin')).toBeInTheDocument()
+    expect(screen.getAllByText('Admin')).not.toHaveLength(0)
     const link = screen.getByTestId('safe-link')
     expect(link).toHaveClass('custom-link')
     expect(link).not.toHaveAttribute('onClick', 'unsafe')

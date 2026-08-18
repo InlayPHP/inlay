@@ -5,6 +5,7 @@ import { isSafeUrl } from '@inlayphp/core'
 import { customThemeCss, recipeVariables, resolveThemeTokens } from '@inlayphp/theme'
 import NavigationMenu from './NavigationMenu.vue'
 import GlobalSearch from './GlobalSearch.vue'
+import BuiltInIcon from './BuiltInIcon.vue'
 import type { PanelClassNames, PanelIconRegistry, PanelNavigationItem, PanelRenderContext, PanelRendererRegistries, PanelRenderers, PanelResource, PanelTenantOption, PanelTheme } from './types'
 import { itemIsActive, itemIsVisible, safeAttributes, sortedItems } from './utils'
 
@@ -42,7 +43,7 @@ const tenantButton = ref<HTMLButtonElement | null>(null)
 const tenantOptions = ref<HTMLElement | null>(null)
 const otherTenants = computed<PanelTenantOption[]>(() => (props.resource.tenant?.options ?? []).filter((option: PanelTenantOption) => option.key !== props.resource.tenant?.current?.key && isSafeUrl(option.url)))
 const globalSearchPosition = computed(() => {
-  const requested = props.resource.globalSearch?.position ?? 'header-end'
+  const requested = props.resource.globalSearch?.position ?? 'header-start'
   if (props.resource.navigationMode === 'top' && (requested === 'sidebar' || requested === 'sidebar-footer')) return 'header-end'
   if (!props.resource.topbar && (requested === 'header-start' || requested === 'header-end')) return 'sidebar-footer'
   return requested
@@ -350,7 +351,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
     :style="cssVariables"
     @keydown="onKeydown"
   >
-    <header v-if="resource.topbar" :class="['sticky top-0 z-50 flex min-h-(--inlay-topbar-height) min-w-0 flex-wrap items-center gap-3 border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface)/95 px-4 backdrop-blur-md sm:px-6', classNames.header]" data-slot="header">
+    <header v-if="resource.topbar" :class="['sticky top-0 z-50 flex min-h-(--inlay-topbar-height) min-w-0 flex-wrap items-center gap-3 border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface)/95 px-4 backdrop-blur-md sm:px-6', resource.navigationMode === 'sidebar' && (desktopCollapsed ? 'lg:ml-(--inlay-panel-sidebar-collapsed-width)' : 'lg:ml-(--inlay-panel-sidebar-width)'), classNames.header]" data-slot="header">
       <button
         :aria-expanded="mobileOpen"
         aria-label="Open navigation"
@@ -362,6 +363,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
         <span aria-hidden="true">☰</span>
       </button>
 
+      <div :class="resource.navigationMode === 'sidebar' ? 'lg:hidden' : ''">
       <slot name="brand" :resource="resource" :context="renderContext">
         <component v-if="renderers.brand" :is="rawComponent(renderers.brand)" :context="renderContext" />
         <component
@@ -375,12 +377,14 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
           <img v-if="isSafeUrl(resource.brandLogo)" :alt="`${brandName} logo`" class="size-8 object-contain" :src="resource.brandLogo!" />
           <!-- D: a registered brand icon had no way to appear here at all. -->
           <component v-else-if="icons.brand" :is="rawComponent(icons.brand)" aria-hidden="true" class="size-5 shrink-0" />
+          <span v-else aria-hidden="true" class="grid size-8 shrink-0 place-items-center rounded-lg bg-(--inlay-panel-accent) text-sm font-bold text-(--inlay-panel-accent-foreground)">{{ brandName.trim().charAt(0).toUpperCase() || 'I' }}</span>
           <span>{{ brandName }}</span>
         </component>
       </slot>
+      </div>
 
-      <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-start'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-start" />
       <div v-if="$slots['header-start']" data-slot="header-start"><slot name="header-start" :context="renderContext" /></div>
+      <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-start'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-start" />
       <!-- The tenant a panel is scoped to, and the ones the visitor may switch to. PHP decides both; the switcher only navigates. -->
       <div v-if="resource.tenant" ref="tenantRoot" class="relative" data-slot="tenant-switcher">
         <button :aria-controls="`${resource.id}-tenant-options`" :aria-expanded="tenantOpen" aria-haspopup="menu" aria-label="Switch tenant" class="rounded-(--inlay-panel-radius) px-3 py-2 text-sm ring-1 ring-(--inlay-panel-border)" :disabled="otherTenants.length === 0" ref="tenantButton" type="button" @click="tenantOpen = !tenantOpen" @keydown="onTenantTriggerKeydown">
@@ -421,14 +425,15 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
             aria-controls="inlay-panel-user-menu"
             :aria-expanded="userMenuOpen"
             aria-haspopup="menu"
-            class="inline-flex min-h-11 items-center rounded-lg px-3 text-sm hover:bg-(--inlay-panel-hover)"
+            aria-label="User menu"
+            class="inline-flex size-11 items-center justify-center rounded-full border border-(--inlay-panel-border) text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text)"
             data-slot="user-menu-trigger"
             ref="userButton"
             type="button"
             @click="userMenuOpen = !userMenuOpen"
             @keydown="openUserMenuWithKeyboard"
           >
-            <slot name="user-trigger">User menu</slot>
+            <slot name="user-trigger"><BuiltInIcon class-name="size-5" name="user-circle" /></slot>
           </button>
           <div
             v-if="userMenuOpen"
@@ -504,17 +509,30 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       </NavigationMenu>
     </div>
 
-    <div :class="['flex min-w-0', resource.topbar ? 'min-h-[calc(100dvh-var(--inlay-topbar-height))]' : 'min-h-dvh']">
+    <div :class="['flex min-w-0', resource.topbar ? 'min-h-[calc(100dvh-var(--inlay-topbar-height))]' : 'min-h-dvh', resource.navigationMode === 'sidebar' && (desktopCollapsed ? 'lg:ml-(--inlay-panel-sidebar-collapsed-width)' : 'lg:ml-(--inlay-panel-sidebar-width)')]">
       <aside
         v-if="resource.navigationMode === 'sidebar'"
         :class="[
-          'hidden shrink-0 border-r border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-surface) p-3 transition-[width] md:flex md:flex-col',
+          'hidden shrink-0 border-r border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-surface) p-3 transition-[width] md:flex md:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-40',
           desktopCollapsed ? 'w-(--inlay-panel-sidebar-collapsed-width)' : 'w-(--inlay-panel-sidebar-width)',
           classNames.sidebar,
         ]"
         data-slot="sidebar"
         :data-collapsed="desktopCollapsed || undefined"
       >
+        <div class="-mx-3 -mt-3 mb-3 hidden h-(--inlay-topbar-height) shrink-0 items-center border-b border-(--inlay-panel-sidebar-border) px-5 lg:flex" data-slot="sidebar-brand">
+          <component :is="rawComponent(linkComponent)" v-if="isSafeUrl(resource.path)" :class="['flex min-w-0 shrink-0 items-center gap-2', desktopCollapsed && 'lg:justify-center']" :href="resource.path" @click="onBrandNavigate">
+            <img v-if="isSafeUrl(resource.brandLogo)" :alt="`${brandName} logo`" class="size-8 shrink-0 object-contain" :src="resource.brandLogo!" />
+            <component v-else-if="icons.brand" :is="rawComponent(icons.brand)" aria-hidden="true" class="size-5 shrink-0" />
+            <span v-else aria-hidden="true" class="grid size-8 shrink-0 place-items-center rounded-lg bg-(--inlay-panel-accent) text-sm font-bold text-(--inlay-panel-accent-foreground)">{{ brandName.trim().charAt(0).toUpperCase() || 'I' }}</span>
+            <span :class="['min-w-0 truncate font-semibold', desktopCollapsed && 'lg:hidden']">{{ brandName }}</span>
+          </component>
+          <div v-else class="flex min-w-0 shrink-0 items-center gap-2">
+            <span v-if="isSafeUrl(resource.brandLogo)" aria-hidden="true" class="size-8 shrink-0" />
+            <span v-else aria-hidden="true" class="grid size-8 shrink-0 place-items-center rounded-lg bg-(--inlay-panel-accent) text-sm font-bold text-(--inlay-panel-accent-foreground)">{{ brandName.trim().charAt(0).toUpperCase() || 'I' }}</span>
+            <span :class="['min-w-0 truncate font-semibold', desktopCollapsed && 'lg:hidden']">{{ brandName }}</span>
+          </div>
+        </div>
         <NavigationMenu
           :class-names="classNames"
           :collapsed="desktopCollapsed"

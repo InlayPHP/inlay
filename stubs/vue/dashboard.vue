@@ -19,14 +19,14 @@ const destinations = [
 <template>
     <InlayPanelLayout>
         <Head title="Dashboard" />
-        <div class="mx-auto max-w-6xl space-y-6">
+        <div class="mx-auto w-full max-w-[1600px] space-y-7">
             <div>
                 <p class="font-medium text-(--inlay-accent)">Administration</p>
                 <h1 class="mt-2 text-3xl font-semibold tracking-tight">Dashboard</h1>
                 <p class="mt-2 text-sm text-(--inlay-muted)">Manage the application from one PHP-configured panel.</p>
             </div>
             <WidgetDashboard v-if="inlayWidgets" :resource="inlayWidgets" />
-            <section class="grid gap-4 md:grid-cols-3">
+            <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <Link
                     v-for="[title, description, href] in destinations"
                     :key="title"

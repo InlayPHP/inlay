@@ -83,7 +83,7 @@ final class Panel implements JsonSerializable
     private ?string $globalSearchEndpoint = null;
 
     /** @var 'header-start'|'header-end'|'sidebar'|'sidebar-footer' */
-    private string $globalSearchPosition = 'header-end';
+    private string $globalSearchPosition = 'header-start';
 
     /** @var list<class-string> */
     private array $resources = [];
@@ -378,7 +378,9 @@ final class Panel implements JsonSerializable
     /**
      * Choose where the renderer places the compact resource search control.
      *
-     * Header-end is the default and keeps the search near the account actions.
+     * Header-start is the default and keeps search in the workspace area, next
+     * to the brand or breadcrumb. Header-end remains available for compact
+     * account-oriented headers.
      * Sidebar-footer is useful for an always-available search at the bottom of
      * a left navigation rail.
      *

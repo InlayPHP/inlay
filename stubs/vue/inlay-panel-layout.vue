@@ -24,6 +24,13 @@ function logout(): void {
         :resource="page.props.inlayPanel"
         :on-navigate="(href) => router.visit(href)"
     >
+        <template #header-start>
+            <nav aria-label="Breadcrumb" class="hidden items-center gap-2 text-xs text-(--inlay-muted) lg:flex" data-slot="topbar-breadcrumb">
+                <span>Workspace</span>
+                <span aria-hidden="true">/</span>
+                <strong class="font-semibold text-(--inlay-text)">Administration</strong>
+            </nav>
+        </template>
         <template #header-end>
             <div class="flex items-center gap-3">
                 <div class="hidden text-right sm:block">

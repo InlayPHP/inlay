@@ -145,7 +145,9 @@ The shell exposes stable `data-slot` attributes plus typed class hooks for the r
 ### Search placement and render regions
 
 The PHP `globalSearchPosition()` setting accepts `header-start`, `header-end`,
-`sidebar`, or `sidebar-footer`. The default is the compact `header-end` control;
+`sidebar`, or `sidebar-footer`. Orbit defaults to `header-start`, keeping search
+with the workspace content; use `header-end` for a compact account-oriented
+header or `sidebar-footer` for a left-rail search.
 `sidebar-footer` is useful for a left-rail search. The search input includes a
 theme-aware search icon, keeps its `name="global-search"`, and remains available
 through `/` and `⌘/Ctrl-K` keyboard shortcuts.

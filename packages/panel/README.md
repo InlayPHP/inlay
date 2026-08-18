@@ -298,7 +298,7 @@ without replacing the shell when a different information architecture fits bette
 
 ```php
 Panel::make('admin')
-    ->globalSearchPosition('sidebar-footer'); // header-start, header-end, sidebar, or sidebar-footer
+    ->globalSearchPosition('sidebar-footer'); // header-start (Orbit default), header-end, sidebar, or sidebar-footer
 ```
 
 `sidebar-footer` places the search at the bottom of a sidebar. Top navigation falls

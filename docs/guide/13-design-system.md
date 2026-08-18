@@ -41,7 +41,9 @@ Do not use a black browser-default border as the visual system.
 ## Navigation and layout
 
 The desktop shell uses a 248px sidebar, a 72px top bar, and a flexible content
-column. Keep the active item legible with a soft purple surface and darker purple
+column. The sidebar owns the brand lockup and grouped navigation; the top bar
+starts at the content edge and holds the workspace breadcrumb, search, and account
+actions. Keep the active item legible with a soft purple surface and darker purple
 text; do not change font weight between default and hover states. At mobile widths
 the sidebar becomes a labelled dialog/drawer below the top bar and the content
 returns to one column without horizontal overflow.

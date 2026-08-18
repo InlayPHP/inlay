@@ -162,7 +162,9 @@ Pass them with `<Panel :icons="icons" ... />`. The `icon` scoped slot can overri
 Named scoped slots are `brand`, `header-start`, `header-end`, `breadcrumbs`, `sidebar-footer`, `footer`, `icon`, `navigation-item`, `user-trigger`, and `user-menu-item`. The default slot renders the main page content. Layout slots receive a reactive `context` containing `resource`, `collapsed`, `mobileOpen`, `userMenuOpen`, and toggle/close actions.
 
 The PHP `globalSearchPosition()` setting accepts `header-start`, `header-end`,
-`sidebar`, or `sidebar-footer`. The default is the compact `header-end` control;
+`sidebar`, or `sidebar-footer`. Orbit defaults to `header-start`, keeping search
+with the workspace content; use `header-end` for a compact account-oriented
+header or `sidebar-footer` for a left-rail search.
 `sidebar-footer` places it at the bottom of a left navigation rail. The search
 input is theme-aware, has `name="global-search"`, and responds to `/` and
 `⌘/Ctrl-K` shortcuts.

@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/widgets-vue",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Vue renderer for Inlay dashboard widgets.",
   "license": "MIT",
   "type": "module",

@@ -104,7 +104,7 @@ export const panelSlotVocabulary: Record<'sidebar' | 'top', SlotVocabulary> = {
     slots: [
       'brand', 'header', 'header-actions', 'main', 'mobile-navigation-trigger',
       'mobile-overlay', 'navigation', 'navigation-badge', 'navigation-group',
-      'navigation-group-trigger', 'navigation-item', 'root', 'sidebar',
+      'navigation-group-trigger', 'navigation-item', 'root', 'sidebar', 'sidebar-brand',
       'sidebar-collapse-trigger', 'tenant-switcher', 'user-menu', 'user-menu-trigger',
     ],
   },

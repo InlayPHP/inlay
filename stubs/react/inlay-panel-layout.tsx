@@ -21,6 +21,13 @@ export default function InlayPanelLayout({ children }: PropsWithChildren) {
       onNavigate={(href) => router.visit(href)}
       resource={inlayPanel}
       slots={{
+        headerStart: (
+          <nav aria-label="Breadcrumb" className="hidden items-center gap-2 text-xs text-(--inlay-muted) lg:flex" data-slot="topbar-breadcrumb">
+            <span>Workspace</span>
+            <span aria-hidden="true">/</span>
+            <strong className="font-semibold text-(--inlay-text)">Administration</strong>
+          </nav>
+        ),
         headerEnd: (
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">

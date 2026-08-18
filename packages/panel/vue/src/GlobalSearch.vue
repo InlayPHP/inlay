@@ -87,10 +87,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div :class="['relative min-w-0', placement === 'sidebar' || placement === 'sidebar-footer' ? 'w-full' : 'w-56 max-w-[min(14rem,42vw)] flex-none']" :data-placement="placement" data-slot="global-search">
+  <div :class="['relative min-w-0', placement === 'sidebar' || placement === 'sidebar-footer' ? 'w-full' : 'w-72 max-w-[min(18.75rem,40vw)] flex-none']" :data-placement="placement" data-slot="global-search">
     <label class="sr-only" for="inlay-global-search">Search resources</label>
     <BuiltInIcon class-name="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-(--inlay-panel-muted)" name="search" />
-    <input id="inlay-global-search" ref="input" v-model="query" aria-label="Search resources" name="global-search" :class="[controlClass, 'min-h-(--inlay-button-sm-height) bg-(--inlay-panel-surface) py-1 pl-9 pr-3 text-(--inlay-panel-text) ring-(--inlay-panel-border) placeholder:text-(--inlay-panel-muted) focus:ring-(--inlay-panel-accent)']" :placeholder="config.placeholder" role="searchbox" type="search" @blur="closeSoon" @focus="open = true" @input="open = true">
+    <input id="inlay-global-search" ref="input" v-model="query" aria-label="Search resources" name="global-search" :class="[controlClass, 'min-h-(--inlay-control-height) bg-(--inlay-panel-surface) py-1 pl-9 pr-3 text-(--inlay-panel-text) ring-(--inlay-panel-border) placeholder:text-(--inlay-panel-muted) focus:ring-(--inlay-panel-accent)']" :placeholder="config.placeholder" role="searchbox" type="search" @blur="closeSoon" @focus="open = true" @input="open = true">
     <div v-if="open && query.trim().length >= config.minChars" aria-label="Search results" class="absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-auto rounded-(--inlay-panel-radius) bg-(--inlay-panel-surface) p-1 shadow-lg ring-1 ring-(--inlay-panel-border)" data-slot="global-search-results" role="listbox">
       <p v-if="loading" class="px-3 py-2 text-sm text-(--inlay-panel-muted)" role="status">Searching…</p>
       <p v-else-if="searched && results.length === 0" class="px-3 py-2 text-sm text-(--inlay-panel-muted)" role="status">No results found.</p>

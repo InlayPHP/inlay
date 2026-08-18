@@ -201,6 +201,16 @@ it('serializes a complete renderer-neutral panel contract with deterministic nav
         ->and(array_key_exists('authMiddleware', $payload))->toBeFalse();
 });
 
+it('uses the Orbit workspace search position by default', function (): void {
+    $payload = json_decode(
+        json_encode(Panel::make('admin')->globalSearchEndpoint('/admin/_inlay/global-search'), JSON_THROW_ON_ERROR),
+        true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    expect($payload['globalSearch']['position'])->toBe('header-start');
+});
+
 it('allows safe relative and explicitly supported navigation URL schemes', function (string $url): void {
     expect(NavigationItem::make('safe')->url($url)->jsonSerialize()['url'])->toBe($url);
 })->with([

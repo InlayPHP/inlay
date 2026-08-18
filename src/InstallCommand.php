@@ -311,7 +311,7 @@ final class {$class} extends PanelProvider
     {
         return \$panel
             ->path('{$path}')
-{$tenant}            ->brandName((string) config('app.name', 'Inlay'))
+{$tenant}            ->brandName('Inlay')
             ->theme(Theme::default())
             ->sidebarNavigation()
             ->collapsible()
