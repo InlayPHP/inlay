@@ -40,14 +40,14 @@ $theme = Design::default()
     ]);
 ```
 
-`Design::base()` is the neutral zinc foundation. `Design::default()` adds Inlay's indigo admin accent, softer geometry, and elevated shadow. `Design::highContrast()` provides stronger light/dark foreground, border, and status contrast. `Design::make('brand')` creates an empty contract. `named()` copies the token maps under a new name; `tokens()` and `darkTokens()` merge overrides.
+`Design::base()` is the neutral zinc foundation. `Design::orbit()` is the canonical Inlay operations workspace: a cool-white canvas, light sidebar, restrained purple accent, 44px controls, and readable status roles. `Design::default()` is the same Orbit preset under the stable `default` name. `Design::highContrast()` provides stronger light/dark foreground, border, and status contrast. `Design::make('brand')` creates an empty contract. `named()` copies the token maps under a new name; `tokens()` and `darkTokens()` merge overrides.
 
 The lower-level `Theme` class remains supported:
 
 ```php
 use Inlay\Theme\Theme;
 
-$panel->theme(Theme::default()->accent('#2563eb'));
+$panel->theme(Theme::orbit()->accent('#2563eb'));
 ```
 
 Use `Design` for new code and keep `Theme` when maintaining an existing package or panel.

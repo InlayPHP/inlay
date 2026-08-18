@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { baseTheme, customThemeCss, customThemeVariables, defaultTheme, highContrastTheme, mergeTheme, normalizeThemeTokenName, recipeVariables, resolveThemeTokens, themeToken, themeVariables } from '../src'
+import { baseTheme, customThemeCss, customThemeVariables, defaultTheme, highContrastTheme, mergeTheme, normalizeThemeTokenName, orbitTheme, recipeVariables, resolveThemeTokens, themeToken, themeVariables } from '../src'
 
 describe('theme helpers', () => {
-  it('provides base and polished default presets', () => { expect(baseTheme.tokens.radius).toBe('0.5rem'); expect(baseTheme.tokens['button-height']).toBe('2.5rem'); expect(baseTheme.tokens['button-xs-height']).toBe('2rem'); expect(baseTheme.tokens['control-border']).toBe('#d4d4d8'); expect(baseTheme.tokens['space-card']).toBe('1.25rem'); expect(baseTheme.tokens['font-size-body']).toBe('0.875rem'); expect(baseTheme.tokens['focus-ring-color']).toBe('var(--inlay-accent)'); expect(baseTheme.tokens['motion-duration']).toBe('160ms'); expect(defaultTheme.tokens.accent).toBe('#4f46e5') })
+  it('provides base and Orbit default presets', () => { expect(baseTheme.tokens.radius).toBe('0.5rem'); expect(baseTheme.tokens['button-height']).toBe('2.5rem'); expect(baseTheme.tokens['button-xs-height']).toBe('2rem'); expect(baseTheme.tokens['control-border']).toBe('#d4d4d8'); expect(baseTheme.tokens['space-card']).toBe('1.25rem'); expect(baseTheme.tokens['font-size-body']).toBe('0.875rem'); expect(baseTheme.tokens['focus-ring-color']).toBe('var(--inlay-accent)'); expect(baseTheme.tokens['motion-duration']).toBe('160ms'); expect(orbitTheme.name).toBe('orbit'); expect(orbitTheme.tokens.accent).toBe('#5b64db'); expect(defaultTheme.tokens.accent).toBe('#5b64db'); expect(defaultTheme.tokens['control-height']).toBe('2.75rem'); expect(defaultTheme.tokens['sidebar-width']).toBe('15.5rem') })
   it('provides a high-contrast preset with explicit dark overrides', () => { expect(highContrastTheme.name).toBe('high-contrast'); expect(highContrastTheme.tokens.foreground).toBe('#000000'); expect(themeVariables(highContrastTheme, 'dark')['--inlay-accent']).toBe('#93c5fd') })
-  it('merges application overrides without mutating a preset', () => { const custom = mergeTheme(defaultTheme, { name: 'brand', tokens: { accent: '#7c3aed' } }); expect(custom.name).toBe('brand'); expect(custom.tokens.accent).toBe('#7c3aed'); expect(defaultTheme.tokens.accent).toBe('#4f46e5') })
-  it('emits dark semantic CSS variables', () => { expect(themeVariables(defaultTheme, 'dark')['--inlay-surface']).toBe('#18181b'); expect(themeVariables(defaultTheme)['--inlay-accent']).toBe('#4f46e5') })
+  it('merges application overrides without mutating a preset', () => { const custom = mergeTheme(defaultTheme, { name: 'brand', tokens: { accent: '#7c3aed' } }); expect(custom.name).toBe('brand'); expect(custom.tokens.accent).toBe('#7c3aed'); expect(defaultTheme.tokens.accent).toBe('#5b64db') })
+  it('emits dark semantic CSS variables', () => { expect(themeVariables(defaultTheme, 'dark')['--inlay-surface']).toBe('oklch(0.235 0.022 264)'); expect(themeVariables(defaultTheme)['--inlay-accent']).toBe('#5b64db') })
   it('normalizes renderer aliases and keeps custom tokens', () => {
     expect(normalizeThemeTokenName('controlBorder')).toBe('control-border')
     expect(normalizeThemeTokenName('--inlay-table-row-hover')).toBe('table-row-hover')
@@ -31,14 +31,14 @@ describe('theme helpers', () => {
   })
   it('keeps semantic surfaces available to standalone renderer roots', () => {
     expect(recipeVariables(defaultTheme)).toMatchObject({
-      '--inlay-background': '#f6f7fb',
+      '--inlay-background': '#f5f7fb',
       '--inlay-surface': '#ffffff',
-      '--inlay-border': 'rgb(24 24 27 / 0.12)',
-      '--inlay-font-family': 'ui-sans-serif, system-ui, sans-serif',
+      '--inlay-border': '#dadee6',
+      '--inlay-font-family': 'DM Sans, PingFang HK, PingFang TC, Microsoft JhengHei, ui-sans-serif, sans-serif',
     })
     expect(recipeVariables(defaultTheme, 'dark')).toMatchObject({
-      '--inlay-background': '#09090b',
-      '--inlay-surface': '#18181b',
+      '--inlay-background': 'oklch(0.19 0.018 264)',
+      '--inlay-surface': 'oklch(0.235 0.022 264)',
     })
   })
   it('merges dark contract overrides while local overrides stay mode-neutral', () => {

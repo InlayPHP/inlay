@@ -36,7 +36,7 @@ const brand = mergeTheme(defaultTheme, {
 })
 ```
 
-`mergeTheme` returns a new `ThemeContract`; it does not mutate the source. Light and dark maps are shallow-merged independently. `baseTheme` is the neutral zinc preset, `defaultTheme` applies the standard indigo brand, and `highContrastTheme` uses stronger foreground/border/status contrast for accessibility-sensitive shells.
+`mergeTheme` returns a new `ThemeContract`; it does not mutate the source. Light and dark maps are shallow-merged independently. `baseTheme` is the neutral zinc preset, `orbitTheme` is the canonical Inlay operations workspace, `defaultTheme` is Orbit under the stable default name, and `highContrastTheme` uses stronger foreground/border/status contrast for accessibility-sensitive shells.
 
 ## Generate CSS variables
 

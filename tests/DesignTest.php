@@ -21,6 +21,7 @@ it('provides one PHP façade for presets, variables, and CSS output', function (
 
     expect(Design::base())->toBeInstanceOf(Theme::class)
         ->and(Design::make('custom'))->toBeInstanceOf(Theme::class)
+        ->and(Design::orbit()->name())->toBe('orbit')
         ->and(Design::highContrast()->name())->toBe('high-contrast')
         ->and(Design::variables(['accent' => '#7c3aed', 'enabled' => true, 'missing' => null]))
         ->toMatchArray([
@@ -31,10 +32,10 @@ it('provides one PHP façade for presets, variables, and CSS output', function (
     $css = Design::css($theme);
 
     expect($css)->toContain(':root {')
-        ->and($css)->toContain('--inlay-accent: #4f46e5;')
+        ->and($css)->toContain('--inlay-accent: #5b64db;')
         ->and($css)->toContain('--inlay-control-height: 2.75rem;')
         ->and($css)->toContain('--inlay-space-card: 1.25rem;')
-        ->and($css)->toContain('--inlay-focus-ring-color: var(--inlay-accent);')
+        ->and($css)->toContain('--inlay-focus-ring-color: rgb(142 148 229 / 0.45);')
         ->and($css)->toContain('@media (prefers-color-scheme: dark)')
         ->and($css)->toContain('[data-theme="dark"]')
         ->and($css)->toContain('--inlay-surface: #17131f;');
@@ -80,7 +81,7 @@ it('generates an application theme class and CSS file without overwriting by def
             ->and($files->get($classPath))->toContain('namespace App\\Inlay\\Themes\\Billing;')
             ->and($files->get($classPath))->toContain('final class BrandTheme')
             ->and($files->get($classPath))->toContain("Design::default()->named('billing-brand')")
-            ->and($files->get($cssPath))->toContain('--inlay-accent: #4f46e5;');
+            ->and($files->get($cssPath))->toContain('--inlay-accent: #5b64db;');
 
         $files->append($classPath, "\n// keep me\n");
         $secondStatus = $console->run(new ArrayInput([

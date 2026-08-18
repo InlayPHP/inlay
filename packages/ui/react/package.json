@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/ui-react",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Accessible React primitives and shared control styling for Inlay packages.",
   "type": "module",
   "sideEffects": false,

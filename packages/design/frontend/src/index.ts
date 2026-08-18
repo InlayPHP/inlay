@@ -3,6 +3,7 @@ export {
   customThemeCss,
   customThemeVariables,
   defaultTheme,
+  orbitTheme,
   highContrastTheme,
   mergeTheme,
   normalizeThemeTokenName,

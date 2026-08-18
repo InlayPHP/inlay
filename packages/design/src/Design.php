@@ -26,6 +26,11 @@ final class Design
         return Theme::default();
     }
 
+    public static function orbit(): Theme
+    {
+        return Theme::orbit();
+    }
+
     public static function highContrast(): Theme
     {
         return Theme::highContrast();

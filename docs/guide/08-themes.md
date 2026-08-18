@@ -21,13 +21,16 @@ code should use `Inlay\Design\Design` and `make:inlay-theme`.
 use Inlay\Design\Design;
 
 $theme = Design::default();
+$orbit = Design::orbit();
 $neutral = Design::base();
 $accessible = Design::highContrast();
 $empty = Design::make('brand');
 ```
 
 - `base()` is a quiet neutral foundation;
-- `default()` adds the standard indigo accent and elevated admin surfaces;
+- `orbit()` is the canonical operations workspace: cool-white surfaces, a light
+  sidebar, restrained purple accent, 44px controls, and readable status roles;
+- `default()` is the Orbit preset under the stable default name;
 - `highContrast()` increases light/dark foreground and border contrast;
 - `make()` starts an empty named contract.
 

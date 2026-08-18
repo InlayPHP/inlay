@@ -21,7 +21,8 @@ For framework-neutral TypeScript helpers, use `@inlayphp/theme` from `packages/t
 ## Presets
 
 - `Theme::base()` is a neutral zinc foundation.
-- `Theme::default()` derives from base and applies the standard indigo admin accent, larger radius and elevated shadow.
+- `Theme::orbit()` is the canonical Inlay operations workspace with a cool-white canvas, light sidebar, restrained purple accent, 44px controls, and readable status roles.
+- `Theme::default()` is the Orbit preset under the stable default name.
 - `Theme::highContrast()` provides a stronger light/dark contrast preset for accessibility-sensitive applications.
 - `Theme::make('brand')` creates an empty custom contract.
 

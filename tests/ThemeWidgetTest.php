@@ -28,16 +28,21 @@ it('provides base, default, dark, and fluent custom theme tokens', function (): 
         ->and($theme->light()['radius'])->toBe('1rem')
         ->and($theme->dark()['accent'])->toBe('#a78bfa');
 
-    expect($theme->light()['button-height'])->toBe('2.5rem')
-        ->and($theme->light()['button-xs-height'])->toBe('2rem')
-        ->and($theme->light()['button-sm-height'])->toBe('2.25rem')
-        ->and($theme->light()['button-lg-height'])->toBe('2.75rem')
-        ->and($theme->light()['icon-button-size'])->toBe('2.5rem')
-        ->and($theme->light()['control-border'])->toBe('#d4d4d8')
+    expect(Theme::orbit()->name())->toBe('orbit')
+        ->and(Theme::default()->light()['accent'])->toBe('#5b64db')
+        ->and(Theme::default()->light()['control-height'])->toBe('2.75rem')
+        ->and(Theme::default()->light()['sidebar-width'])->toBe('15.5rem');
+
+    expect($theme->light()['button-height'])->toBe('2.75rem')
+        ->and($theme->light()['button-xs-height'])->toBe('2.5rem')
+        ->and($theme->light()['button-sm-height'])->toBe('2.5rem')
+        ->and($theme->light()['button-lg-height'])->toBe('3rem')
+        ->and($theme->light()['icon-button-size'])->toBe('2.75rem')
+        ->and($theme->light()['control-border'])->toBe('#cfd5df')
         ->and($theme->light()['space-card'])->toBe('1.25rem')
         ->and($theme->light()['font-size-body'])->toBe('0.875rem')
-        ->and($theme->light()['focus-ring-color'])->toBe('var(--inlay-accent)')
-        ->and($theme->light()['motion-duration'])->toBe('160ms');
+        ->and($theme->light()['focus-ring-color'])->toBe('rgb(142 148 229 / 0.45)')
+        ->and($theme->light()['motion-duration'])->toBe('140ms');
 
     $panel = Panel::make('themed')->theme(Theme::base()->accent('#0f766e'));
     expect($panel->jsonSerialize()['themeName'])->toBe('base')

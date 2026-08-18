@@ -126,18 +126,75 @@ final class Theme implements JsonSerializable
 
     public static function default(): self
     {
-        return self::base()->named('default')->tokens([
-            'accent' => '#4f46e5',
-            'background' => '#f6f7fb',
-            'surface-muted' => '#f4f4f5',
-            'radius' => '0.75rem',
-            'shadow' => '0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08)',
+        return self::orbit()->named('default');
+    }
+
+    /**
+     * Orbit is the default Inlay operations workspace: cool white surfaces,
+     * a restrained purple action color, compact geometry, and readable status
+     * roles. Keep this preset here so Panel, Design, and standalone renderers
+     * all resolve the same visual contract.
+     */
+    public static function orbit(): self
+    {
+        return self::base()->named('orbit')->tokens([
+            'accent' => '#5b64db',
+            'accent-foreground' => '#fcfcff',
+            'background' => '#f5f7fb',
+            'surface' => '#ffffff',
+            'surface-muted' => '#fafbfe',
+            'foreground' => '#1a1f29',
+            'muted' => '#696f7a',
+            'border' => '#dadee6',
+            'control-border' => '#cfd5df',
+            'hover' => '#f1f3fd',
+            'badge' => '#f1f3f9',
+            'danger' => '#d33a3c',
+            'danger-surface' => '#ffe5e1',
+            'success' => '#008d49',
+            'success-surface' => '#d5f5de',
+            'warning' => '#cc8900',
+            'warning-surface' => '#ffecc5',
+            'info' => '#1769aa',
+            'info-surface' => '#e4f2ff',
+            'radius' => '0.4375rem',
+            'control-height' => '2.75rem',
+            'button-height' => '2.75rem',
+            'button-xs-height' => '2.5rem',
+            'button-sm-height' => '2.5rem',
+            'button-lg-height' => '3rem',
+            'icon-button-size' => '2.75rem',
+            'font-size-heading' => '1.0625rem',
+            'line-height-body' => '1.6',
+            'line-height-tight' => '1.35',
+            'focus-ring-color' => 'rgb(142 148 229 / 0.45)',
+            'focus-ring-width' => '3px',
+            'motion-duration' => '140ms',
+            'motion-duration-slow' => '180ms',
+            'sidebar-width' => '15.5rem',
+            'font-family' => 'DM Sans, PingFang HK, PingFang TC, Microsoft JhengHei, ui-sans-serif, sans-serif',
+            'shadow' => '0 1px 2px rgb(24 31 41 / 0.05), 0 1px 3px rgb(24 31 41 / 0.04)',
         ])->darkTokens([
-            'accent' => '#818cf8',
-            'accent-foreground' => '#111827',
-            'background' => '#09090b',
-            'surface' => '#18181b',
-            'surface-muted' => '#242427',
+            'accent' => 'oklch(0.72 0.14 276)',
+            'accent-foreground' => 'oklch(0.19 0.018 264)',
+            'background' => 'oklch(0.19 0.018 264)',
+            'surface' => 'oklch(0.235 0.022 264)',
+            'surface-muted' => 'oklch(0.265 0.024 264)',
+            'foreground' => 'oklch(0.97 0.01 264)',
+            'muted' => 'oklch(0.68 0.018 264)',
+            'border' => 'oklch(0.36 0.025 264)',
+            'control-border' => 'oklch(0.48 0.032 264)',
+            'hover' => 'oklch(0.28 0.024 276)',
+            'badge' => 'oklch(0.31 0.025 264)',
+            'danger' => 'oklch(0.76 0.14 25)',
+            'danger-surface' => 'oklch(0.34 0.09 25)',
+            'success' => 'oklch(0.76 0.12 154)',
+            'success-surface' => 'oklch(0.3 0.07 154)',
+            'warning' => 'oklch(0.82 0.12 76)',
+            'warning-surface' => 'oklch(0.34 0.08 76)',
+            'info' => 'oklch(0.78 0.12 230)',
+            'info-surface' => 'oklch(0.32 0.06 230)',
+            'shadow' => '0 1px 2px oklch(0.06 0.02 264 / 0.24), 0 1px 3px oklch(0.06 0.02 264 / 0.18)',
         ]);
     }
 

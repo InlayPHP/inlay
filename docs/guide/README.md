@@ -40,6 +40,7 @@ shows the recommended application structure.
 | Keep rules in one reusable class | [Validation](06-validation.md) |
 | Add actions, notifications, and dashboard widgets | [Actions and widgets](07-actions-and-widgets.md) |
 | Change the entire UI with one theme | [Themes](08-themes.md) |
+| Follow the default panel visual and interaction rules | [Orbit UI guidelines](13-design-system.md) |
 | Install permissions, media, or another extension | [Plugins](09-plugins.md) |
 | Use Forms or Tables without a panel | [Standalone pages](10-standalone-pages.md) |
 | Test and deploy safely | [Testing and deployment](11-testing-and-deployment.md) |

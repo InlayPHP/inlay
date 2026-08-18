@@ -4,6 +4,7 @@ import {
   baseTheme,
   buttonBaseClass,
   defaultTheme,
+  orbitTheme,
   designStyle,
   highContrastTheme,
   mergeTheme,
@@ -16,6 +17,8 @@ describe('@inlayphp/design', () => {
   it('exposes the shared presets and renderer-neutral recipes', () => {
     expect(baseTheme.contract).toBe('inlay.themes.v1')
     expect(defaultTheme.name).toBe('default')
+    expect(orbitTheme.name).toBe('orbit')
+    expect(defaultTheme.tokens.accent).toBe('#5b64db')
     expect(controlClass).toContain('min-h-(--inlay-control-height)')
     expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring-color)')
     expect(cardClass).toContain('bg-(--inlay-surface)')

@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/media-manager-vue",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Vue media browser and picker for Inlay panels.",
   "license": "MIT",
   "type": "module",
