@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/actions",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Framework-neutral action contracts and confirmation runtime for Inlay.",
   "type": "module",
   "sideEffects": false,

@@ -267,7 +267,7 @@ describe('Panel', () => {
     const navigate = vi.fn()
     const Link = ({ href, children, className, ...props }: ComponentProps<'a'> & { href: string }) => <a className={className} data-adapter="spa" href={href} {...props}>{children}</a>
     const Star = () => <span data-testid="star">★</span>
-    render(<Panel classNames={{ root: 'custom-root', main: 'custom-main' }} icons={{ star: Star }} linkComponent={Link} onNavigate={navigate} renderers={{ brand: () => <strong>Custom brand</strong> }} resource={resource({ navigationItems: [item({ icon: 'star' })], theme: { background: '#fafafa', 'sidebar-width': '18rem', 'table-row-hover': '#f8fafc' }, darkTheme: { 'table-row-hover': '#27272a' } })} slots={{ headerStart: <span>Search</span>, headerEnd: <span>Alerts</span>, breadcrumbs: <a href="/admin">Admin</a>, sidebarFooter: <span>Version 1</span>, footer: <span>Footer</span> }} theme={{ accent: '#123456' }}><h1>Page</h1></Panel>)
+    render(<Panel classNames={{ root: 'custom-root', main: 'custom-main' }} icons={{ star: Star }} linkComponent={Link} onNavigate={navigate} renderers={{ brand: () => <strong>Custom brand</strong> }} resource={resource({ navigationItems: [item({ icon: 'star' })], theme: { background: '#fafafa', 'sidebar-width': '18rem', 'table-row-hover': '#f8fafc' }, darkTheme: { 'table-row-hover': '#27272a' } })} slots={{ headerStart: <span>Search</span>, headerEnd: <span>Alerts</span>, breadcrumbs: <a href="/admin">Admin</a>, sidebarFooter: <span>Version 1</span>, footer: <span>Footer</span> }} theme={{ accent: '#123456', 'topbar-height': '4.5rem', 'sidebar-surface': '#fcfdff' }}><h1>Page</h1></Panel>)
 
     const root = screen.getByText('Page').closest('[data-slot="root"]') as HTMLElement
     expect(root).toHaveClass('custom-root')
@@ -277,6 +277,8 @@ describe('Panel', () => {
     expect(root.style.getPropertyValue('--inlay-light-background')).toBe('#fafafa')
     expect(root.style.getPropertyValue('--inlay-panel-accent')).toBe('var(--inlay-accent)')
     expect(root.style.getPropertyValue('--inlay-panel-sidebar-width')).toBe('18rem')
+    expect(root.style.getPropertyValue('--inlay-topbar-height')).toBe('4.5rem')
+    expect(root.style.getPropertyValue('--inlay-light-sidebar-surface')).toBe('#fcfdff')
     expect(root).toHaveAttribute('data-inlay-theme-root', 'admin')
     expect(root.querySelector('[data-inlay-theme-style]')?.textContent).toContain('--inlay-table-row-hover: #f8fafc')
     expect(root.querySelector('[data-inlay-theme-style]')?.textContent).toContain('--inlay-table-row-hover: #27272a')

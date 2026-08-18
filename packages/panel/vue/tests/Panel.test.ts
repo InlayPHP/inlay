@@ -306,7 +306,7 @@ describe('Panel', () => {
           theme: { 'table-row-hover': '#f8fafc' },
           darkTheme: { 'table-row-hover': '#27272a' },
         }),
-        theme: { accent: 'rgb(1, 2, 3)', 'sidebar-width': '18rem' },
+        theme: { accent: 'rgb(1, 2, 3)', 'sidebar-width': '18rem', 'topbar-height': '4.5rem', 'sidebar-surface': '#fcfdff' },
       },
     })
 
@@ -317,6 +317,8 @@ describe('Panel', () => {
     expect(root.style.getPropertyValue('overflow-x')).toBe('hidden')
     expect(root.style.getPropertyValue('--inlay-panel-accent')).toBe('var(--inlay-accent)')
     expect(root.style.getPropertyValue('--inlay-panel-sidebar-width')).toBe('18rem')
+    expect(root.style.getPropertyValue('--inlay-topbar-height')).toBe('4.5rem')
+    expect(root.style.getPropertyValue('--inlay-light-sidebar-surface')).toBe('#fcfdff')
     expect(root).toHaveAttribute('data-inlay-theme-root', 'admin')
     expect(document.head.querySelector('[data-inlay-theme-style]')?.textContent).toContain('--inlay-table-row-hover: #f8fafc')
     expect(document.head.querySelector('[data-inlay-theme-style]')?.textContent).toContain('--inlay-table-row-hover: #27272a')

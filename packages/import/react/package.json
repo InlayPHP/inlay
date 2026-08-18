@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/imports-react",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "React renderer for Inlay import mapping and preview workflows.",
   "license": "MIT",
   "type": "module",

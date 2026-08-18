@@ -65,7 +65,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
       <span
         v-if="hasUnsafeUrl(item)"
         v-bind="safeAttributes(item.extraAttributes)"
-        :class="['group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm', classNames.item]"
+        :class="['group flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm', classNames.item]"
         data-slot="navigation-label"
       >{{ item.label }}</span>
       <slot v-else name="navigation-item" :active="itemIsActive(item, conditionValues)" :collapsed="collapsed" :context="renderContext" :item="item">
@@ -83,8 +83,10 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
           v-bind="safeAttributes(item.extraAttributes)"
           :aria-current="itemIsActive(item, conditionValues) ? 'page' : undefined"
           :class="[
-            'group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-            itemIsActive(item, conditionValues) ? 'bg-(--inlay-panel-accent)/10 font-semibold text-(--inlay-panel-accent)' : 'text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text)',
+            'group flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+            itemIsActive(item, conditionValues)
+              ? (horizontal ? 'bg-(--inlay-panel-accent)/10 font-semibold text-(--inlay-panel-accent)' : 'bg-(--inlay-panel-sidebar-active) font-semibold text-(--inlay-panel-sidebar-active-foreground)')
+              : (horizontal ? 'text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text)' : 'text-(--inlay-panel-sidebar-muted) hover:bg-(--inlay-panel-sidebar-hover) hover:text-(--inlay-panel-sidebar-text)'),
             classNames.item,
             itemIsActive(item, conditionValues) && classNames.activeItem,
           ]"
@@ -100,7 +102,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
             <BuiltInIcon v-else :name="item.icon" class-name="size-5 shrink-0" />
           </slot>
           <span :class="collapsed ? 'sr-only' : 'truncate'">{{ item.label }}</span>
-          <span v-if="item.badge !== null" :class="['ml-auto rounded-full bg-(--inlay-panel-badge) px-2 py-0.5 text-xs', collapsed && 'sr-only', classNames.badge]" data-slot="navigation-badge">{{ item.badge }}</span>
+          <span v-if="item.badge !== null" :class="['ml-auto rounded-full px-2 py-0.5 text-xs', horizontal ? 'bg-(--inlay-panel-badge)' : 'bg-(--inlay-panel-sidebar-badge)', collapsed && 'sr-only', classNames.badge]" data-slot="navigation-badge">{{ item.badge }}</span>
         </component>
       </slot>
     </template>
@@ -116,7 +118,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
         v-if="group.collapsible"
         :aria-controls="`panel-group-${group.name}`"
         :aria-expanded="!isGroupCollapsed(group)"
-        :class="['flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-(--inlay-panel-muted)', classNames.groupLabel]"
+          :class="['flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold', horizontal ? 'text-(--inlay-panel-muted)' : 'text-(--inlay-panel-sidebar-muted)', classNames.groupLabel]"
         data-slot="navigation-group-trigger"
         type="button"
         @click="toggleGroup(group)"
@@ -127,7 +129,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
         <span :class="collapsed ? 'sr-only' : ''">{{ group.label }}</span>
         <span aria-hidden="true" class="ml-auto">{{ isGroupCollapsed(group) ? '+' : '−' }}</span>
       </button>
-      <div v-else :class="['flex items-center gap-2 px-3 py-2 text-xs font-semibold text-(--inlay-panel-muted)', collapsed && 'sr-only', classNames.groupLabel]" data-slot="navigation-group-label">
+      <div v-else :class="['flex items-center gap-2 px-3 py-2 text-xs font-semibold', horizontal ? 'text-(--inlay-panel-muted)' : 'text-(--inlay-panel-sidebar-muted)', collapsed && 'sr-only', classNames.groupLabel]" data-slot="navigation-group-label">
         <slot v-if="group.icon" name="icon" :group="group" :name="group.icon"><component v-if="icons[group.icon]" :is="rawComponent(icons[group.icon])" aria-hidden="true" class="size-4 shrink-0" /></slot>
         {{ group.label }}
       </div>
@@ -137,7 +139,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
           <span
             v-if="hasUnsafeUrl(item)"
             v-bind="safeAttributes(item.extraAttributes)"
-            :class="['group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm', classNames.item]"
+            :class="['group flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm', classNames.item]"
             data-slot="navigation-label"
           >{{ item.label }}</span>
           <slot v-else name="navigation-item" :active="itemIsActive(item, conditionValues)" :collapsed="collapsed" :context="renderContext" :item="item">
@@ -155,8 +157,10 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
               v-bind="safeAttributes(item.extraAttributes)"
               :aria-current="itemIsActive(item, conditionValues) ? 'page' : undefined"
               :class="[
-                'group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                itemIsActive(item, conditionValues) ? 'bg-(--inlay-panel-accent)/10 font-semibold text-(--inlay-panel-accent)' : 'text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text)',
+                'group flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
+                itemIsActive(item, conditionValues)
+                  ? (horizontal ? 'bg-(--inlay-panel-accent)/10 font-semibold text-(--inlay-panel-accent)' : 'bg-(--inlay-panel-sidebar-active) font-semibold text-(--inlay-panel-sidebar-active-foreground)')
+                  : (horizontal ? 'text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text)' : 'text-(--inlay-panel-sidebar-muted) hover:bg-(--inlay-panel-sidebar-hover) hover:text-(--inlay-panel-sidebar-text)'),
                 classNames.item,
                 itemIsActive(item, conditionValues) && classNames.activeItem,
               ]"
@@ -172,7 +176,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
                 <BuiltInIcon v-else :name="item.icon" class-name="size-5 shrink-0" />
               </slot>
               <span :class="collapsed ? 'sr-only' : 'truncate'">{{ item.label }}</span>
-              <span v-if="item.badge !== null" :class="['ml-auto rounded-full bg-(--inlay-panel-badge) px-2 py-0.5 text-xs', collapsed && 'sr-only', classNames.badge]" data-slot="navigation-badge">{{ item.badge }}</span>
+              <span v-if="item.badge !== null" :class="['ml-auto rounded-full px-2 py-0.5 text-xs', horizontal ? 'bg-(--inlay-panel-badge)' : 'bg-(--inlay-panel-sidebar-badge)', collapsed && 'sr-only', classNames.badge]" data-slot="navigation-badge">{{ item.badge }}</span>
             </component>
           </slot>
         </template>

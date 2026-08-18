@@ -65,7 +65,8 @@ The built-in base contract includes:
 - surfaces: `background`, `surface`, `surface-muted`, `hover`, `border`, `control-border`, `badge`;
 - states: `danger`, `danger-surface`, `success`, `success-surface`, `warning`, `warning-surface`, `info`, `info-surface`;
 - overlays: `overlay` for dialog backdrops and `scrim` for navigation/drawer layers;
-- geometry: `radius`, `control-height`, `button-xs-height`, `button-sm-height`, `button-height`, `button-lg-height`, `icon-button-size`, `sidebar-width`, `collapsed-sidebar-width`;
+- geometry: `radius`, `control-height`, `button-xs-height`, `button-sm-height`, `button-height`, `button-lg-height`, `icon-button-size`, `topbar-height`, `sidebar-width`, `collapsed-sidebar-width`;
+- navigation surfaces: `sidebar-surface`, `sidebar-foreground`, `sidebar-muted`, `sidebar-border`, `sidebar-hover`, `sidebar-active`, `sidebar-active-foreground`, `sidebar-badge`;
 - recipe spacing: `space-control-x`, `space-control-y`, `space-button-x`, `space-button-y`, `space-card`, `space-dialog`, `space-menu-x`, `space-menu-y`, `space-table-x`, `space-table-y`, `space-stack`, `space-inline`, `space-field`;
 - recipe typography: `font-family`, `font-size-body`, `font-size-control`, `font-size-label`, `font-size-caption`, `font-size-heading`, `font-size-title`, `line-height-body`, `line-height-control`, `line-height-tight`, `font-weight-label`, `font-weight-heading`;
 - interaction and elevation: `focus-ring-color`, `focus-ring-width`, `focus-ring-offset`, `motion-duration`, `motion-duration-fast`, `motion-duration-slow`, `motion-easing`, `shadow`.

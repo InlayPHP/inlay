@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/imports-vue",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Vue renderer for Inlay import mapping and preview workflows.",
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/forms-vue",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Vue renderer for Inlay PHP-first forms.",
   "license": "MIT",
   "type": "module",
