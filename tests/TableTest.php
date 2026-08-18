@@ -2579,6 +2579,9 @@ it('supports a collapsible above-content filter layout', function (): void {
 
     expect(Table::make('users')->filtersLayout('modal')->jsonSerialize()['filtersLayout'])
         ->toBe('modal');
+
+    expect(Table::make('users')->filtersLayout('chips')->jsonSerialize()['filtersLayout'])
+        ->toBe('chips');
 });
 
 it('rejects unsupported filter layouts and column spans', function (): void {

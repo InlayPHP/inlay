@@ -14,6 +14,8 @@ final class WidgetDashboard implements JsonSerializable
 
     private int $columns = 12;
 
+    private ?Dashboard $dashboard = null;
+
     public static function make(): self
     {
         return new self;
@@ -50,8 +52,44 @@ final class WidgetDashboard implements JsonSerializable
         return $this;
     }
 
+    public function dashboard(?Dashboard $dashboard): self
+    {
+        $this->dashboard = $dashboard;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
-        return ['contract' => 'inlay.widget-dashboard.v1', 'columns' => $this->columns, 'widgets' => $this->widgets];
+        $presentation = $this->dashboard?->jsonSerialize() ?? [];
+        $tabs = [];
+        foreach ($this->widgets as $widget) {
+            $name = $widget->tabName() ?? 'overview';
+            $tabs[$name] ??= [
+                'name' => $name,
+                'label' => $widget->tabLabel() ?? self::tabLabel($name),
+                'widgets' => [],
+            ];
+            $tabs[$name]['widgets'][] = $widget->name();
+            if ($widget->tabLabel() !== null) {
+                $tabs[$name]['label'] = $widget->tabLabel();
+            }
+        }
+
+        return [
+            'contract' => 'inlay.widget-dashboard.v1',
+            'columns' => $this->columns,
+            'eyebrow' => $presentation['eyebrow'] ?? null,
+            'heading' => $presentation['heading'] ?? null,
+            'description' => $presentation['description'] ?? null,
+            'headerActions' => $presentation['headerActions'] ?? [],
+            'tabs' => array_values($tabs),
+            'widgets' => $this->widgets,
+        ];
+    }
+
+    private static function tabLabel(string $name): string
+    {
+        return ucwords(str_replace(['-', '_'], ' ', $name));
     }
 }

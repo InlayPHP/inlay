@@ -101,6 +101,7 @@ final class Theme implements JsonSerializable
             'collapsed-sidebar-width' => '4.5rem',
             'font-family' => 'ui-sans-serif, system-ui, sans-serif',
             'shadow' => '0 1px 2px rgb(0 0 0 / 0.05)',
+            'dashboard-max-width' => '100rem',
             'topbar-height' => '4rem',
             'sidebar-surface' => '#ffffff',
             'sidebar-foreground' => '#18181b',

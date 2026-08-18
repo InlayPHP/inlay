@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import type { CSSProperties } from 'vue'
 import { executeActionEndpoint } from '@inlayphp/actions'
 import type { ActionExecutionInput, ActionExecutor } from '@inlayphp/actions'
 import { isSafeUrl } from '@inlayphp/core'
+import { Form } from '@inlayphp/forms-vue'
+import { Infolist } from '@inlayphp/infolists-vue'
 import { customThemeVariables, recipeVariables, themeToken } from '@inlayphp/theme'
 import { Table } from '@inlayphp/tables-vue'
 import WidgetActions from './WidgetActions.vue'
@@ -13,7 +15,14 @@ import type { ChartWidget, StatsOverviewWidget, WidgetClassNames, WidgetDashboar
 
 const props = withDefaults(defineProps<{ resource: WidgetDashboardResource; theme?: WidgetTheme; className?: string; classNames?: WidgetClassNames; icons?: WidgetIconRegistry; renderers?: WidgetRenderers; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput }>(), { theme: () => ({}), className: '', classNames: () => ({}), icons: () => ({}), renderers: () => ({}) })
 const emit = defineEmits<{ refresh: [name: string] }>()
-const widgets = computed(() => props.resource.widgets.filter(widget => widget.visible))
+const tabs = computed(() => props.resource.tabs ?? [])
+const activeTab = ref(tabs.value[0]?.name ?? 'overview')
+watch(tabs, value => {
+  if (!value.some(tab => tab.name === activeTab.value)) activeTab.value = value[0]?.name ?? 'overview'
+})
+const selectedTab = computed(() => tabs.value.length > 1 ? tabs.value.find(tab => tab.name === activeTab.value) : undefined)
+const selectedNames = computed(() => selectedTab.value ? new Set(selectedTab.value.widgets) : null)
+const widgets = computed(() => props.resource.widgets.filter(widget => widget.visible && (!selectedNames.value || selectedNames.value.has(widget.name))))
 const style = computed<CSSProperties>(() => {
   const token = (names: string | string[], fallback: string) => themeToken(props.theme, names, fallback) ?? fallback
 
@@ -65,6 +74,9 @@ const style = computed<CSSProperties>(() => {
     '--inlay-button-lg-height': token(['button-lg-height', 'button-large-height'], 'var(--inlay-panel-button-lg-height, 2.75rem)'),
     '--inlay-icon-button-size': token('icon-button-size', 'var(--inlay-panel-icon-button-size, var(--inlay-button-height, 2.5rem))'),
     '--inlay-shadow': 'var(--inlay-widget-shadow)',
+    maxWidth: token('dashboard-max-width', '100rem'),
+    width: '100%',
+    marginInline: 'auto',
   }
 })
 const gridStyle = computed<CSSProperties>(() => ({ '--inlay-dashboard-columns': `repeat(${props.resource.columns}, minmax(0, 1fr))` }))
@@ -79,6 +91,12 @@ function spanClass(widget: WidgetResource): string {
   if (widget.columnSpan === 'full') return 'md:col-span-full'
   const width = Math.max(1, Math.min(widget.columnSpan, props.resource.columns))
   return dashboardSpanClasses[width] ?? 'md:col-span-12'
+}
+const dashboardStartClasses = ['', 'md:col-start-1', 'md:col-start-2', 'md:col-start-3', 'md:col-start-4', 'md:col-start-5', 'md:col-start-6', 'md:col-start-7', 'md:col-start-8', 'md:col-start-9', 'md:col-start-10', 'md:col-start-11', 'md:col-start-12']
+function startClass(widget: WidgetResource): string {
+  if (widget.columnStart == null) return ''
+  const start = Math.max(1, Math.min(widget.columnStart, props.resource.columns))
+  return dashboardStartClasses[start] ?? ''
 }
 function chartMax(widget: ChartWidget): number { return Math.max(1, ...widget.datasets.flatMap(dataset => dataset.data)) }
 function chartHeight(widget: ChartWidget, dataset: ChartWidget['datasets'][number], index: number): string { return `${Math.max(3, ((dataset.data[index] ?? 0) / chartMax(widget)) * 100)}%` }
@@ -100,8 +118,10 @@ const resolvedActionExecutor = computed(() => props.actionExecutor ?? defaultAct
 
 <template>
   <section aria-label="Dashboard widgets" :class="['text-(--inlay-widget-text)', classNames.root, className]" :data-contract="resource.contract" data-slot="widget-dashboard" :style="style">
+    <header v-if="resource.eyebrow || resource.heading || resource.description || resource.headerActions?.length" class="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between" data-slot="dashboard-header"><div><p v-if="resource.eyebrow" class="mb-1.5 text-xs font-semibold tracking-wide text-(--inlay-widget-accent) uppercase">{{ resource.eyebrow }}</p><h1 v-if="resource.heading" class="text-3xl font-semibold tracking-tight">{{ resource.heading }}</h1><p v-if="resource.description" class="mt-1.5 max-w-[58ch] text-sm text-(--inlay-widget-muted)">{{ resource.description }}</p></div><WidgetActions v-if="resource.headerActions?.length" :actions="resource.headerActions" :executor="resolvedActionExecutor" :input="actionInput" /></header>
+    <div v-if="tabs.length > 1" class="mb-6 flex gap-5 overflow-x-auto overflow-y-hidden border-b border-(--inlay-widget-border)" data-slot="dashboard-tabs" role="tablist"><button v-for="tab in tabs" :key="tab.name" :aria-selected="tab.name === activeTab" :class="['-mb-px min-h-11 shrink-0 border-b-2 px-0.5 text-sm font-medium transition-colors', tab.name === activeTab ? 'border-(--inlay-widget-accent) text-(--inlay-widget-accent)' : 'border-transparent text-(--inlay-widget-muted) hover:text-(--inlay-widget-text)']" role="tab" type="button" @click="activeTab = tab.name">{{ tab.label }}</button></div>
     <div v-if="widgets.length" :class="['grid grid-cols-1 gap-4 md:grid-cols-(--inlay-dashboard-columns) lg:gap-6', classNames.grid]" :data-columns="resource.columns" data-slot="widget-grid" :style="gridStyle">
-      <WidgetSlot v-for="widget in widgets" :key="widget.name" :class-name="`${classNames.widget ?? ''} ${spanClass(widget)}`" :widget="widget" @refresh="emit('refresh', $event)">
+      <WidgetSlot v-for="widget in widgets" :key="widget.name" :class-name="`${classNames.widget ?? ''} ${spanClass(widget)} ${startClass(widget)}`" :widget="widget" @refresh="emit('refresh', $event)">
         <component v-if="renderers[widget.type]" :is="renderers[widget.type]" :widget="widget" :theme="theme" />
         <div v-else-if="widget.type === 'stats-overview'" :class="[classNames.stats]" data-slot="stats-overview">
           <div v-if="widget.headerActions?.length" class="mb-4"><WidgetActions :actions="widget.headerActions ?? []" :executor="resolvedActionExecutor" :input="actionInput" /></div>
@@ -118,6 +138,10 @@ const resolvedActionExecutor = computed(() => props.actionExecutor ?? defaultAct
           <header v-if="widget.label || widget.description || widget.headerActions?.length" class="flex items-start justify-between gap-4 border-b border-(--inlay-widget-border) px-5 py-4"><div class="min-w-0"><div class="text-sm font-semibold">{{ widget.label }}</div><p v-if="widget.description" class="mt-1 text-sm text-(--inlay-widget-muted)">{{ widget.description }}</p></div><WidgetActions v-if="widget.headerActions?.length" :actions="widget.headerActions ?? []" :executor="resolvedActionExecutor" :input="actionInput" /></header>
           <div class="p-5">
             <figure v-if="widget.type === 'chart'" :class="classNames.chart" data-slot="chart-widget"><div :aria-label="`${widget.label ?? widget.name} chart`" class="flex h-56 items-end gap-2" role="img"><div v-for="(label, index) in (widget as ChartWidget).labels" :key="label" class="flex min-w-0 flex-1 flex-col items-center gap-2"><div class="flex h-44 w-full items-end justify-center gap-1"><div v-for="dataset in (widget as ChartWidget).datasets" :key="dataset.label" class="min-w-1 flex-1 rounded-t-sm bg-(--inlay-widget-accent) opacity-85" :style="{ height: chartHeight(widget as ChartWidget, dataset, index), backgroundColor: dataset.color ?? undefined }" :title="`${dataset.label}: ${dataset.data[index] ?? 0}`" /></div><span class="max-w-full truncate text-xs text-(--inlay-widget-muted)">{{ label }}</span></div></div></figure>
+            <Form v-else-if="widget.type === 'form' && widget.form" :resource="widget.form as never" :theme="theme" />
+            <p v-else-if="widget.type === 'form'" class="text-sm text-(--inlay-widget-muted)">No form data.</p>
+            <Infolist v-else-if="widget.type === 'infolist' && widget.infolist" :resource="widget.infolist as never" :theme="theme" />
+            <p v-else-if="widget.type === 'infolist'" class="text-sm text-(--inlay-widget-muted)">No infolist data.</p>
             <div v-else :class="classNames.table" data-slot="widget-table"><Table v-if="widget.table" :resource="widget.table as never" :theme="theme" /><p v-else class="text-sm text-(--inlay-widget-muted)">No table data.</p></div>
           </div>
           <footer v-if="widget.footerActions?.length" class="border-t border-(--inlay-widget-border) px-5 py-4"><WidgetActions :actions="widget.footerActions ?? []" :executor="resolvedActionExecutor" :input="actionInput" /></footer>

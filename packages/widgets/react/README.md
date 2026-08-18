@@ -10,7 +10,7 @@
 ## Install
 
 ```bash
-pnpm add @inlayphp/widgets-react @inlayphp/core @inlayphp/tables-react @inlayphp/actions-react @inlayphp/forms-react react react-dom
+pnpm add @inlayphp/widgets-react @inlayphp/core @inlayphp/tables-react @inlayphp/forms-react @inlayphp/infolists-react @inlayphp/actions-react react react-dom
 ```
 
 Generate the `inlayWidgets` prop with `inlayphp/widgets` in Laravel.
@@ -33,9 +33,14 @@ export function Dashboard({ inlayWidgets }: { inlayWidgets: WidgetDashboardResou
 }
 ```
 
-`WidgetDashboardResource` contains `contract: 'inlay.widget-dashboard.v1'`, a column count, and a discriminated `widgets` union. Each widget uses `contract: 'inlay.widgets.v1'` and one of `stats-overview`, `chart`, or `table`.
+`WidgetDashboardResource` contains PHP-owned heading metadata, optional tabs, a column count, and a discriminated `widgets` union. Each widget uses `contract: 'inlay.widgets.v1'` and one of `stats-overview`, `chart`, `table`, `form`, or `infolist`.
 
 The renderer filters `visible: false`, maps `columnSpan` onto a responsive 12-column grid, renders safe stat URLs through `@inlayphp/core`, applies each stat's semantic `color` token, and delegates table payloads to `@inlayphp/tables-react`. With `onRefresh`, lazy widgets reveal when they enter the viewport and polling widgets refresh on their declared interval while visible. Without that callback, no network request is made.
+
+PHP-defined dashboard tabs are rendered by the package. `columnStart()` is
+translated to the same twelve-column grid, while `FormWidget` and
+`InfolistWidget` delegate directly to `@inlayphp/forms-react` and
+`@inlayphp/infolists-react`.
 
 ## Widget actions
 

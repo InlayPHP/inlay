@@ -15,6 +15,8 @@ const paths: Record<string, string[]> = {
     table: ['M4 5h16v14H4zM4 10h16M10 5v14M16 5v14'],
     shield: ['M12 3 20 6v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6Z'],
     search: ['circle,11,11,8', 'm21 21-4.3-4.3'],
+    'chevron-left': ['m15 18-6-6 6-6'],
+    'chevron-right': ['m9 18 6-6-6-6'],
     default: ['circle,12,12,9', 'M12 8v4l3 2'],
 }
 </script>

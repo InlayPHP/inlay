@@ -128,7 +128,9 @@ final class PanelRegistrar
             $item = NavigationItem::make('resource-'.$metadata->slug)
                 ->label($metadata->pluralLabel)
                 ->url('/'.trim($prefix.'/'.$metadata->slug, '/'))
-                ->group('resources')
+                ->group($metadata->navigationGroup ?? 'resources')
+                ->sort($metadata->navigationSort)
+                ->badge($metadata->navigationBadge)
                 ->activeWhen('resource.slug', $metadata->slug);
             if ($metadata->navigationIcon !== null) {
                 $item->icon($metadata->navigationIcon);

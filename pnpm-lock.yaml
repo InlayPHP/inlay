@@ -1484,6 +1484,9 @@ importers:
       '@inlayphp/forms-react':
         specifier: workspace:^
         version: link:../../form/react
+      '@inlayphp/infolists-react':
+        specifier: workspace:^
+        version: link:../../infolist/react
       '@inlayphp/tables-react':
         specifier: workspace:^
         version: link:../../table/react
@@ -1541,6 +1544,9 @@ importers:
       '@inlayphp/forms-vue':
         specifier: workspace:^
         version: link:../../form/vue
+      '@inlayphp/infolists-vue':
+        specifier: workspace:^
+        version: link:../../infolist/vue
       '@inlayphp/tables-vue':
         specifier: workspace:^
         version: link:../../table/vue

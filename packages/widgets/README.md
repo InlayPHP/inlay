@@ -16,13 +16,20 @@ pnpm add @inlayphp/widgets-react
 # or: pnpm add @inlayphp/widgets-vue
 ```
 
-The Composer package depends on `inlayphp/tables` for `TableWidget`. Panel integration is available when `inlayphp/panels` is installed.
+The Composer package depends on `inlayphp/tables`, `inlayphp/forms`, and
+`inlayphp/infolists` so a PHP dashboard can compose the same table, form, and
+infolist surfaces without a page-owned schema.
 
 ## Build a dashboard
 
 ```php
 use Inlay\Widgets\ChartWidget;
 use Inlay\Actions\Action;
+use Inlay\Widgets\Dashboard;
+use Inlay\Widgets\FormWidget;
+use Inlay\Widgets\InfolistWidget;
+use Inlay\Forms\Form;
+use Inlay\Infolists\Infolist;
 use Inlay\Widgets\Stat;
 use Inlay\Widgets\StatsOverviewWidget;
 use Inlay\Widgets\TableWidget;
@@ -64,9 +71,40 @@ $dashboard = WidgetDashboard::make()
             ->columnSpan(4)
             ->sort(20),
     ]);
+
+$panel->dashboard(Dashboard::make()
+    ->eyebrow('Resource management')
+    ->heading('Orders overview')
+    ->description('A PHP-defined dashboard with shared Inlay surfaces.')
+    ->headerActions([
+        Action::make('create-order')
+            ->label('New order')
+            ->url('/admin/orders')
+            ->method('post'),
+    ]));
+
+// FormWidget and InfolistWidget accept the normal PHP Form and Infolist
+// builders. They render inside the same responsive widget grid as tables.
+$dashboard->widgets([
+    FormWidget::make('quick-edit')
+        ->form(Form::make('quick-edit')->schema([]))
+        ->columnSpan(4)
+        ->columnStart(9)
+        ->tab('overview'),
+    InfolistWidget::make('details')
+        ->infolist(Infolist::make('details')->schema([]))
+        ->columnSpan(4)
+        ->columnStart(9)
+        ->tab('overview'),
+]);
 ```
 
-Widget names are stable lowercase identifiers. Shared methods are `label()`, `description()`, `columnSpan()` (`1`–`12` or `full`), `sort()`, `visible()`, `poll()`, `lazy()`, `headerActions()`, and `footerActions()`. Header and footer actions use the same `Inlay\Actions\Action` contract as panel, resource, and table actions. Invisible widgets are removed when the dashboard is assembled; duplicates are rejected; remaining widgets sort by order then name.
+Widget names are stable lowercase identifiers. Shared methods are `label()`, `description()`, `columnSpan()` (`1`–`12` or `full`), `columnStart()`, `tab()`, `sort()`, `visible()`, `poll()`, `lazy()`, `headerActions()`, and `footerActions()`. Header and footer actions use the same `Inlay\Actions\Action` contract as panel, resource, and table actions. Invisible widgets are removed when the dashboard is assembled; duplicates are rejected; remaining widgets sort by order then name.
+
+`Dashboard::make()` owns the PHP-defined eyebrow, heading, description, and
+header actions. `tab('orders', 'Orders')` groups widgets into a reusable tab
+without adding a custom tab component to the application page. The stock React
+and Vue renderers keep the header and tabs consistent with the default theme.
 
 ## Refreshing, lazy loading, and layout
 
@@ -207,6 +245,11 @@ The dashboard contract is `inlay.widget-dashboard.v1`:
 {
   "contract": "inlay.widget-dashboard.v1",
   "columns": 12,
+  "eyebrow": "Resource management",
+  "heading": "Orders overview",
+  "description": "A PHP-defined dashboard with shared Inlay surfaces.",
+  "headerActions": [],
+  "tabs": [],
   "widgets": []
 }
 ```
@@ -216,6 +259,8 @@ Every widget uses `inlay.widgets.v1` and includes `type`, `name`, `label`, `desc
 - `stats-overview` adds `columns` and `stats`; each stat includes label, value, description, icon, semantic color, safe URL, trend, and sparkline data.
 - `chart` adds `chartType` (`line`, `bar`, or `doughnut`), labels, and numeric datasets with optional colors.
 - `table` adds the serialized `inlayphp/tables` resource.
+- `form` adds the serialized `inlayphp/forms` resource.
+- `infolist` adds the serialized `inlayphp/infolists` resource.
 
 The built-in frontend chart is a lightweight accessible comparison visualization. `chartType` remains in the contract so a custom renderer can use Chart.js, ECharts, or another chart system.
 
@@ -232,7 +277,7 @@ Both adapters inherit panel CSS variables, accept typed `theme` and `classNames`
 ## Testing
 
 ```bash
-vendor/bin/pest tests/ThemeWidgetTest.php
+vendor/bin/pest tests/WidgetsTest.php
 pnpm --filter @inlayphp/widgets-react test -- --run
 pnpm --filter @inlayphp/widgets-vue test -- --run
 ```

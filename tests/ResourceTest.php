@@ -340,6 +340,12 @@ final class ResourceTestUserResource extends Resource
 
     protected static ?string $navigationIcon = 'users';
 
+    protected static ?string $navigationGroup = 'People';
+
+    protected static int $navigationSort = 15;
+
+    protected static string|int|null $navigationBadge = 2;
+
     public static bool $allow = true;
 
     public static int $queryCalls = 0;
@@ -800,11 +806,17 @@ it('publishes validated metadata, URLs, and navigation', function (): void {
 
     expect($metadata['contract'])->toBe('inlay.resources.v1')
         ->and($metadata['label'])->toBe('Person')
+        ->and($metadata['navigationGroup'])->toBe('People')
+        ->and($metadata['navigationSort'])->toBe(15)
+        ->and($metadata['navigationBadge'])->toBe(2)
         ->and($metadata['pages']['index']['url'])->toBe('/users')
         ->and($metadata['pages']['edit']['component'])->toBe('Users/Edit')
         ->and(ResourceTestUserResource::url('view', 'a b'))->toBe('/users/a%20b')
         ->and($navigation['label'])->toBe('People')
         ->and($navigation['icon'])->toBe('users')
+        ->and($navigation['group'])->toBe('People')
+        ->and($navigation['sort'])->toBe(15)
+        ->and($navigation['badge'])->toBe(2)
         ->and($navigation['url'])->toBe('/users');
 });
 

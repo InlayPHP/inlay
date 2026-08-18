@@ -1897,3 +1897,15 @@ describe('filter width and extreme pagination links', () => {
     expect(container.querySelector('[data-slot="pagination-last"]')).toBeNull()
   })
 })
+
+describe('Orbit filter chips', () => {
+  it('renders option chips and applies a selected status immediately', async () => {
+    const onQueryChange = vi.fn()
+    const data = { ...resource([column({})]), filters: [{ type: 'select-filter', name: 'status', label: 'Status', default: null, options: [{ value: 'paid', label: 'Paid' }, { value: 'pending', label: 'Pending' }] }], filtersLayout: 'chips' as const, deferFilters: false }
+    render(<Table onQueryChange={onQueryChange} resource={data} />)
+
+    expect(screen.getByRole('button', { name: 'All', pressed: true })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Paid', pressed: false }))
+    expect(onQueryChange).toHaveBeenLastCalledWith(expect.objectContaining({ filters: { status: 'paid' }, page: 1 }))
+  })
+})

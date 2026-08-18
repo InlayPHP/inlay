@@ -1216,3 +1216,14 @@ describe('Vue filter width and extreme pagination links', () => {
     expect(view.container.querySelector('[data-slot="pagination-last"]')).toBeNull()
   })
 })
+
+describe('Vue Orbit filter chips', () => {
+  it('renders option chips and applies a selected status immediately', async () => {
+    const data = { ...resource([column({})]), filters: [{ type: 'select-filter', name: 'status', label: 'Status', default: null, options: [{ value: 'paid', label: 'Paid' }, { value: 'pending', label: 'Pending' }] }], filtersLayout: 'chips' as const, deferFilters: false }
+    const view = render(Table, { props: { resource: data } })
+
+    expect(view.getByRole('button', { name: 'All', pressed: true })).toBeInTheDocument()
+    await userEvent.click(view.getByRole('button', { name: 'Paid', pressed: false }))
+    expect((view.emitted('queryChange') as unknown[][]).at(-1)?.[0]).toEqual(expect.objectContaining({ filters: { status: 'paid' }, page: 1 }))
+  })
+})

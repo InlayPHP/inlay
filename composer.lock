@@ -1749,12 +1749,14 @@
             "dist": {
                 "type": "path",
                 "url": "packages/widgets",
-                "reference": "2f85ac059e161688411094758b9a50da102e7d90"
+                "reference": "5b44ed444ab45febf1479a52e37119120055003b"
             },
             "require": {
                 "illuminate/contracts": "^12.0 || ^13.0",
                 "illuminate/http": "^12.0 || ^13.0",
                 "inlayphp/actions": "^0.3 || dev-main",
+                "inlayphp/forms": "^0.3 || dev-main",
+                "inlayphp/infolists": "^0.3 || dev-main",
                 "inlayphp/support": "^0.3 || dev-main",
                 "inlayphp/tables": "^0.3 || dev-main",
                 "php": "^8.3"

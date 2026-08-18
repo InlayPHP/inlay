@@ -24,6 +24,12 @@ abstract class Widget implements JsonSerializable
 
     protected bool $lazy = false;
 
+    private ?int $columnStart = null;
+
+    private ?string $tab = null;
+
+    private ?string $tabLabel = null;
+
     /** @var list<Action> */
     private array $headerActions = [];
 
@@ -57,6 +63,36 @@ abstract class Widget implements JsonSerializable
             throw new InvalidArgumentException('A widget column span must be full or an integer from 1 to 12.');
         }
         $this->columnSpan = $span;
+
+        return $this;
+    }
+
+    /** Start this widget at a specific twelve-column grid position. */
+    public function columnStart(?int $start): static
+    {
+        if ($start !== null && ($start < 1 || $start > 12)) {
+            throw new InvalidArgumentException('A widget column start must be null or an integer from 1 to 12.');
+        }
+
+        $this->columnStart = $start;
+
+        return $this;
+    }
+
+    /** Place this widget in a named PHP-defined dashboard tab. */
+    public function tab(string $name, ?string $label = null): static
+    {
+        $name = trim($name);
+        if (! preg_match('/^[a-z][a-z0-9_-]*$/', $name)) {
+            throw new InvalidArgumentException('A widget tab name must contain only lowercase letters, numbers, hyphens, and underscores.');
+        }
+
+        if ($label !== null && trim($label) === '') {
+            throw new InvalidArgumentException('A widget tab label cannot be empty.');
+        }
+
+        $this->tab = $name;
+        $this->tabLabel = $label === null ? null : trim($label);
 
         return $this;
     }
@@ -118,6 +154,16 @@ abstract class Widget implements JsonSerializable
         return $this->sort;
     }
 
+    public function tabName(): ?string
+    {
+        return $this->tab;
+    }
+
+    public function tabLabel(): ?string
+    {
+        return $this->tabLabel;
+    }
+
     public function isVisible(): bool
     {
         return $this->visible;
@@ -133,10 +179,13 @@ abstract class Widget implements JsonSerializable
             'label' => $this->label,
             'description' => $this->description,
             'columnSpan' => $this->columnSpan,
+            'columnStart' => $this->columnStart,
             'sort' => $this->sort,
             'visible' => $this->visible,
             'pollingInterval' => $this->pollingInterval,
             'lazy' => $this->lazy,
+            'tab' => $this->tab,
+            'tabLabel' => $this->tabLabel,
             'headerActions' => $this->headerActions,
             'footerActions' => $this->footerActions,
             ...$this->payload(),

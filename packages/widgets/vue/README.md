@@ -10,7 +10,7 @@
 ## Install
 
 ```bash
-pnpm add @inlayphp/widgets-vue @inlayphp/core @inlayphp/tables-vue @inlayphp/actions-vue @inlayphp/forms-vue vue
+pnpm add @inlayphp/widgets-vue @inlayphp/core @inlayphp/tables-vue @inlayphp/actions-vue @inlayphp/forms-vue @inlayphp/infolists-vue vue
 ```
 
 Create the serialized `inlayWidgets` prop with `inlayphp/widgets` in Laravel.
@@ -38,7 +38,7 @@ defineProps<{ inlayWidgets: WidgetDashboardResource }>()
 </template>
 ```
 
-The component accepts `resource`, `theme`, `className`, `classNames`, `icons`, and `renderers`. It filters invisible widgets, maps PHP spans to a responsive 12-column grid, validates stat links through `@inlayphp/core`, applies each stat's semantic `color` token, and passes table contracts to `@inlayphp/tables-vue`. With an `@refresh` listener, lazy widgets reveal when they enter the viewport and polling widgets emit refresh events on their declared interval while visible. Without a listener, no network request is made.
+The component accepts `resource`, `theme`, `className`, `classNames`, `icons`, and `renderers`. It renders PHP-owned dashboard headings and tabs, filters invisible widgets, maps PHP spans and column starts to a responsive 12-column grid, validates stat links through `@inlayphp/core`, applies each stat's semantic `color` token, and passes table, form, and infolist contracts to the corresponding Inlay Vue packages. With an `@refresh` listener, lazy widgets reveal when they enter the viewport and polling widgets emit refresh events on their declared interval while visible. Without a listener, no network request is made.
 
 ## Widget actions
 
@@ -78,11 +78,13 @@ Custom components receive `widget` and `theme` props. Narrow `widget.type` in Ty
 
 ## Payload and types
 
-`WidgetDashboardResource` contains `contract: 'inlay.widget-dashboard.v1'`, `columns`, and `widgets`. The exported `WidgetResource` union distinguishes:
+`WidgetDashboardResource` contains PHP-owned heading metadata, optional tabs, `columns`, and `widgets`. The exported `WidgetResource` union distinguishes:
 
 - `StatsOverviewWidget` with `columns` and typed `stats`;
 - `ChartWidget` with `chartType`, labels, and datasets;
 - `TableWidget` with a serialized table.
+- `FormWidget` with a serialized form.
+- `InfolistWidget` with a serialized infolist.
 
 All share the `inlay.widgets.v1` base contract: name, label, description, span, sort, visibility, polling interval, and lazy state. The default chart is an accessible comparative bar surface regardless of `chartType`; supply a custom renderer when type-specific chart geometry matters.
 

@@ -51,6 +51,22 @@ describe('WidgetDashboard', () => {
 
     expect(executor).toHaveBeenCalledWith(expect.objectContaining({ action: expect.objectContaining({ name: 'create' }) }))
   })
+
+  it('renders PHP dashboard metadata, filters tab widgets, and honors column starts', async () => {
+    const overview = { ...resource.widgets[0], tab: 'overview' }
+    const orders = { ...resource.widgets[1], tab: 'orders', columnStart: 7 }
+    render(<WidgetDashboard resource={{ ...resource, eyebrow: 'Administration', heading: 'Orders overview', description: 'PHP metadata', tabs: [{ name: 'overview', label: 'Overview', widgets: ['overview'] }, { name: 'orders', label: 'Orders', widgets: ['orders'] }], widgets: [overview, orders] }} />)
+
+    expect(screen.getByRole('heading', { name: 'Orders overview' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true')
+    expect(document.querySelector('[data-slot="dashboard-tabs"]')).toHaveClass('overflow-y-hidden')
+    expect(screen.queryByRole('img', { name: 'Orders chart' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Orders' }))
+
+    expect(screen.getByRole('img', { name: 'Orders chart' })).toBeInTheDocument()
+    expect(document.querySelector('[data-widget="orders"]')).toHaveClass('md:col-start-7')
+  })
 })
 
 /** jsdom has no IntersectionObserver, so tests drive one by hand. */

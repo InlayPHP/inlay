@@ -19,7 +19,7 @@ final class DashboardController
         return Inertia::render($panel->dashboardComponentName(), [
             'inlayPanel' => $panel,
             'inlayPage' => ['type' => 'dashboard'],
-            'inlayWidgets' => $widgets->resolve($panel->getWidgets(), $request),
+            'inlayWidgets' => $widgets->resolve($panel->getWidgets(), $request, $panel->dashboardDefinition()),
         ]);
     }
 }

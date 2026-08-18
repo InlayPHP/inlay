@@ -84,6 +84,7 @@ export type BuiltInThemeToken =
   | 'sidebar-active-foreground'
   | 'sidebar-badge'
   | 'font-family'
+  | 'dashboard-max-width'
   | 'shadow'
 
 const builtInThemeTokens = new Set<string>([
@@ -101,7 +102,7 @@ const builtInThemeTokens = new Set<string>([
   'focus-ring-color', 'focus-ring-width', 'focus-ring-offset', 'motion-duration', 'motion-duration-fast',
   'motion-duration-slow', 'motion-easing',
   'sidebar-width', 'collapsed-sidebar-width', 'topbar-height', 'sidebar-surface', 'sidebar-foreground', 'sidebar-muted', 'sidebar-border', 'sidebar-hover', 'sidebar-active', 'sidebar-active-foreground', 'sidebar-badge',
-  'font-family', 'shadow',
+  'font-family', 'dashboard-max-width', 'shadow',
 ])
 
 /**
@@ -131,7 +132,7 @@ export function normalizeThemeTokens(tokens: ThemeTokens | ThemeInput): ThemeTok
 
 export const baseTheme: ThemeContract = {
   contract: 'inlay.themes.v1', name: 'base',
-  tokens: { accent: '#18181b', 'accent-foreground': '#ffffff', background: '#fafafa', surface: '#ffffff', 'surface-muted': '#f4f4f5', foreground: '#18181b', muted: '#71717a', border: 'rgb(24 24 27 / 0.12)', 'control-border': '#d4d4d8', hover: '#f4f4f5', badge: '#e4e4e7', danger: '#dc2626', 'danger-surface': 'rgb(220 38 38 / 0.08)', success: '#16a34a', 'success-surface': 'rgb(22 163 74 / 0.08)', warning: '#d97706', 'warning-surface': 'rgb(217 119 6 / 0.1)', info: '#0284c7', 'info-surface': 'rgb(2 132 199 / 0.08)', overlay: 'rgb(24 24 27 / 0.55)', scrim: 'rgb(0 0 0 / 0.3)', radius: '0.5rem', 'control-height': '2.5rem', 'button-height': '2.5rem', 'button-xs-height': '2rem', 'button-sm-height': '2.25rem', 'button-lg-height': '2.75rem', 'icon-button-size': '2.5rem', 'space-control-x': '0.75rem', 'space-control-y': '0.5rem', 'space-button-x': '0.75rem', 'space-button-y': '0.375rem', 'space-card': '1.25rem', 'space-dialog': '1.25rem', 'space-menu-x': '0.625rem', 'space-menu-y': '0.5rem', 'space-table-x': '0.75rem', 'space-table-y': '0.75rem', 'space-stack': '0.75rem', 'space-inline': '0.5rem', 'space-field': '0.375rem', 'font-size-body': '0.875rem', 'font-size-control': '1rem', 'font-size-label': '0.875rem', 'font-size-caption': '0.75rem', 'font-size-heading': '1.125rem', 'font-size-title': '1.5rem', 'line-height-body': '1.5', 'line-height-control': '1.5', 'line-height-tight': '1.25', 'font-weight-label': '500', 'font-weight-heading': '600', 'focus-ring-color': 'var(--inlay-accent)', 'focus-ring-width': '2px', 'focus-ring-offset': '0px', 'motion-duration': '160ms', 'motion-duration-fast': '120ms', 'motion-duration-slow': '240ms', 'motion-easing': 'cubic-bezier(0.2, 0, 0, 1)', 'font-family': 'ui-sans-serif, system-ui, sans-serif', shadow: '0 1px 2px rgb(0 0 0 / 0.05)', 'topbar-height': '4rem', 'sidebar-surface': '#ffffff', 'sidebar-foreground': '#18181b', 'sidebar-muted': '#71717a', 'sidebar-border': 'rgb(24 24 27 / 0.12)', 'sidebar-hover': '#f4f4f5', 'sidebar-active': 'rgb(24 24 27 / 0.08)', 'sidebar-active-foreground': 'var(--inlay-accent)', 'sidebar-badge': '#e4e4e7' },
+  tokens: { accent: '#18181b', 'accent-foreground': '#ffffff', background: '#fafafa', surface: '#ffffff', 'surface-muted': '#f4f4f5', foreground: '#18181b', muted: '#71717a', border: 'rgb(24 24 27 / 0.12)', 'control-border': '#d4d4d8', hover: '#f4f4f5', badge: '#e4e4e7', danger: '#dc2626', 'danger-surface': 'rgb(220 38 38 / 0.08)', success: '#16a34a', 'success-surface': 'rgb(22 163 74 / 0.08)', warning: '#d97706', 'warning-surface': 'rgb(217 119 6 / 0.1)', info: '#0284c7', 'info-surface': 'rgb(2 132 199 / 0.08)', overlay: 'rgb(24 24 27 / 0.55)', scrim: 'rgb(0 0 0 / 0.3)', radius: '0.5rem', 'control-height': '2.5rem', 'button-height': '2.5rem', 'button-xs-height': '2rem', 'button-sm-height': '2.25rem', 'button-lg-height': '2.75rem', 'icon-button-size': '2.5rem', 'space-control-x': '0.75rem', 'space-control-y': '0.5rem', 'space-button-x': '0.75rem', 'space-button-y': '0.375rem', 'space-card': '1.25rem', 'space-dialog': '1.25rem', 'space-menu-x': '0.625rem', 'space-menu-y': '0.5rem', 'space-table-x': '0.75rem', 'space-table-y': '0.75rem', 'space-stack': '0.75rem', 'space-inline': '0.5rem', 'space-field': '0.375rem', 'font-size-body': '0.875rem', 'font-size-control': '1rem', 'font-size-label': '0.875rem', 'font-size-caption': '0.75rem', 'font-size-heading': '1.125rem', 'font-size-title': '1.5rem', 'line-height-body': '1.5', 'line-height-control': '1.5', 'line-height-tight': '1.25', 'font-weight-label': '500', 'font-weight-heading': '600', 'focus-ring-color': 'var(--inlay-accent)', 'focus-ring-width': '2px', 'focus-ring-offset': '0px', 'motion-duration': '160ms', 'motion-duration-fast': '120ms', 'motion-duration-slow': '240ms', 'motion-easing': 'cubic-bezier(0.2, 0, 0, 1)', 'font-family': 'ui-sans-serif, system-ui, sans-serif', shadow: '0 1px 2px rgb(0 0 0 / 0.05)', 'dashboard-max-width': '100rem', 'topbar-height': '4rem', 'sidebar-surface': '#ffffff', 'sidebar-foreground': '#18181b', 'sidebar-muted': '#71717a', 'sidebar-border': 'rgb(24 24 27 / 0.12)', 'sidebar-hover': '#f4f4f5', 'sidebar-active': 'rgb(24 24 27 / 0.08)', 'sidebar-active-foreground': 'var(--inlay-accent)', 'sidebar-badge': '#e4e4e7' },
   darkTokens: { background: '#09090b', surface: '#18181b', 'surface-muted': '#27272a', foreground: '#fafafa', muted: '#a1a1aa', border: 'rgb(255 255 255 / 0.12)', 'control-border': 'rgb(255 255 255 / 0.2)', hover: '#27272a', badge: '#3f3f46', danger: '#f87171', 'danger-surface': 'rgb(248 113 113 / 0.12)', success: '#4ade80', 'success-surface': 'rgb(74 222 128 / 0.12)', warning: '#fbbf24', 'warning-surface': 'rgb(251 191 36 / 0.14)', info: '#38bdf8', 'info-surface': 'rgb(56 189 248 / 0.12)', overlay: 'rgb(0 0 0 / 0.65)', scrim: 'rgb(0 0 0 / 0.55)', 'sidebar-surface': '#18181b', 'sidebar-foreground': '#fafafa', 'sidebar-muted': '#a1a1aa', 'sidebar-border': 'rgb(255 255 255 / 0.12)', 'sidebar-hover': '#27272a', 'sidebar-active': 'rgb(129 140 248 / 0.18)', 'sidebar-active-foreground': '#c4b5fd', 'sidebar-badge': '#3f3f46' },
 }
 export const orbitTheme: ThemeContract = mergeTheme(baseTheme, {
@@ -249,6 +250,7 @@ export function recipeVariables(theme: ThemeSource, mode: 'light' | 'dark' = 'li
     'motion-duration-slow': '240ms',
     'motion-easing': 'cubic-bezier(0.2, 0, 0, 1)',
     'topbar-height': '4rem',
+    'dashboard-max-width': '100rem',
     'sidebar-surface': '#ffffff',
     'sidebar-foreground': '#18181b',
     'sidebar-muted': '#71717a',

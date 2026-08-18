@@ -666,6 +666,19 @@ export function Table({
     changeQuery({ filters, page: 1 });
   };
   const filtersLayout = resource.filtersLayout ?? "dropdown";
+  const chipFilters = resource.filters.filter((filter) => filter.type === "select-filter" && (filter.options?.length ?? 0) > 0);
+  const chipSelected = (filter: Filter, value: string | number) => {
+    const selected = query.filters[filter.name];
+    if (value === "") return selected == null || selected === "" || (Array.isArray(selected) && selected.length === 0);
+    return Array.isArray(selected) ? selected.some((item) => String(item) === String(value)) : String(selected) === String(value);
+  };
+  const chooseChip = (filter: Filter, value: string | number) => {
+    const next = { ...query.filters };
+    if (value === "") delete next[filter.name];
+    else next[filter.name] = value;
+    setDraftFilters(next);
+    changeQuery({ filters: next, page: 1 });
+  };
   const filtersFormColumns = Math.min(Math.max(resource.filtersFormColumns ?? 3, 1), 6);
   const filtersResetActionPosition = resource.filtersResetActionPosition ?? "header";
   // PHP validates the name against one shared list, so an unknown width here
@@ -947,7 +960,7 @@ export function Table({
       </div></td> : null;
 
   const actionsHeaderAt = (slot: string) => resource.actions.length && actionsPosition === slot ? (<th
-                    className="w-max min-w-32 whitespace-nowrap border-b border-l border-(--inlay-border) bg-(--inlay-surface-muted) px-3 py-3.5 text-right text-sm font-medium text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]"
+                    className="w-max min-w-32 whitespace-nowrap border-b border-l border-(--inlay-border) bg-(--inlay-surface-muted) px-3 py-2.5 text-right text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase lg:sticky lg:right-0 lg:z-20 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]"
                     rowSpan={hasColumnGroups ? 2 : undefined}
                     scope="col"
                   >
@@ -965,7 +978,7 @@ export function Table({
 
     return (
     <tr
-      className={`group transition-colors hover:bg-(--inlay-hover) focus-within:bg-(--inlay-hover) data-[drag-target=true]:bg-(--inlay-hover) data-[drag-target=true]:outline-2 data-[drag-target=true]:-outline-offset-2 data-[drag-target=true]:outline-(--inlay-accent) ${resource.striped && rowIndex % 2 === 1 ? "bg-(--inlay-surface-muted)" : ""} ${resource.rowClasses?.[String(keyFor(row))] ?? ""} ${gridLayout || customLayout ? "block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-3 shadow-xs" : stackedLayout ? "mb-3 block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-2 shadow-xs sm:mb-0 sm:table-row sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none" : "[&:not(:last-child)>td]:border-b [&:not(:last-child)>td]:border-(--inlay-border)"} ${recordUrl(row) ? "cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--inlay-accent)" : ""} ${classNames?.row ?? ""}`}
+      className={`group transition-colors hover:bg-(--inlay-hover) focus-within:bg-(--inlay-hover) data-[drag-target=true]:bg-(--inlay-hover) data-[drag-target=true]:outline-2 data-[drag-target=true]:-outline-offset-2 data-[drag-target=true]:outline-(--inlay-accent) ${resource.striped && rowIndex % 2 === 1 ? "bg-(--inlay-surface-muted)" : ""} ${resource.rowClasses?.[String(keyFor(row))] ?? ""} ${gridLayout || customLayout ? "block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-3 shadow-xs" : stackedLayout ? "mb-3 block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-2 shadow-xs sm:mb-0 sm:table-row sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none" : "h-[66px] [&:not(:last-child)>td]:border-b [&:not(:last-child)>td]:border-(--inlay-border)"} ${recordUrl(row) ? "cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--inlay-accent)" : ""} ${classNames?.row ?? ""}`}
       data-drag-target={reordering && String(dragTargetKey) === String(keyFor(row)) ? "true" : undefined}
       data-row-key={keyFor(row)}
       data-slot="table-row"
@@ -991,11 +1004,11 @@ export function Table({
     >
       {actionsAt('before-cells', row)}
       {reordering ? <td className="w-32 px-2 py-2"><div className="flex justify-center gap-1"><button aria-label={`Drag row ${keyFor(row)}`} className={`${secondaryButton} min-h-8 cursor-grab px-2 active:cursor-grabbing`} draggable onClick={(event) => event.stopPropagation()} onDragEnd={() => { setDraggedRecordKey(null); setDragTargetKey(null); }} onDragStart={(event) => { event.stopPropagation(); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(keyFor(row))); setDraggedRecordKey(keyFor(row)); }} type="button">⋮⋮</button><button aria-label={`Move row ${keyFor(row)} up`} className={`${secondaryButton} min-h-8 px-2`} disabled={orderedRows[0] === row} onClick={() => moveRecord(row, -1)} type="button">↑</button><button aria-label={`Move row ${keyFor(row)} down`} className={`${secondaryButton} min-h-8 px-2`} disabled={orderedRows[orderedRows.length - 1] === row} onClick={() => moveRecord(row, 1)} type="button">↓</button></div></td> : null}
-      {resource.selectable ? <td className={`${cardLayout ? "block w-full px-2 py-2 sm:w-auto" : "w-12 px-4 py-3.5"} ${classNames?.cell ?? ""}`}>
+      {resource.selectable ? <td className={`${cardLayout ? "block w-full px-2 py-2 sm:w-auto" : "w-12 px-4 py-2.5"} ${classNames?.cell ?? ""}`}>
         <input aria-describedby={`${resource.name}-selection-status`} aria-label={`Select row ${keyFor(row)}`} checked={isKeySelected(keyFor(row))} className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent) sm:size-4" disabled={!selectableKeys.includes(keyFor(row)) || (!isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum)} onChange={(event) => { const key = keyFor(row); if (allMatchingSelected) setExcluded(event.target.checked ? excluded.filter(item => item !== key) : [...excluded, key]); else setSelected(event.target.checked ? [...selected, key] : selected.filter(item => item !== key)); }} title={!selectableKeys.includes(keyFor(row)) ? 'This record cannot be selected.' : !isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum ? `You can select at most ${selectionMaximum} records.` : undefined} type="checkbox" />
       </td> : null}
       {actionsAt('before-columns', row)}
-      {customLayout ? <td className="block p-2" colSpan={columns.length}><div className="grid gap-3" data-slot="column-layout">{resource.columnLayout?.map((component, index) => <ColumnLayoutRenderer component={component} key={index} onChange={(column, value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />)}</div></td> : columns.map((column) => <td {...safeAttributes(cellAttributesFor(row, column))} data-no-record-click={column.disabledClick ? "true" : undefined} className={`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? "sm:table-cell sm:px-4 sm:py-3.5" : ""}` : "min-w-0 overflow-hidden px-3 py-3.5 lg:px-4"} text-base leading-6 text-(--inlay-text) sm:text-sm ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? "whitespace-normal" : ""} ${classNames?.cell ?? ""}`} data-slot="table-cell" key={column.name} style={columnDimensionStyle(column)}>
+      {customLayout ? <td className="block p-2" colSpan={columns.length}><div className="grid gap-3" data-slot="column-layout">{resource.columnLayout?.map((component, index) => <ColumnLayoutRenderer component={component} key={index} onChange={(column, value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />)}</div></td> : columns.map((column) => <td {...safeAttributes(cellAttributesFor(row, column))} data-no-record-click={column.disabledClick ? "true" : undefined} className={`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? "sm:table-cell sm:px-4 sm:py-4" : ""}` : "min-w-0 overflow-hidden px-3 py-4 lg:px-4"} text-sm leading-5 text-(--inlay-text) ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? "whitespace-normal" : ""} ${classNames?.cell ?? ""}`} data-slot="table-cell" key={column.name} style={columnDimensionStyle(column)}>
         {cardLayout ? <span className={`text-left text-xs font-medium text-(--inlay-muted) ${stackedLayout && !gridLayout ? "sm:hidden" : ""}`}>{column.label}</span> : null}<span {...safeAttributes(contentAttributesFor(row, column))} className={`${column.grow === false ? "grow-0" : "min-w-0 grow"} grid gap-1`}>{column.actions?.length ? <ColumnActionGroup actions={column.actions} column={column} execute={execute} row={row}><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></ColumnActionGroup> : column.action ? <button className="w-full cursor-pointer rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" data-slot="column-action" onClick={(event) => { event.stopPropagation(); execute(column.action as Action, [row]); }} type="button"><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></button> : <Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />}{cellErrors[cellKey(row, column)] ? <span className="text-xs text-(--inlay-danger)" role="alert">{cellErrors[cellKey(row, column)]}</span> : null}</span>
       </td>)}
       {actionsAt('after-columns', row)}
@@ -1025,7 +1038,7 @@ export function Table({
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
           {(resource.searchable ?? resource.columns.some((column) => column.searchable)) ? (
-            <label className="w-full max-w-72 flex-none">
+          <label className="w-full max-w-[250px] flex-none">
               <span className="sr-only">Search</span>
               <input
                 aria-label="Search"
@@ -1046,8 +1059,9 @@ export function Table({
                 type="search"
                 value={searchDraft}
               />
-            </label>
-          ) : null}
+          </label>
+        ) : null}
+          {filtersLayout === "chips" && chipFilters.length ? <div aria-label="Table filters" className="flex flex-wrap gap-1.5" data-slot="filter-chips" role="group">{chipFilters.flatMap((filter) => [{ value: "", label: "All" }, ...(filter.options ?? [])].map((option) => <button aria-pressed={chipSelected(filter, option.value)} className={`inline-flex min-h-(--inlay-control-height) items-center justify-center gap-1.5 rounded-full border px-2.5 py-1 text-xs text-(--inlay-muted) transition ${chipSelected(filter, option.value) ? 'border-(--inlay-accent)/30 bg-(--inlay-accent)/10 font-semibold text-(--inlay-accent)' : 'border-(--inlay-border) bg-(--inlay-surface) hover:border-(--inlay-control-border) hover:text-(--inlay-text)'}`} key={`${filter.name}:${option.value}`} onClick={() => chooseChip(filter, option.value)} type="button">{option.label}</button>))}</div> : null}
           {resource.views?.length ? (
             <div className="min-w-0 flex-[1_1_12rem]">
               <span className="sr-only">Saved view</span>
@@ -1060,7 +1074,7 @@ export function Table({
               {activePersonalView ? <button className={`${secondaryButton} shrink-0`} onClick={deletePersonalView} type="button">Delete view</button> : null}
             </div>
           ) : null}
-          {resource.filters.length && (filtersLayout === "dropdown" || filtersLayout === "above-content-collapsible" || filtersLayout === "modal") ? (
+          {resource.filters.length && filtersLayout !== "chips" && (filtersLayout === "dropdown" || filtersLayout === "above-content-collapsible" || filtersLayout === "modal") ? (
             <button
               aria-controls={`${resource.name}-filters`}
               aria-expanded={filtersOpen}
@@ -1290,9 +1304,9 @@ export function Table({
             >
               <tr>
                 {actionsHeaderAt('before-cells')}
-                {reordering ? <th className="w-32 border-b border-(--inlay-border) px-2 py-3.5" rowSpan={hasColumnGroups ? 2 : undefined}><span className="sr-only">Reorder controls</span></th> : null}
+                {reordering ? <th className="w-32 border-b border-(--inlay-border) px-2 py-2.5" rowSpan={hasColumnGroups ? 2 : undefined}><span className="sr-only">Reorder controls</span></th> : null}
                 {resource.selectable ? (
-                  <th className="w-12 border-b border-(--inlay-border) px-4 py-3.5" rowSpan={hasColumnGroups ? 2 : undefined}>
+                  <th className="w-12 border-b border-(--inlay-border) px-4 py-2.5" rowSpan={hasColumnGroups ? 2 : undefined}>
                     <input
                       aria-label="Select all rows"
                       aria-describedby={`${resource.name}-selection-status`}
@@ -1306,7 +1320,7 @@ export function Table({
                   </th>
                 ) : null}
                 {actionsHeaderAt('before-columns')}
-                {hasColumnGroups ? headerSegments.map((segment, index) => segment.group ? <th className={`border-b border-(--inlay-border) px-4 py-2.5 text-sm font-medium text-(--inlay-muted) ${alignmentClass(segment.group.alignment)} ${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'}`} colSpan={segment.columns.length} key={`${segment.group.label}-${index}`} scope="colgroup" title={segment.group.tooltip ?? undefined}>{segment.group.label}</th> : <ColumnHeaderCell column={segment.columns[0]} key={segment.columns[0].name} onQueryChange={changeQuery} query={query} rowSpan={2} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />)}
+                {hasColumnGroups ? headerSegments.map((segment, index) => segment.group ? <th className={`border-b border-(--inlay-border) px-4 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase ${alignmentClass(segment.group.alignment)} ${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'}`} colSpan={segment.columns.length} key={`${segment.group.label}-${index}`} scope="colgroup" title={segment.group.tooltip ?? undefined}>{segment.group.label}</th> : <ColumnHeaderCell column={segment.columns[0]} key={segment.columns[0].name} onQueryChange={changeQuery} query={query} rowSpan={2} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />)}
                 {actionsHeaderAt('after-columns')}
               </tr>
               {hasColumnGroups ? <tr>{headerSegments.flatMap((segment) => segment.group ? segment.columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : [])}</tr> : null}
@@ -1980,8 +1994,17 @@ function BulkActionGroupMenu({ definition, rows, count, execute, processing, ren
 
 function NamedIcon({ name, fallback, className, style, renderers, registries }: { name: string; fallback: string; className?: string; style?: CSSProperties; renderers?: TableRenderers; registries?: TableRendererRegistries }) {
   const Renderer = resolveIcon<IconRenderer>(name, renderers?.icon, registries?.icon);
-  return <span aria-hidden="true" className={className} data-icon={name} style={style}>{Renderer ? <Renderer name={name} /> : fallback}</span>;
+  const paths = tableIconPaths[name];
+  return <span aria-hidden="true" className={`inline-flex size-4 shrink-0 items-center justify-center ${className ?? ''}`.trim()} data-icon={name} style={style}>{Renderer ? <Renderer name={name} /> : paths ? <svg aria-hidden="true" className="size-4" fill="none" viewBox="0 0 24 24"><>{paths.map((path) => <path d={path} key={path} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />)}</></svg> : fallback}</span>;
 }
+
+const tableIconPaths: Record<string, string[]> = {
+  funnel: ['M4 5h16l-6.5 7.2V18l-3 1v-6.8z'],
+  columns: ['M5 4h14v16H5z', 'M10 4v16', 'M15 4v16'],
+  'arrows-up-down': ['M8 5v14', 'm5 8 3-3 3 3', 'm5 16 3 3 3-3', 'M16 5v14', 'm13 8 3-3 3 3', 'm13 16 3 3 3-3'],
+  check: ['m5 12 4 4L19 6'],
+  x: ['m6 6 12 12', 'm18 6-12 12'],
+};
 
 // A cell offering several actions opens them in a menu, but each one still
 // runs through the row-action boundary the single-action cell uses.
@@ -2469,7 +2492,7 @@ function ColumnHeaderCell({ column, query, onQueryChange, rowSpan, searchDebounc
     if (debounce <= 0) return commitSearch(value);
     searchTimer.current = setTimeout(() => commitSearch(value), debounce);
   };
-  return <th {...safeAttributes(column.extraHeaderAttributes)} aria-sort={query.sort === column.name ? `${query.direction}ending` : "none"} className={`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) px-3 py-3.5 text-sm font-medium text-(--inlay-muted) lg:px-4 ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`} rowSpan={rowSpan} scope="col" style={columnDimensionStyle(column)} title={column.headerTooltip ?? undefined}>
+  return <th {...safeAttributes(column.extraHeaderAttributes)} aria-sort={query.sort === column.name ? `${query.direction}ending` : "none"} className={`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) px-3 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase lg:px-4 ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`} rowSpan={rowSpan} scope="col" style={columnDimensionStyle(column)} title={column.headerTooltip ?? undefined}>
     <div className="grid min-w-0 gap-2">
       {column.sortable ? <button className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" onClick={() => onQueryChange({ sort: column.name, direction: query.sort === column.name && query.direction === "asc" ? "desc" : "asc", page: 1 })} type="button"><span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>{query.sort === column.name ? <span aria-hidden="true" className="shrink-0 text-(--inlay-accent)">{query.direction === "asc" ? "↑" : "↓"}</span> : null}</button> : <span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>}
       {column.individuallySearchable ? <label className="normal-case tracking-normal">

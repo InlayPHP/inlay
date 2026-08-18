@@ -45,7 +45,7 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
   <th
     v-bind="headerAttributes"
     :aria-sort="query.sort === column.name ? `${query.direction}ending` : 'none'"
-    :class="`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) px-3 py-3.5 text-sm font-medium text-(--inlay-muted) lg:px-4 ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`"
+    :class="`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) px-3 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase lg:px-4 ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`"
     :rowspan="rowSpan"
     scope="col"
     :style="dimensionStyle"

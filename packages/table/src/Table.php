@@ -143,7 +143,7 @@ final class Table implements JsonSerializable
 
     private bool $extremePaginationLinks = false;
 
-    /** @var 'dropdown'|'above-content'|'above-content-collapsible'|'below-content'|'modal' */
+    /** @var 'dropdown'|'chips'|'above-content'|'above-content-collapsible'|'below-content'|'modal' */
     private string $filtersLayout = 'dropdown';
 
     /** Render alternating body rows with the shared muted surface token. */
@@ -2341,7 +2341,7 @@ final class Table implements JsonSerializable
      */
     public function filtersLayout(string $layout): self
     {
-        if (! in_array($layout, ['dropdown', 'above-content', 'above-content-collapsible', 'below-content', 'modal'], true)) {
+        if (! in_array($layout, ['dropdown', 'chips', 'above-content', 'above-content-collapsible', 'below-content', 'modal'], true)) {
             throw new \InvalidArgumentException("Unsupported table filters layout [{$layout}].");
         }
 

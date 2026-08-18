@@ -8,6 +8,8 @@
         "illuminate/contracts": "^12.0 || ^13.0",
         "illuminate/http": "^12.0 || ^13.0",
         "inlayphp/actions": "^0.3 || dev-main",
+        "inlayphp/forms": "^0.3 || dev-main",
+        "inlayphp/infolists": "^0.3 || dev-main",
         "inlayphp/support": "^0.3 || dev-main",
         "inlayphp/tables": "^0.3 || dev-main"
     },

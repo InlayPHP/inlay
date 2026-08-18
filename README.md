@@ -970,6 +970,11 @@ The same Markdown sources power the static documentation site in
 guides, or let the included GitHub Pages workflow publish the generated site
 from `main`.
 
+For contribution workflow, feature proposals, testing expectations, and the
+package/renderer boundaries, read [Contributing](CONTRIBUTING.md). Report
+security vulnerabilities privately through [Security](SECURITY.md); do not use
+public issues for sensitive reports.
+
 - [Release checklist and split-package process](docs/release.md)
 - [Architecture and package boundaries](docs/architecture.md)
 - [User guide index](docs/guide/README.md)

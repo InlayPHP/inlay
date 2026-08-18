@@ -363,6 +363,19 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
         <span aria-hidden="true">☰</span>
       </button>
 
+      <button
+        v-if="resource.navigationMode === 'sidebar' && resource.collapsible"
+        :aria-expanded="!desktopCollapsed"
+        :aria-label="desktopCollapsed ? 'Expand navigation' : 'Collapse navigation'"
+        class="hidden size-9 items-center justify-center rounded-(--inlay-panel-radius) border border-(--inlay-panel-border) text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text) lg:inline-flex"
+        data-slot="sidebar-collapse-trigger"
+        :title="desktopCollapsed ? 'Expand navigation' : 'Collapse navigation'"
+        type="button"
+        @click="desktopCollapsed = !desktopCollapsed"
+      >
+        <BuiltInIcon class-name="size-4" :name="desktopCollapsed ? 'chevron-right' : 'chevron-left'" />
+      </button>
+
       <div :class="resource.navigationMode === 'sidebar' ? 'lg:hidden' : ''">
       <slot name="brand" :resource="resource" :context="renderContext">
         <component v-if="renderers.brand" :is="rawComponent(renderers.brand)" :context="renderContext" />
@@ -555,17 +568,6 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
           <GlobalSearch :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="sidebar-footer" />
         </div>
         <div v-if="$slots['sidebar-footer']" class="mt-auto" data-slot="sidebar-footer"><slot name="sidebar-footer" :context="renderContext" /></div>
-        <button
-          v-if="resource.collapsible"
-          :aria-label="desktopCollapsed ? 'Expand navigation' : 'Collapse navigation'"
-          class="mt-auto min-h-11 rounded-lg px-3 text-sm text-(--inlay-panel-sidebar-muted) hover:bg-(--inlay-panel-sidebar-hover)"
-          data-slot="sidebar-collapse-trigger"
-          type="button"
-          @click="desktopCollapsed = !desktopCollapsed"
-        >
-          <span aria-hidden="true">{{ desktopCollapsed ? '→' : '←' }}</span>
-          <span :class="desktopCollapsed && 'sr-only'">{{ desktopCollapsed ? 'Expand' : 'Collapse' }}</span>
-        </button>
       </aside>
 
       <button

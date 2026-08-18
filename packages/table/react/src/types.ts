@@ -222,7 +222,7 @@ export type TableResource = {
   filterIndicatorsHidden?: boolean
   filtersResetActionPosition?: 'header' | 'footer'
   extremePaginationLinks?: boolean
-  filtersLayout?: 'dropdown' | 'above-content' | 'above-content-collapsible' | 'below-content' | 'modal'
+  filtersLayout?: 'dropdown' | 'chips' | 'above-content' | 'above-content-collapsible' | 'below-content' | 'modal'
   striped?: boolean
   rowClasses?: Record<string, string>
   query: QueryState | null
