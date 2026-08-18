@@ -133,12 +133,13 @@ onBeforeUnmount(() => nestedUnsubscribers.forEach(unsubscribe => unsubscribe()))
         tabindex="-1"
         @keydown="keydown"
       >
-        <header :class="['p-6', modal.stickyHeader ? 'sticky top-0 z-10 border-b border-(--inlay-border) bg-(--inlay-surface) pb-4' : 'pb-0']" data-slot="action-dialog-header">
+        <header :class="['relative border-b border-(--inlay-border) p-5', modal.stickyHeader ? 'sticky top-0 z-10 bg-(--inlay-surface) pb-4' : '']" data-slot="action-dialog-header">
           <span v-if="modal.icon" aria-hidden="true" class="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-(--inlay-surface-muted)" :data-color="modal.iconColor ?? undefined">{{ modal.icon }}</span>
           <h2 :id="titleId" class="text-lg font-semibold">{{ modal.heading }}</h2>
           <p v-if="modal.description" :id="descriptionId" class="mt-2 text-sm text-(--inlay-muted)">{{ modal.description }}</p>
+          <button aria-label="Close dialog" class="absolute right-5 top-5 inline-flex size-11 items-center justify-center rounded-(--inlay-radius) border border-transparent text-(--inlay-muted) hover:border-(--inlay-border) hover:bg-(--inlay-surface-muted) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" data-modal-role="close" :disabled="processing" type="button" @click="cancel">×</button>
         </header>
-        <div class="px-6 pb-6" data-slot="action-dialog-body">
+        <div class="px-5 pb-5" data-slot="action-dialog-body">
           <p v-if="controller.state.value.phase === 'mounting'" class="mt-4 text-sm text-(--inlay-muted)" role="status">Loading form…</p>
           <div v-else-if="controller.state.value.form" class="mt-4 text-left" data-slot="action-dialog-content">
             <component :is="formRenderer" v-if="formRenderer" :controller="controller" />
@@ -151,7 +152,7 @@ onBeforeUnmount(() => nestedUnsubscribers.forEach(unsubscribe => unsubscribe()))
           <p v-if="controller.state.value.phase === 'halted' && controller.state.value.message" class="mt-4 rounded-md bg-(--inlay-warning-surface) p-3 text-sm text-(--inlay-warning)" role="status">{{ controller.state.value.message }}</p>
           <p v-if="processing" class="mt-4 text-sm text-(--inlay-muted)" role="status">Processing…</p>
         </div>
-        <footer :class="['flex gap-2 p-6', modal.stickyFooter ? 'sticky bottom-0 z-10 border-t border-(--inlay-border) bg-(--inlay-surface) pt-4' : 'pt-5', modal.alignment === 'center' ? 'justify-center' : 'justify-end']" data-slot="action-dialog-footer">
+        <footer :class="['flex gap-2 border-t border-(--inlay-border) px-5 pb-5 pt-4', modal.stickyFooter ? 'sticky bottom-0 z-10 bg-(--inlay-surface)' : '', modal.alignment === 'center' ? 'justify-center' : 'justify-end']" data-slot="action-dialog-footer">
           <ModalFooterAction v-if="modal.cancelAction" :action="modal.cancelAction" :disabled="processing" modal-role="cancel" @activate="cancel" />
           <ModalFooterAction v-for="footerAction in modal.extraFooterActions" :key="footerAction.instanceKey ?? footerAction.name" :action="footerAction" :disabled="processing" :modal-role="footerAction.modalFooterMode === 'action' ? 'extra-action' : 'extra-submit'" @activate="footerAction.modalFooterMode === 'action' ? openNested(footerAction) : controller.confirm(footerAction.arguments)" />
           <ModalFooterAction v-if="modal.submitAction" :action="modal.submitAction" :disabled="processing" :processing="processing" modal-role="submit" @activate="controller.confirm(modal.submitAction?.arguments)" />

@@ -1025,7 +1025,7 @@ export function Table({
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
           {(resource.searchable ?? resource.columns.some((column) => column.searchable)) ? (
-            <label className="min-w-0 flex-[1_1_18rem]">
+            <label className="w-full max-w-72 flex-none">
               <span className="sr-only">Search</span>
               <input
                 aria-label="Search"

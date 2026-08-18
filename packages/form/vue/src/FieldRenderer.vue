@@ -355,9 +355,9 @@ function handleFocusOut(event: FocusEvent) {
   <div v-else ref="fieldRoot" v-bind="safeExtraAttributes(component.extraAttributes)" :class="`min-w-0 ${classNames?.field ?? ''} ${component.columnSpanFull ? 'col-span-full' : `${responsivePlacementClasses} ${responsiveFullSpanClasses(component.columnSpan)}`}`" :data-computed="component.computed ? 'true' : undefined" data-slot="field" :data-live-debounce="live?.debounce ?? undefined" :data-live-mode="live?.mode" :style="component.columnSpanFull ? undefined : placementStyles(component)" @focusout="handleFocusOut">
     <div :class="[component.inlineLabel ? 'sm:grid sm:grid-cols-[minmax(10rem,0.36fr)_minmax(0,1fr)] sm:items-start sm:gap-x-6' : '', classNames?.fieldHeader]" :data-inline-label="component.inlineLabel ? 'true' : undefined">
       <div :class="['flex min-w-0 items-center gap-2', component.inlineLabel ? 'sm:min-h-10 sm:pt-2' : '']" data-slot="label-row">
-        <label :class="['text-base font-medium text-(--inlay-text) sm:text-sm', component.hiddenLabel ? 'sr-only' : '', classNames?.label]" :for="id" :id="`${id}-label`" data-slot="label">{{ component.label }}<span v-if="markedAsRequired" aria-hidden="true"> *</span></label>
+        <label :class="['text-xs leading-5 font-medium text-(--inlay-text)', component.hiddenLabel ? 'sr-only' : '', classNames?.label]" :for="id" :id="`${id}-label`" data-slot="label">{{ component.label }}<span v-if="markedAsRequired" aria-hidden="true"> *</span></label>
         <span v-if="component.hintActions?.length" class="inline-flex shrink-0 items-center gap-1" data-slot="hint-actions"><ActionButton v-for="action in component.hintActions" :key="action.instanceKey ?? action.name" :action="action" :executor="actionExecutor ?? executeAction" /></span>
-        <span v-if="component.hint || component.hintIcon" :class="['inline-flex min-w-0 items-center gap-1 text-sm leading-5', hintTone(component.hintColor)]" data-slot="hint"><span v-if="component.hintIcon" aria-hidden="true" :data-icon="component.hintIcon" data-slot="hint-icon" /><span class="truncate">{{ component.hint }}</span></span>
+        <span v-if="component.hint || component.hintIcon" :class="['inline-flex min-w-0 items-center gap-1 text-xs leading-5', hintTone(component.hintColor)]" data-slot="hint"><span v-if="component.hintIcon" aria-hidden="true" :data-icon="component.hintIcon" data-slot="hint-icon" /><span class="truncate">{{ component.hint }}</span></span>
       </div>
     <div :class="[component.inlineLabel ? 'mt-2 sm:col-start-2 sm:mt-0' : 'mt-2', classNames?.controlWrapper]" data-slot="control-wrapper">
       <div :class="component.prefix || component.prefixIcon || component.suffix || component.suffixIcon || component.prefixActions?.length || component.suffixActions?.length ? 'flex min-w-0 items-center gap-2' : 'block'">
@@ -451,7 +451,7 @@ function handleFocusOut(event: FocusEvent) {
       <ActionButton v-for="action in component.suffixActions ?? []" :key="action.instanceKey ?? action.name" :action="action" :executor="actionExecutor ?? executeAction"><span v-if="action.icon" aria-hidden="true" :data-icon="action.icon">{{ action.icon }}</span><span v-if="action.icon" class="sr-only">{{ action.label }}</span><template v-else>{{ action.label }}</template></ActionButton>
       </div>
     </div>
-      <p v-if="component.helperText" :id="`${id}-helper-text`" :class="['mt-1 text-base text-(--inlay-muted) sm:col-start-2 sm:text-sm', classNames?.helperText]" data-slot="helper-text">{{ component.helperText }}</p><p v-if="errors[path]" :id="`${id}-error`" :class="['mt-1 text-base text-(--inlay-danger) sm:col-start-2 sm:text-sm', classNames?.error]" data-slot="error" role="alert">{{ errors[path] }}</p>
+      <p v-if="component.helperText" :id="`${id}-helper-text`" :class="['mt-1 text-xs leading-5 text-(--inlay-muted) sm:col-start-2', classNames?.helperText]" data-slot="helper-text">{{ component.helperText }}</p><p v-if="errors[path]" :id="`${id}-error`" :class="['mt-1 text-xs leading-5 text-(--inlay-danger) sm:col-start-2', classNames?.error]" data-slot="error" role="alert">{{ errors[path] }}</p>
     </div>
   </div>
 </template>

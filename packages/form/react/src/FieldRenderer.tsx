@@ -77,11 +77,11 @@ function FieldShell({ field, path, error, children, onBlur, actionExecutor, clas
     <div {...extra.attributes} className={`min-w-0 ${field.columnSpanFull ? 'col-span-full' : `${responsivePlacementClasses} ${responsiveFullSpanClasses(field.columnSpan)}`} ${classNames?.field ?? ''} ${extra.className}`.trim()} data-computed={field.computed ? 'true' : undefined} data-field={field.name} data-slot="field" onBlur={onBlur} style={field.columnSpanFull ? undefined : placementStyles(field)}>
       <div className={`${field.inlineLabel ? 'sm:grid sm:grid-cols-[minmax(10rem,0.36fr)_minmax(0,1fr)] sm:items-start sm:gap-x-6' : ''} ${classNames?.fieldHeader ?? ''}`.trim()} data-inline-label={field.inlineLabel ? 'true' : undefined}>
         <div className={`flex min-w-0 items-center gap-2 ${field.inlineLabel ? 'sm:min-h-10 sm:pt-2' : ''}`.trim()} data-slot="label-row">
-          <label className={`text-base leading-5 font-medium text-(--inlay-text) sm:text-sm ${field.hiddenLabel ? 'sr-only' : ''} ${classNames?.label ?? ''}`.trim()} data-slot="label" htmlFor={id} id={`${id}-label`}>
+          <label className={`text-xs leading-5 font-medium text-(--inlay-text) ${field.hiddenLabel ? 'sr-only' : ''} ${classNames?.label ?? ''}`.trim()} data-slot="label" htmlFor={id} id={`${id}-label`}>
             {field.label}{field.markedAsRequired ? <span aria-hidden="true"> *</span> : null}
           </label>
           {field.hintActions?.length ? <span className="inline-flex shrink-0 items-center gap-1" data-slot="hint-actions"><AffixActions actions={field.hintActions} runtime={runtime} /></span> : null}
-          {field.hint || field.hintIcon ? <span className={`inline-flex min-w-0 items-center gap-1 text-sm leading-5 ${hintTone(field.hintColor)}`} data-slot="hint">
+          {field.hint || field.hintIcon ? <span className={`inline-flex min-w-0 items-center gap-1 text-xs leading-5 ${hintTone(field.hintColor)}`} data-slot="hint">
             {field.hintIcon ? <span aria-hidden="true" data-icon={field.hintIcon} data-slot="hint-icon" /> : null}
             <span className="truncate">{field.hint}</span>
           </span> : null}
@@ -90,8 +90,8 @@ function FieldShell({ field, path, error, children, onBlur, actionExecutor, clas
         {field.prefix || field.prefixIcon || field.suffix || field.suffixIcon || field.prefixActions?.length || field.suffixActions?.length ? <div className="flex min-w-0 items-center gap-2"><FieldIcon name={field.prefixIcon} icons={icons} registries={registries} slot="prefix" /><span className="text-sm text-(--inlay-muted)">{field.prefix}</span><AffixActions actions={field.prefixActions} runtime={runtime} /><div className="min-w-0 flex-1">{children}</div><span className="text-sm text-(--inlay-muted)">{field.suffix}</span><FieldIcon name={field.suffixIcon} icons={icons} registries={registries} slot="suffix" /><AffixActions actions={field.suffixActions} runtime={runtime} /></div> : children}
         <ActionDialog runtime={runtime}>{dialogRuntime => <ActionForm runtime={dialogRuntime} />}</ActionDialog>
       </div>
-        {field.helperText ? <p className={`mt-1.5 text-base leading-5 text-(--inlay-muted) sm:col-start-2 sm:text-sm ${classNames?.helperText ?? ''}`.trim()} data-slot="helper-text" id={`${id}-helper-text`}>{field.helperText}</p> : null}
-        {error ? <p className={`mt-1.5 text-base leading-5 text-(--inlay-danger) sm:col-start-2 sm:text-sm ${classNames?.error ?? ''}`.trim()} data-slot="error" id={`${id}-error`} role="alert">{error}</p> : null}
+        {field.helperText ? <p className={`mt-1 text-xs leading-5 text-(--inlay-muted) sm:col-start-2 ${classNames?.helperText ?? ''}`.trim()} data-slot="helper-text" id={`${id}-helper-text`}>{field.helperText}</p> : null}
+        {error ? <p className={`mt-1 text-xs leading-5 text-(--inlay-danger) sm:col-start-2 ${classNames?.error ?? ''}`.trim()} data-slot="error" id={`${id}-error`} role="alert">{error}</p> : null}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/permission-manager-react",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "React role and permission management screens for Inlay panels.",
   "license": "MIT",
   "type": "module",

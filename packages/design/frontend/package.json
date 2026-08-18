@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/design",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "Inlay design-system façade, theme helpers, and shared UI recipes.",
   "license": "MIT",
   "type": "module",

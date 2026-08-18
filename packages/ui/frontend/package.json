@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/ui",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "Renderer-neutral control and button class vocabulary shared by Inlay's React and Vue packages.",
   "type": "module",
   "sideEffects": false,

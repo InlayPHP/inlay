@@ -31,6 +31,14 @@ function logout(): void {
                 <strong class="font-semibold text-(--inlay-text)">Administration</strong>
             </nav>
         </template>
+        <template #sidebar-footer="{ context }">
+            <div v-if="context.collapsed" aria-label="Current workspace" class="grid size-10 place-items-center self-center rounded-(--inlay-radius) border border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-hover) text-sm font-semibold text-(--inlay-panel-sidebar-active-foreground)" data-slot="workspace-card">I</div>
+            <div v-else class="rounded-(--inlay-radius) border border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-hover) p-3" data-slot="workspace-card">
+                <div class="mb-2 flex items-center justify-between"><span class="text-[11px] text-(--inlay-panel-sidebar-muted)">Current workspace</span><span aria-label="Connected" class="size-2 rounded-full bg-(--inlay-panel-success) shadow-[0_0_0_3px_var(--inlay-panel-success-surface)]" /></div>
+                <p class="text-sm font-semibold text-(--inlay-panel-sidebar-text)">{{ page.props.inlayPanel.brandName ?? 'Inlay' }}</p>
+                <p class="text-[11px] text-(--inlay-panel-sidebar-muted)">Production</p>
+            </div>
+        </template>
         <template #header-end>
             <div class="flex items-center gap-3">
                 <div class="hidden text-right sm:block">

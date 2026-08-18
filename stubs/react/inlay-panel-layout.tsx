@@ -28,6 +28,15 @@ export default function InlayPanelLayout({ children }: PropsWithChildren) {
             <strong className="font-semibold text-(--inlay-text)">Administration</strong>
           </nav>
         ),
+        sidebarFooter: ({ collapsed }) => collapsed ? (
+          <div aria-label="Current workspace" className="grid size-10 place-items-center self-center rounded-(--inlay-radius) border border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-hover) text-sm font-semibold text-(--inlay-panel-sidebar-active-foreground)" data-slot="workspace-card">I</div>
+        ) : (
+          <div className="rounded-(--inlay-radius) border border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-hover) p-3" data-slot="workspace-card">
+            <div className="mb-2 flex items-center justify-between"><span className="text-[11px] text-(--inlay-panel-sidebar-muted)">Current workspace</span><span aria-label="Connected" className="size-2 rounded-full bg-(--inlay-panel-success) shadow-[0_0_0_3px_var(--inlay-panel-success-surface)]" /></div>
+            <p className="text-sm font-semibold text-(--inlay-panel-sidebar-text)">{inlayPanel.brandName ?? 'Inlay'}</p>
+            <p className="text-[11px] text-(--inlay-panel-sidebar-muted)">Production</p>
+          </div>
+        ),
         headerEnd: (
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">

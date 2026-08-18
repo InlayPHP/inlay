@@ -1161,7 +1161,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
       <div class="flex min-w-0 flex-1 flex-wrap items-center gap-3">
         <label
           v-if="resource.searchable ?? resource.columns.some((column) => column.searchable)"
-          class="min-w-0 flex-[1_1_18rem]"
+          class="w-full max-w-72 flex-none"
         >
           <span class="sr-only">Search</span>
           <input
