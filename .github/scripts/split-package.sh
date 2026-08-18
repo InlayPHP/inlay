@@ -42,5 +42,11 @@ fi
 git -c credential.helper= push --force "$remote_url" "${split_sha}:refs/heads/main"
 
 if [[ -n "${SPLIT_TAG:-}" ]]; then
-    git -c credential.helper= push --force "$remote_url" "${split_sha}:refs/tags/${SPLIT_TAG}"
+    # Packagist indexes annotated release tags reliably. Create the tag object
+    # locally, push that object to the mirror, then remove the temporary ref.
+    temporary_tag="inlay-split-${SPLIT_REPOSITORY}-${SPLIT_TAG}"
+    git tag --force --annotate "$temporary_tag" "$split_sha" --message "$SPLIT_TAG"
+    tag_sha="$(git rev-parse "$temporary_tag")"
+    git -c credential.helper= push --force "$remote_url" "${tag_sha}:refs/tags/${SPLIT_TAG}"
+    git tag --delete "$temporary_tag" >/dev/null
 fi
