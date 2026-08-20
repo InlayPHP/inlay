@@ -151,6 +151,8 @@ export type QueryGroup = { boolean: 'and' | 'or'; children: Array<QueryRule | Qu
 
 export type Action = ActionResource
 export type BulkActionDefinition = Action | ActionGroupResource
+/** Row-scoped actions may be plain actions or grouped dropdown triggers. */
+export type RowActionDefinition = Action | ActionGroupResource
 
 export type Pagination = {
   mode?: 'length-aware' | 'simple' | 'cursor' | 'none'
@@ -184,7 +186,7 @@ export type TableResource = {
   columnGroups?: ColumnGroup[]
   filters: Filter[]
   filterIndicators?: FilterIndicator[]
-  actions: Action[]
+  actions: RowActionDefinition[]
   actionsPosition?: 'before-cells' | 'before-columns' | 'after-columns' | 'after-cells'
   headerActions: Action[]
   bulkActions: BulkActionDefinition[]

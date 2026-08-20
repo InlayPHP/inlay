@@ -20,7 +20,7 @@ describe('@inlayphp/design', () => {
     expect(orbitTheme.name).toBe('orbit')
     expect(defaultTheme.tokens.accent).toBe('#5b64db')
     expect(controlClass).toContain('min-h-(--inlay-control-height)')
-    expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring-color)')
+    expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring)')
     expect(cardClass).toContain('bg-(--inlay-surface)')
     expect(tableCellClass).toContain('min-w-0')
     expect(recipes.spacing.card).toContain('--inlay-space-card')

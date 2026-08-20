@@ -189,7 +189,7 @@ describe('MediaPicker and page integration', () => {
     expect(picker).toHaveClass('max-h-[min(90dvh,60rem)]', 'min-w-0')
     expect(picker).toHaveStyle({ '--inlay-accent': '#7c3aed', '--inlay-control-height': '3rem' })
     expect(picker.querySelector('header')).toHaveClass('flex-wrap')
-    expect(screen.getByRole('button', { name: 'Use selected' })).toHaveClass('min-h-(--inlay-button-height)', 'focus-visible:ring-(--inlay-focus-ring-color)')
+    expect(screen.getByRole('button', { name: 'Use selected' })).toHaveClass('min-h-(--inlay-button-height)', 'focus-visible:ring-(--inlay-focus-ring)')
     expect(screen.getByRole('button', { name: 'Use selected' })).toBeDisabled()
     await user.click(screen.getByRole('option', { name: /mountain.jpg/ }))
     expect(screen.getByText('1 selected')).toBeInTheDocument()

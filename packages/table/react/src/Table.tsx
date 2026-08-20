@@ -5,6 +5,7 @@ import type { ThemeSource } from "@inlayphp/theme";
 import { ActionDialog, useActionRuntime } from "@inlayphp/actions-react";
 import { ActionForm, SchemaRenderer } from "@inlayphp/forms-react";
 import { downloadAction, executeActionEndpoint, interpolateActionUrl, matchesActionKeyBinding } from "@inlayphp/actions";
+import type { ActionGroupResource } from "@inlayphp/actions";
 import { Select, buttonBaseClass, buttonDangerClass, buttonPrimaryClass, buttonSecondaryClass, controlClass, resolveIcon } from "@inlayphp/ui-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
@@ -21,6 +22,7 @@ import type {
   QueryGroup,
   QueryRule,
   QueryState,
+  RowActionDefinition,
   SummaryResult,
   TableResource,
   TableRow,
@@ -137,18 +139,18 @@ const primaryButton = `${buttonPrimaryClass} gap-1.5 font-semibold`;
 const dangerButton = `${buttonDangerClass} gap-1.5 font-semibold`;
 const actionButtonBase = `${buttonBaseClass} gap-1.5 font-semibold`;
 const actionColors: Record<string, string> = {
-  default: "border-(--inlay-control-border) bg-(--inlay-surface) text-(--inlay-text) hover:bg-(--inlay-hover)",
-  primary: "border-(--inlay-accent) bg-(--inlay-accent) text-(--inlay-accent-foreground) hover:brightness-95",
-  danger: "border-(--inlay-danger)/25 bg-(--inlay-danger-surface) text-(--inlay-danger) hover:border-(--inlay-danger)/45",
-  success: "border-(--inlay-success)/25 bg-(--inlay-success-surface) text-(--inlay-success) hover:brightness-95",
-  warning: "border-(--inlay-warning)/25 bg-(--inlay-warning-surface) text-(--inlay-warning) hover:brightness-95",
-  info: "border-(--inlay-info)/25 bg-(--inlay-info-surface) text-(--inlay-info) hover:brightness-95",
-  gray: "border-(--inlay-control-border) bg-(--inlay-surface-muted) text-(--inlay-muted) hover:text-(--inlay-text)",
+  default: "border-(--inlay-border) bg-(--inlay-surface) text-(--inlay-fg-strong) hover:border-(--inlay-border-strong) hover:bg-(--inlay-surface-subtle)",
+  primary: "border-(--inlay-accent) bg-(--inlay-accent) text-(--inlay-accent-foreground) hover:border-(--inlay-accent-strong) hover:bg-(--inlay-accent-strong)",
+  danger: "border-(--inlay-danger-strong)/40 bg-(--inlay-danger-surface) text-(--inlay-danger-strong) hover:brightness-95",
+  success: "border-(--inlay-success-strong)/40 bg-(--inlay-success-surface) text-(--inlay-success-strong) hover:brightness-95",
+  warning: "border-(--inlay-warning-strong)/40 bg-(--inlay-warning-surface) text-(--inlay-warning-strong) hover:brightness-95",
+  info: "border-(--inlay-info-strong)/40 bg-(--inlay-info-surface) text-(--inlay-info-strong) hover:brightness-95",
+  gray: "border-transparent bg-transparent text-(--inlay-muted-strong) hover:border-(--inlay-border) hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong)",
 };
 const actionOutlines: Record<string, string> = {
   ...actionColors,
   primary: "border-(--inlay-accent) bg-transparent text-(--inlay-accent) hover:bg-(--inlay-hover)",
-  danger: "border-(--inlay-danger)/35 bg-transparent text-(--inlay-danger) hover:bg-(--inlay-danger-surface)",
+  danger: "border-(--inlay-danger-strong) bg-transparent text-(--inlay-danger-strong) hover:bg-(--inlay-danger-surface)",
 };
 const actionLinks: Record<string, string> = {
   default: "border-transparent bg-transparent text-(--inlay-text) hover:text-(--inlay-accent)",
@@ -160,13 +162,13 @@ const actionLinks: Record<string, string> = {
   gray: "border-transparent bg-transparent text-(--inlay-muted) hover:text-(--inlay-text)",
 };
 const actionBadges: Record<string, string> = {
-  default: "border-(--inlay-control-border) bg-(--inlay-surface-muted) text-(--inlay-text)",
+  default: "border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-fg-strong)",
   primary: "border-(--inlay-accent)/20 bg-(--inlay-accent)/10 text-(--inlay-accent)",
-  danger: "border-(--inlay-danger)/20 bg-(--inlay-danger-surface) text-(--inlay-danger)",
-  success: "border-(--inlay-success)/20 bg-(--inlay-success-surface) text-(--inlay-success)",
-  warning: "border-(--inlay-warning)/20 bg-(--inlay-warning-surface) text-(--inlay-warning)",
-  info: "border-(--inlay-info)/20 bg-(--inlay-info-surface) text-(--inlay-info)",
-  gray: "border-(--inlay-control-border) bg-(--inlay-surface-muted) text-(--inlay-muted)",
+  danger: "border-(--inlay-danger-strong)/20 bg-(--inlay-danger-surface) text-(--inlay-danger-strong)",
+  success: "border-(--inlay-success-strong)/20 bg-(--inlay-success-surface) text-(--inlay-success-strong)",
+  warning: "border-(--inlay-warning-strong)/20 bg-(--inlay-warning-surface) text-(--inlay-warning-strong)",
+  info: "border-(--inlay-info-strong)/20 bg-(--inlay-info-surface) text-(--inlay-info-strong)",
+  gray: "border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-muted-strong)",
 };
 const actionGroupPlacements: Record<string, string> = {
   "top-start": "bottom-full left-0 mb-2",
@@ -612,7 +614,7 @@ export function Table({
     }
   };
   const rowHasInteractiveTarget = (target: EventTarget | null) =>
-    target instanceof Element && target.closest("a, button, input, select, textarea, label, [data-no-record-click]") !== null;
+    target instanceof Element && target.closest("a, button, input, select, textarea, label, summary, [data-no-record-click]") !== null;
   const isLoading = loading || Boolean(resource.deferLoading && !query.loaded);
 
   const execute = (action: Action, rows: TableRow[]) => {
@@ -704,7 +706,7 @@ export function Table({
       <div
         aria-label="Table filters"
         aria-modal={filtersLayout === "modal" ? "true" : undefined}
-        className={`${filtersLayout === "modal" ? "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto shadow-2xl" : "mt-4"} rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface-muted) p-4 shadow-xs sm:p-5 ${panelWidthClass(resource.filtersFormWidth)} ${classNames?.filtersPanel ?? ""}`}
+        className={`${filtersLayout === "modal" ? "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto shadow-2xl" : "mt-4"} rounded-(--inlay-radius-lg) border border-(--inlay-border) bg-(--inlay-surface-muted) p-4 shadow-xs sm:p-5 ${panelWidthClass(resource.filtersFormWidth)} ${classNames?.filtersPanel ?? ""}`}
         data-slot="filters-panel"
         id={`${resource.name}-filters`}
         role={filtersLayout === "modal" ? "dialog" : "region"}
@@ -955,12 +957,14 @@ export function Table({
   // here, so `after-cells` renders where `after-columns` does rather than being
   // refused for a table ported from the documented contract.
   const actionsPosition = resource.actionsPosition === "after-cells" ? "after-columns" : resource.actionsPosition ?? "after-columns";
-  const actionsAt = (slot: string, row: TableRow) => resource.actions.length && actionsPosition === slot ? <td className={`${cardLayout ? "block px-2 py-2" : "w-max min-w-32 whitespace-nowrap border-l border-(--inlay-border) bg-(--inlay-surface) px-3 py-3 group-hover:bg-(--inlay-hover) group-focus-within:bg-(--inlay-hover) lg:sticky lg:right-0 lg:z-10 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]"} text-right ${classNames?.cell ?? ""}`}><div className={`flex items-center justify-end gap-1.5 whitespace-nowrap ${classNames?.rowActions ?? ""}`} data-slot="row-actions">
-        {resource.actions.filter((action) => actionVisible(action.visibleWhen, row)).map((action) => <ActionButton action={action} key={action.instanceKey ?? action.name} onClick={() => execute(action, [row])} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} rows={[row]} />)}
+  const actionsAt = (slot: string, row: TableRow) => resource.actions.length && actionsPosition === slot ? <td className={`${cardLayout ? "block px-2 py-2" : "w-32 min-w-32 max-w-48 whitespace-nowrap bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10"} text-right ${classNames?.cell ?? ""}`}><div className={`flex items-center justify-end gap-1.5 whitespace-nowrap ${classNames?.rowActions ?? ""}`} data-slot="row-actions">
+        {resource.actions.filter((action) => isActionGroup(action) ? rowGroupVisibleActions(action.actions, row).length > 0 : actionVisible(action.visibleWhen, row)).map((action) => isActionGroup(action)
+          ? <RowActionGroupMenu definition={action} execute={execute} key={action.instanceKey ?? action.name} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} row={row} />
+          : <ActionButton action={action} key={action.instanceKey ?? action.name} onClick={() => execute(action, [row])} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} rows={[row]} />)}
       </div></td> : null;
 
   const actionsHeaderAt = (slot: string) => resource.actions.length && actionsPosition === slot ? (<th
-                    className="w-max min-w-32 whitespace-nowrap border-b border-l border-(--inlay-border) bg-(--inlay-surface-muted) px-3 py-2.5 text-right text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase lg:sticky lg:right-0 lg:z-20 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]"
+                    className="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20"
                     rowSpan={hasColumnGroups ? 2 : undefined}
                     scope="col"
                   >
@@ -978,7 +982,7 @@ export function Table({
 
     return (
     <tr
-      className={`group transition-colors hover:bg-(--inlay-hover) focus-within:bg-(--inlay-hover) data-[drag-target=true]:bg-(--inlay-hover) data-[drag-target=true]:outline-2 data-[drag-target=true]:-outline-offset-2 data-[drag-target=true]:outline-(--inlay-accent) ${resource.striped && rowIndex % 2 === 1 ? "bg-(--inlay-surface-muted)" : ""} ${resource.rowClasses?.[String(keyFor(row))] ?? ""} ${gridLayout || customLayout ? "block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-3 shadow-xs" : stackedLayout ? "mb-3 block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-2 shadow-xs sm:mb-0 sm:table-row sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none" : "h-[66px] [&:not(:last-child)>td]:border-b [&:not(:last-child)>td]:border-(--inlay-border)"} ${recordUrl(row) ? "cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--inlay-accent)" : ""} ${classNames?.row ?? ""}`}
+      className={`group transition-colors hover:bg-(--inlay-surface-subtle) focus-within:bg-(--inlay-surface-subtle) data-[drag-target=true]:bg-(--inlay-surface-subtle) data-[drag-target=true]:outline-2 data-[drag-target=true]:-outline-offset-2 data-[drag-target=true]:outline-(--inlay-accent) ${resource.striped && rowIndex % 2 === 1 ? "bg-(--inlay-surface-muted)" : ""} ${resource.rowClasses?.[String(keyFor(row))] ?? ""} ${gridLayout || customLayout ? "block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-3 shadow-xs" : stackedLayout ? "mb-3 block rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-2 shadow-xs sm:mb-0 sm:table-row sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none" : "[&:not(:last-child)>td]:border-b [&:not(:last-child)>td]:border-(--inlay-border)"} ${recordUrl(row) ? "cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" : ""} ${classNames?.row ?? ""}`}
       data-drag-target={reordering && String(dragTargetKey) === String(keyFor(row)) ? "true" : undefined}
       data-row-key={keyFor(row)}
       data-slot="table-row"
@@ -1004,12 +1008,12 @@ export function Table({
     >
       {actionsAt('before-cells', row)}
       {reordering ? <td className="w-32 px-2 py-2"><div className="flex justify-center gap-1"><button aria-label={`Drag row ${keyFor(row)}`} className={`${secondaryButton} min-h-8 cursor-grab px-2 active:cursor-grabbing`} draggable onClick={(event) => event.stopPropagation()} onDragEnd={() => { setDraggedRecordKey(null); setDragTargetKey(null); }} onDragStart={(event) => { event.stopPropagation(); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(keyFor(row))); setDraggedRecordKey(keyFor(row)); }} type="button">⋮⋮</button><button aria-label={`Move row ${keyFor(row)} up`} className={`${secondaryButton} min-h-8 px-2`} disabled={orderedRows[0] === row} onClick={() => moveRecord(row, -1)} type="button">↑</button><button aria-label={`Move row ${keyFor(row)} down`} className={`${secondaryButton} min-h-8 px-2`} disabled={orderedRows[orderedRows.length - 1] === row} onClick={() => moveRecord(row, 1)} type="button">↓</button></div></td> : null}
-      {resource.selectable ? <td className={`${cardLayout ? "block w-full px-2 py-2 sm:w-auto" : "w-12 px-4 py-2.5"} ${classNames?.cell ?? ""}`}>
-        <input aria-describedby={`${resource.name}-selection-status`} aria-label={`Select row ${keyFor(row)}`} checked={isKeySelected(keyFor(row))} className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent) sm:size-4" disabled={!selectableKeys.includes(keyFor(row)) || (!isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum)} onChange={(event) => { const key = keyFor(row); if (allMatchingSelected) setExcluded(event.target.checked ? excluded.filter(item => item !== key) : [...excluded, key]); else setSelected(event.target.checked ? [...selected, key] : selected.filter(item => item !== key)); }} title={!selectableKeys.includes(keyFor(row)) ? 'This record cannot be selected.' : !isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum ? `You can select at most ${selectionMaximum} records.` : undefined} type="checkbox" />
+      {resource.selectable ? <td className={`${cardLayout ? "block w-full px-2 py-2 sm:w-auto" : "w-12 h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle"} ${classNames?.cell ?? ""}`}>
+        <input aria-describedby={`${resource.name}-selection-status`} aria-label={`Select row ${keyFor(row)}`} checked={isKeySelected(keyFor(row))} className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color) sm:size-4" disabled={!selectableKeys.includes(keyFor(row)) || (!isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum)} onChange={(event) => { const key = keyFor(row); if (allMatchingSelected) setExcluded(event.target.checked ? excluded.filter(item => item !== key) : [...excluded, key]); else setSelected(event.target.checked ? [...selected, key] : selected.filter(item => item !== key)); }} title={!selectableKeys.includes(keyFor(row)) ? 'This record cannot be selected.' : !isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum ? `You can select at most ${selectionMaximum} records.` : undefined} type="checkbox" />
       </td> : null}
       {actionsAt('before-columns', row)}
-      {customLayout ? <td className="block p-2" colSpan={columns.length}><div className="grid gap-3" data-slot="column-layout">{resource.columnLayout?.map((component, index) => <ColumnLayoutRenderer component={component} key={index} onChange={(column, value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />)}</div></td> : columns.map((column) => <td {...safeAttributes(cellAttributesFor(row, column))} data-no-record-click={column.disabledClick ? "true" : undefined} className={`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? "sm:table-cell sm:px-4 sm:py-4" : ""}` : "min-w-0 overflow-hidden px-3 py-4 lg:px-4"} text-sm leading-5 text-(--inlay-text) ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? "whitespace-normal" : ""} ${classNames?.cell ?? ""}`} data-slot="table-cell" key={column.name} style={columnDimensionStyle(column)}>
-        {cardLayout ? <span className={`text-left text-xs font-medium text-(--inlay-muted) ${stackedLayout && !gridLayout ? "sm:hidden" : ""}`}>{column.label}</span> : null}<span {...safeAttributes(contentAttributesFor(row, column))} className={`${column.grow === false ? "grow-0" : "min-w-0 grow"} grid gap-1`}>{column.actions?.length ? <ColumnActionGroup actions={column.actions} column={column} execute={execute} row={row}><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></ColumnActionGroup> : column.action ? <button className="w-full cursor-pointer rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" data-slot="column-action" onClick={(event) => { event.stopPropagation(); execute(column.action as Action, [row]); }} type="button"><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></button> : <Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />}{cellErrors[cellKey(row, column)] ? <span className="text-xs text-(--inlay-danger)" role="alert">{cellErrors[cellKey(row, column)]}</span> : null}</span>
+      {customLayout ? <td className="block p-2" colSpan={columns.length}><div className="grid gap-3" data-slot="column-layout">{resource.columnLayout?.map((component, index) => <ColumnLayoutRenderer component={component} key={index} onChange={(column, value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />)}</div></td> : columns.map((column) => <td {...safeAttributes(cellAttributesFor(row, column))} data-no-record-click={column.disabledClick ? "true" : undefined} className={`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? "sm:table-cell sm:h-(--inlay-table-row-height) sm:px-(--inlay-space-table-x) sm:align-middle" : ""}` : "min-w-0 overflow-hidden h-(--inlay-table-row-height) px-(--inlay-space-table-x)"} text-xs text-(--inlay-muted-strong) ${column.numeric || column.money ? "tabular-nums" : ""} ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? "whitespace-normal" : ""} ${classNames?.cell ?? ""}`} data-slot="table-cell" key={column.name} style={columnDimensionStyle(column)}>
+        {cardLayout ? <span className={`text-left text-xs font-medium text-(--inlay-muted) ${stackedLayout && !gridLayout ? "sm:hidden" : ""}`}>{column.label}</span> : null}<span {...safeAttributes(contentAttributesFor(row, column))} className={`${column.grow === false ? "grow-0" : "min-w-0 grow"} grid gap-1`}>{column.actions?.length ? <ColumnActionGroup actions={column.actions} column={column} execute={execute} row={row}><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></ColumnActionGroup> : column.action ? <button className="w-full cursor-pointer rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" data-slot="column-action" onClick={(event) => { event.stopPropagation(); execute(column.action as Action, [row]); }} type="button"><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></button> : <Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />}{cellErrors[cellKey(row, column)] ? <span className="text-xs text-(--inlay-danger)" role="alert">{cellErrors[cellKey(row, column)]}</span> : null}</span>
       </td>)}
       {actionsAt('after-columns', row)}
     </tr>
@@ -1033,7 +1037,7 @@ export function Table({
         </div>
       ) : null}
       <div
-        className={`flex flex-col gap-3 border-b border-(--inlay-border) pb-4 lg:flex-row lg:items-start lg:justify-between ${classNames?.toolbar ?? ""}`}
+        className={`flex min-h-(--inlay-control-height) flex-col gap-3 border-b border-(--inlay-border) pb-4 lg:flex-row lg:items-start lg:justify-between ${classNames?.toolbar ?? ""}`}
         data-slot="toolbar"
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
@@ -1061,7 +1065,7 @@ export function Table({
               />
           </label>
         ) : null}
-          {filtersLayout === "chips" && chipFilters.length ? <div aria-label="Table filters" className="flex flex-wrap gap-1.5" data-slot="filter-chips" role="group">{chipFilters.flatMap((filter) => [{ value: "", label: "All" }, ...(filter.options ?? [])].map((option) => <button aria-pressed={chipSelected(filter, option.value)} className={`inline-flex min-h-(--inlay-control-height) items-center justify-center gap-1.5 rounded-full border px-2.5 py-1 text-xs text-(--inlay-muted) transition ${chipSelected(filter, option.value) ? 'border-(--inlay-accent)/30 bg-(--inlay-accent)/10 font-semibold text-(--inlay-accent)' : 'border-(--inlay-border) bg-(--inlay-surface) hover:border-(--inlay-control-border) hover:text-(--inlay-text)'}`} key={`${filter.name}:${option.value}`} onClick={() => chooseChip(filter, option.value)} type="button">{option.label}</button>))}</div> : null}
+          {filtersLayout === "chips" && chipFilters.length ? <div aria-label="Table filters" className="flex flex-wrap gap-1.5" data-slot="filter-chips" role="group">{chipFilters.flatMap((filter) => [{ value: "", label: "All" }, ...(filter.options ?? [])].map((option) => <button aria-pressed={chipSelected(filter, option.value)} className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border px-2.5 text-[11px] transition ${chipSelected(filter, option.value) ? 'border-(--inlay-accent-border) bg-(--inlay-accent-soft) font-semibold text-(--inlay-accent-strong)' : 'border-(--inlay-border) bg-(--inlay-surface) text-(--inlay-muted-strong) hover:border-(--inlay-border-strong) hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong)'}`} key={`${filter.name}:${option.value}`} onClick={() => chooseChip(filter, option.value)} type="button">{option.label}</button>))}</div> : null}
           {resource.views?.length ? (
             <div className="min-w-0 flex-[1_1_12rem]">
               <span className="sr-only">Saved view</span>
@@ -1088,7 +1092,7 @@ export function Table({
               {activeFilters.length ? (
                 <span
                   aria-label={`${activeFilters.length} active filters`}
-                  className="rounded-full bg-(--inlay-accent) px-1.5 py-0.5 text-xs text-(--inlay-accent-foreground)"
+                  className="rounded-full bg-(--inlay-accent) px-2 py-0.5 text-xs text-(--inlay-accent-foreground)"
                 >
                   {activeFilters.length}
                 </span>
@@ -1299,19 +1303,19 @@ export function Table({
             data-slot="table"
           >
             <thead
-              className={`${gridLayout || customLayout ? "hidden" : stackedLayout ? "hidden bg-(--inlay-surface-muted) sm:table-header-group" : "bg-(--inlay-surface-muted)"} ${classNames?.head ?? ""}`}
+              className={`${gridLayout || customLayout ? "hidden" : stackedLayout ? "hidden bg-(--inlay-surface-subtle) sm:table-header-group" : "bg-(--inlay-surface-subtle)"} ${classNames?.head ?? ""}`}
               data-slot="table-head"
             >
               <tr>
                 {actionsHeaderAt('before-cells')}
-                {reordering ? <th className="w-32 border-b border-(--inlay-border) px-2 py-2.5" rowSpan={hasColumnGroups ? 2 : undefined}><span className="sr-only">Reorder controls</span></th> : null}
+                {reordering ? <th className="w-32 border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-2 align-middle" rowSpan={hasColumnGroups ? 2 : undefined}><span className="sr-only">Reorder controls</span></th> : null}
                 {resource.selectable ? (
-                  <th className="w-12 border-b border-(--inlay-border) px-4 py-2.5" rowSpan={hasColumnGroups ? 2 : undefined}>
+                  <th className="w-12 border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle" rowSpan={hasColumnGroups ? 2 : undefined}>
                     <input
                       aria-label="Select all rows"
                       aria-describedby={`${resource.name}-selection-status`}
                       checked={allSelectableSelected}
-                      className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent) sm:size-4"
+                      className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color) sm:size-4"
                       disabled={selectableKeys.length === 0}
                       onChange={(event) => { setAllMatchingSelected(false); setExcluded([]); setSelected(event.target.checked ? selectAllKeys : []); }}
                       ref={selectAllRef}
@@ -1320,7 +1324,7 @@ export function Table({
                   </th>
                 ) : null}
                 {actionsHeaderAt('before-columns')}
-                {hasColumnGroups ? headerSegments.map((segment, index) => segment.group ? <th className={`border-b border-(--inlay-border) px-4 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase ${alignmentClass(segment.group.alignment)} ${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'}`} colSpan={segment.columns.length} key={`${segment.group.label}-${index}`} scope="colgroup" title={segment.group.tooltip ?? undefined}>{segment.group.label}</th> : <ColumnHeaderCell column={segment.columns[0]} key={segment.columns[0].name} onQueryChange={changeQuery} query={query} rowSpan={2} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />)}
+                {hasColumnGroups ? headerSegments.map((segment, index) => segment.group ? <th className={`border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(segment.group.alignment)} ${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'}`} colSpan={segment.columns.length} key={`${segment.group.label}-${index}`} scope="colgroup" title={segment.group.tooltip ?? undefined}>{segment.group.label}</th> : <ColumnHeaderCell column={segment.columns[0]} key={segment.columns[0].name} onQueryChange={changeQuery} query={query} rowSpan={2} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />)}
                 {actionsHeaderAt('after-columns')}
               </tr>
               {hasColumnGroups ? <tr>{headerSegments.flatMap((segment) => segment.group ? segment.columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : [])}</tr> : null}
@@ -1330,7 +1334,7 @@ export function Table({
                 const collapsed = collapsedGroups.includes(bucket.key);
                 const bucketRows = orderedRows.filter((row) => bucket.rowKeys.includes(String(keyFor(row))));
                 return <Fragment key={bucket.key}>
-                  <tr className="bg-(--inlay-surface-muted)" data-slot="group-header"><th className="whitespace-normal px-4 py-3 text-left" colSpan={columns.length + (reordering ? 1 : 0) + (resource.selectable ? 1 : 0) + (resource.actions.length ? 1 : 0)} scope="rowgroup">
+                  <tr className="bg-(--inlay-surface-muted)" data-slot="group-header"><th className="whitespace-normal h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-left" colSpan={columns.length + (reordering ? 1 : 0) + (resource.selectable ? 1 : 0) + (resource.actions.length ? 1 : 0)} scope="rowgroup">
                     <button className="flex w-full items-start justify-between gap-4 text-left" disabled={!resource.grouping?.active?.collapsible} onClick={() => setCollapsedGroups(collapsed ? collapsedGroups.filter((key) => key !== bucket.key) : [...collapsedGroups, bucket.key])} type="button">
                       <span><span className="font-semibold text-(--inlay-text)">{bucket.title}</span>{bucket.description ? <span className="mt-0.5 block text-sm font-normal text-(--inlay-muted)">{bucket.description}</span> : null}</span>
                       <span className="text-sm font-normal text-(--inlay-muted)">{summaryText(bucket.summaries)}{resource.grouping?.active?.collapsible ? ` ${collapsed ? "▾" : "▴"}` : ""}</span>
@@ -1343,7 +1347,7 @@ export function Table({
             {hasSummaryRows ? <tfoot className="bg-(--inlay-surface-muted)" data-slot="summaries"><tr>
               {reordering ? <td /> : null}
               {resource.selectable ? <td /> : null}
-              {columns.map((column) => <td className={`min-w-0 whitespace-normal border-t border-(--inlay-border) px-3 py-3 text-sm lg:px-4 ${alignmentClass(column.alignment)}`} key={column.name}>{summaryItems(summaryQuery[column.name], summaryPage[column.name], !summaryQueryVisible && summaryPageVisible)}</td>)}
+              {columns.map((column) => <td className={`min-w-0 whitespace-normal border-t border-(--inlay-border) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-sm ${column.numeric || column.money ? "tabular-nums" : ""} ${alignmentClass(column.alignment)}`} key={column.name}>{summaryItems(summaryQuery[column.name], summaryPage[column.name], !summaryQueryVisible && summaryPageVisible)}</td>)}
               {resource.actions.length ? <td /> : null}
             </tr></tfoot> : null}
           </table>
@@ -1403,7 +1407,7 @@ function ColumnLayoutRenderer({ component, row, onChange, renderers, registries 
   if (!('schema' in component)) return <div className={`${responsiveColumnClass(component)} ${component.grow === false ? 'grow-0' : 'min-w-0 grow'}`} data-column={component.name}><Cell column={component} onChange={(value) => onChange(component, value)} registries={registries} renderers={renderers} row={row} /></div>;
   const responsive = responsiveLayoutClass(component);
   if (component.type === 'panel-layout') return <div className={`rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface-muted) p-3 ${responsive}`} data-layout="panel">
-    {component.collapsible ? <button aria-expanded={!collapsed} className="mb-2 inline-flex min-h-8 items-center gap-2 rounded-md px-2 text-sm font-medium hover:bg-(--inlay-hover) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" onClick={() => setCollapsed(!collapsed)} type="button">{collapsed ? 'Show details' : 'Hide details'} <span aria-hidden="true">{collapsed ? '▾' : '▴'}</span></button> : null}
+    {component.collapsible ? <button aria-expanded={!collapsed} className="mb-2 inline-flex min-h-8 items-center gap-2 rounded-md px-2 text-sm font-medium hover:bg-(--inlay-hover) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={() => setCollapsed(!collapsed)} type="button">{collapsed ? 'Show details' : 'Hide details'} <span aria-hidden="true">{collapsed ? '▾' : '▴'}</span></button> : null}
     {!collapsed ? <div className="grid gap-2">{component.schema.map((child, index) => <ColumnLayoutRenderer component={child} key={index} onChange={onChange} registries={registries} renderers={renderers} row={row} />)}</div> : null}
   </div>;
   const classes = component.type === 'split-layout'
@@ -1503,8 +1507,9 @@ function Cell({
   if (column.type === "badge-column")
     return (
       <span
-        className={`rounded-full px-2 py-1 text-base font-medium sm:text-sm ${badgeColor(column.colors?.[String(raw)])}`}
+        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${badgeColor(column.colors?.[String(raw)])}`}
       >
+        <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
         {String(column.labels?.[String(raw)] ?? value)}
       </span>
     );
@@ -1531,7 +1536,7 @@ function Cell({
         aria-invalid={Boolean(error)}
         aria-label={`${column.label} for ${row.id}`}
         checked={Boolean(raw)}
-        className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent) sm:size-4"
+        className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color) sm:size-4"
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
         type="checkbox"
@@ -1601,7 +1606,7 @@ function Cell({
   const contentStyle = lineClamp ? { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: lineClamp } as CSSProperties : undefined;
   const main = isSafeUrl(href) ? (
       <a
-        className={`${textColor ? 'text-inherit' : 'text-(--inlay-accent)'} ${contentClass} underline decoration-current/30 underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)`}
+        className={`${textColor ? 'text-inherit' : 'text-(--inlay-accent)'} ${contentClass} underline decoration-current/30 underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)`}
         href={href}
         rel={openUrlInNewTab ? "noreferrer" : undefined}
         style={contentStyle}
@@ -1613,7 +1618,7 @@ function Cell({
     ) : <span className={`${empty && column.placeholder ? 'text-(--inlay-muted)' : ''} ${contentClass}`} style={contentStyle}>{richText && !empty ? <span dangerouslySetInnerHTML={{ __html: String(display) }} /> : display}</span>;
   return <span className="grid min-w-0 w-full max-w-full gap-0.5 overflow-hidden" title={tooltip ?? undefined}>
     {description && column.descriptionPosition === 'above' ? <span className="truncate text-xs text-(--inlay-muted)">{description}</span> : null}
-    <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden"><span className={`${textClasses} ${badge ? `${textBadgeClass(textColor)} rounded-full px-2 py-0.5` : ''} inline-flex min-w-0 max-w-full flex-1 items-center gap-1.5 overflow-hidden`} data-color={textColor ?? undefined} style={textStyle}>{column.iconPosition !== 'after' ? icon : null}{main}{column.iconPosition === 'after' ? icon : null}</span>{copyable ? <button aria-label={`Copy ${column.label}`} className="shrink-0 rounded-sm p-1 text-(--inlay-muted) hover:bg-(--inlay-hover) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" onClick={() => void copy()} title={copyMessage} type="button"><span aria-hidden="true">⎘</span></button> : null}</span>
+    <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden"><span className={`${textClasses} ${badge ? `${textBadgeClass(textColor)} rounded-full px-2 py-0.5` : ''} inline-flex min-w-0 max-w-full flex-1 items-center gap-1.5 overflow-hidden`} data-color={textColor ?? undefined} style={textStyle}>{column.iconPosition !== 'after' ? icon : null}{main}{column.iconPosition === 'after' ? icon : null}</span>{copyable ? <button aria-label={`Copy ${column.label}`} className="shrink-0 rounded-sm p-1 text-(--inlay-muted) hover:bg-(--inlay-hover) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={() => void copy()} title={copyMessage} type="button"><span aria-hidden="true">⎘</span></button> : null}</span>
     {description && column.descriptionPosition !== 'above' ? <span className="truncate text-xs text-(--inlay-muted)">{description}</span> : null}
     {copied ? <span aria-live="polite" className="text-xs text-(--inlay-success)" role="status">{copyMessage}</span> : null}
   </span>;
@@ -1702,7 +1707,7 @@ function FilterControl({
       >
         <input
           checked={booleanValue(value)}
-          className={`size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent) sm:size-4 ${classNames?.filterControl ?? ""}`}
+          className={`size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color) sm:size-4 ${classNames?.filterControl ?? ""}`}
           data-slot="filter-control"
           name={filter.name}
           onChange={(event) => onChange(event.target.checked)}
@@ -1899,7 +1904,7 @@ function ariaKeyShortcuts(bindings: readonly string[] | undefined): string | und
   }).join(" ");
 }
 
-function isActionGroup(definition: BulkActionDefinition): definition is Extract<BulkActionDefinition, { type: 'action-group' }> {
+function isActionGroup(definition: Action | ActionGroupResource): definition is ActionGroupResource {
   return definition.type === 'action-group' && 'actions' in definition;
 }
 
@@ -1986,8 +1991,76 @@ function BulkActionGroupMenu({ definition, rows, count, execute, processing, ren
       {style === "icon-button" ? null : <span aria-hidden="true">⌄</span>}
       {definition.badge == null ? null : <span className={`${style === "icon-button" ? "absolute -right-1 -top-1 min-w-4" : "ml-1"} rounded-full border px-1.5 text-xs font-semibold ${actionBadges[definition.badgeColor ?? "default"] ?? actionBadges.default}`} data-color={definition.badgeColor ?? "default"} data-slot="action-group-badge">{definition.badge}</span>}
     </summary>
-    <div className={`absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-lg ${placement} ${width}`} data-placement={definition.dropdownPlacement ?? "top-start"} data-slot="action-group-menu">
+    <div className={`absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md) ${placement} ${width}`} data-placement={definition.dropdownPlacement ?? "top-start"} data-slot="action-group-menu">
       <BulkActionGroupItems count={count} definition={definition} execute={execute} processing={processing} registries={registries} renderers={renderers} rows={rows} />
+    </div>
+  </details>;
+}
+
+// A row action group is a per-record dropdown trigger. Only the actions a
+// record can actually run appear in its menu, and the group itself disappears
+// when none are visible, so a row never shows a dead "…" button.
+function rowGroupVisibleActions(actions: RowActionDefinition[], row: TableRow): RowActionDefinition[] {
+  return actions.filter((entry) => {
+    if (isActionGroup(entry)) return rowGroupVisibleActions(entry.actions, row).length > 0;
+    return actionVisible(entry.visibleWhen, row);
+  });
+}
+
+function RowActionGroupItems({ definition, row, execute, processing, renderers, registries, onClose, grouped = false }: { definition: ActionGroupResource; row: TableRow; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; onClose?: () => void; grouped?: boolean }) {
+  const visible = rowGroupVisibleActions(definition.actions, row);
+  return <>{visible.map((action, index) => {
+    const groupPosition: ActionGroupPosition | undefined = grouped
+      ? visible.length === 1 ? "single" : index === 0 ? "first" : index === visible.length - 1 ? "last" : "middle"
+      : undefined;
+    return isActionGroup(action)
+      ? <RowActionGroupMenu definition={action} execute={execute} groupPosition={groupPosition} key={action.instanceKey ?? action.name} nested processing={processing} registries={registries} renderers={renderers} row={row} />
+      : <ActionButton action={action} groupPosition={groupPosition} key={action.instanceKey ?? action.name} onClick={() => { onClose?.(); execute(action, [row]); }} processing={processing} registries={registries} renderers={renderers} rows={[row]} />;
+  })}</>;
+}
+
+function RowActionGroupMenu({ definition, row, execute, processing, renderers, registries, nested = false, groupPosition }: { definition: ActionGroupResource; row: TableRow; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; nested?: boolean; groupPosition?: ActionGroupPosition }) {
+  const details = useRef<HTMLDetailsElement>(null);
+  const refused = processing || Boolean(definition.disabled);
+  if (rowGroupVisibleActions(definition.actions, row).length === 0) return null;
+  const close = () => { if (details.current) details.current.open = false; };
+  const style = definition.triggerStyle ?? "button";
+  const icon = definition.icon ? <NamedIcon fallback="◆" name={definition.icon} registries={registries} renderers={renderers} /> : null;
+  const placement = actionGroupPlacements[definition.dropdownPlacement ?? "top-start"] ?? actionGroupPlacements["top-start"];
+  const width = actionGroupWidths[definition.dropdownWidth ?? "sm"] ?? actionGroupWidths.sm;
+
+  if (definition.buttonGroup) {
+    return <div aria-label={definition.label} className="inline-flex max-w-full -space-x-px overflow-x-auto" data-slot="row-action-button-group" role="group">
+      <RowActionGroupItems definition={definition} execute={execute} grouped processing={processing} registries={registries} renderers={renderers} row={row} />
+    </div>;
+  }
+
+  if (definition.dropdown === false) {
+    return <div className={`${nested ? "mt-1 border-t border-(--inlay-border) pt-1" : "flex flex-wrap items-center gap-1"}`} data-slot="row-action-group-section" role={nested ? "group" : undefined}>
+      {nested ? <span className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-(--inlay-muted)">{definition.label}</span> : null}
+      <RowActionGroupItems definition={definition} execute={execute} onClose={close} processing={processing} registries={registries} renderers={renderers} row={row} />
+    </div>;
+  }
+
+  return <details className="group relative" data-slot="row-action-group" ref={details}>
+    <summary
+      aria-disabled={refused || undefined}
+      aria-haspopup="menu"
+      aria-label={style === "icon-button" ? definition.label : undefined}
+      className={`${secondaryButton} relative min-h-(--inlay-button-sm-height) cursor-pointer list-none px-2 text-sm marker:hidden ${refused ? "pointer-events-none opacity-50" : ""} ${style === "icon-button" ? "rounded-full" : "rounded-(--inlay-radius)"}`}
+      data-color={definition.color}
+      data-size={definition.size ?? "medium"}
+      data-slot="action-trigger"
+      data-trigger-style={style}
+      onClick={(event) => { event.stopPropagation(); if (refused) event.preventDefault(); }}
+      title={definition.tooltip ?? undefined}
+    >
+      {style === "icon-button"
+        ? <>{icon ?? <span aria-hidden="true">…</span>}<span className="sr-only">{definition.label}</span></>
+        : <>{definition.iconPosition === "after" ? null : icon}{definition.label}{definition.iconPosition === "after" ? icon : null}<span aria-hidden="true">⌄</span></>}
+    </summary>
+    <div className={`absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md) ${placement} ${width}`} data-placement={definition.dropdownPlacement ?? "top-start"} data-slot="row-action-group-menu">
+      <RowActionGroupItems definition={definition} execute={execute} onClose={close} processing={processing} registries={registries} renderers={renderers} row={row} />
     </div>
   </details>;
 }
@@ -2004,6 +2077,7 @@ const tableIconPaths: Record<string, string[]> = {
   'arrows-up-down': ['M8 5v14', 'm5 8 3-3 3 3', 'm5 16 3 3 3-3', 'M16 5v14', 'm13 8 3-3 3 3', 'm13 16 3 3 3-3'],
   check: ['m5 12 4 4L19 6'],
   x: ['m6 6 12 12', 'm18 6-12 12'],
+  'ellipsis-horizontal': ['M5 12h.01', 'M12 12h.01', 'M19 12h.01'],
 };
 
 // A cell offering several actions opens them in a menu, but each one still
@@ -2017,7 +2091,7 @@ function ColumnActionGroup({ actions, column, row, execute, children }: { action
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label={`${column.label} actions`}
-        className="w-full cursor-pointer rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)"
+        className="w-full cursor-pointer rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)"
         data-slot="column-action"
         onClick={(event) => { event.stopPropagation(); setOpen((current) => !current); }}
         type="button"
@@ -2025,7 +2099,7 @@ function ColumnActionGroup({ actions, column, row, execute, children }: { action
         {children}
       </button>
       {open ? (
-        <span className="absolute left-0 top-full z-30 mt-1 grid min-w-40 gap-0.5 rounded-(--inlay-radius) bg-(--inlay-surface) p-1 shadow-lg ring-1 ring-(--inlay-border)" data-slot="column-actions" role="menu">
+        <span className="absolute left-0 top-full z-30 mt-1 grid min-w-40 gap-0.5 rounded-(--inlay-radius-md) bg-(--inlay-surface) p-1 shadow-(--inlay-shadow-md) ring-1 ring-(--inlay-border)" data-slot="column-actions" role="menu">
           {actions.map((action) => (
             <button
               className="rounded-(--inlay-radius) px-2 py-1 text-left text-sm hover:bg-(--inlay-hover)"
@@ -2120,7 +2194,7 @@ function Pagination({
           : `Page ${current}${mode === "length-aware" ? ` of ${last}` : ""}`;
   const perPageOptions = pagination.perPageOptions ?? [];
   const chooser = perPageOptions.length > 0 ? (
-    <div className="flex items-center gap-2 text-sm text-(--inlay-muted)" data-slot="pagination-per-page">
+    <div className="flex shrink-0 items-center gap-2 text-sm text-(--inlay-muted)" data-slot="pagination-per-page">
       <span>Per page</span>
       <Select
         ariaLabel="Per page"
@@ -2175,7 +2249,7 @@ function Pagination({
       >
         {extremeLinks ? <button
           aria-label="First page"
-          className="grid min-h-8 min-w-8 place-items-center rounded-(--inlay-radius) text-sm disabled:opacity-40"
+          className="grid min-h-(--inlay-button-sm-height) min-w-9 shrink-0 place-items-center rounded-(--inlay-radius) text-sm disabled:opacity-40"
           data-slot="pagination-first"
           disabled={current <= 1}
           onClick={() => setQuery({ page: 1, cursor: null })}
@@ -2185,7 +2259,7 @@ function Pagination({
           page === "ellipsis" ? (
             <span
               aria-hidden="true"
-              className="grid min-w-8 place-items-center text-sm text-(--inlay-muted)"
+              className="grid min-w-9 shrink-0 place-items-center text-sm text-(--inlay-muted)"
               key={`ellipsis-${index}`}
             >
               …
@@ -2194,7 +2268,7 @@ function Pagination({
             <button
               aria-current={page === current ? "page" : undefined}
               aria-label={`Page ${page}`}
-              className="grid min-h-8 min-w-8 place-items-center rounded-[calc(var(--inlay-radius)-0.125rem)] px-2 text-sm font-medium text-(--inlay-muted) transition hover:bg-(--inlay-hover) hover:text-(--inlay-text) aria-current:bg-(--inlay-accent) aria-current:text-(--inlay-accent-foreground) focus-visible:outline-2 focus-visible:outline-(--inlay-accent)"
+              className="grid min-h-(--inlay-button-sm-height) min-w-10 shrink-0 place-items-center rounded-[calc(var(--inlay-radius)-0.125rem)] px-2.5 text-sm font-medium text-(--inlay-muted) transition hover:bg-(--inlay-hover) hover:text-(--inlay-text) aria-current:bg-(--inlay-accent) aria-current:text-(--inlay-accent-foreground) focus-visible:outline-2 focus-visible:outline-(--inlay-focus-ring-color)"
               key={page}
               onClick={() => setQuery({ page, cursor: null })}
               type="button"
@@ -2205,7 +2279,7 @@ function Pagination({
         )}
         {extremeLinks ? <button
           aria-label="Last page"
-          className="grid min-h-8 min-w-8 place-items-center rounded-(--inlay-radius) text-sm disabled:opacity-40"
+          className="grid min-h-(--inlay-button-sm-height) min-w-9 shrink-0 place-items-center rounded-(--inlay-radius) text-sm disabled:opacity-40"
           data-slot="pagination-last"
           disabled={current >= last}
           onClick={() => setQuery({ page: last, cursor: null })}
@@ -2492,9 +2566,9 @@ function ColumnHeaderCell({ column, query, onQueryChange, rowSpan, searchDebounc
     if (debounce <= 0) return commitSearch(value);
     searchTimer.current = setTimeout(() => commitSearch(value), debounce);
   };
-  return <th {...safeAttributes(column.extraHeaderAttributes)} aria-sort={query.sort === column.name ? `${query.direction}ending` : "none"} className={`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) px-3 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase lg:px-4 ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`} rowSpan={rowSpan} scope="col" style={columnDimensionStyle(column)} title={column.headerTooltip ?? undefined}>
+  return <th {...safeAttributes(column.extraHeaderAttributes)} aria-sort={query.sort === column.name ? `${query.direction}ending` : "none"} className={`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`} rowSpan={rowSpan} scope="col" style={columnDimensionStyle(column)} title={column.headerTooltip ?? undefined}>
     <div className="grid min-w-0 gap-2">
-      {column.sortable ? <button className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" onClick={() => onQueryChange({ sort: column.name, direction: query.sort === column.name && query.direction === "asc" ? "desc" : "asc", page: 1 })} type="button"><span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>{query.sort === column.name ? <span aria-hidden="true" className="shrink-0 text-(--inlay-accent)">{query.direction === "asc" ? "↑" : "↓"}</span> : null}</button> : <span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>}
+      {column.sortable ? <button className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={() => onQueryChange({ sort: column.name, direction: query.sort === column.name && query.direction === "asc" ? "desc" : "asc", page: 1 })} type="button"><span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>{query.sort === column.name ? <span aria-hidden="true" className="shrink-0 text-(--inlay-accent)">{query.direction === "asc" ? "↑" : "↓"}</span> : null}</button> : <span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>}
       {column.individuallySearchable ? <label className="normal-case tracking-normal">
         <span className="sr-only">Search {column.label}</span>
         <input
@@ -2571,10 +2645,16 @@ function summaryItems(overall?: SummaryResult[], page?: SummaryResult[], pageOnl
 }
 function badgeColor(color?: string) {
   return color === "success"
-    ? "bg-(--inlay-success-surface) text-(--inlay-success)"
+    ? "bg-(--inlay-success-surface) text-(--inlay-success-strong)"
     : color === "danger"
-      ? "bg-(--inlay-danger-surface) text-(--inlay-danger)"
-      : "bg-(--inlay-surface-muted) text-(--inlay-text)";
+      ? "bg-(--inlay-danger-surface) text-(--inlay-danger-strong)"
+      : color === "warning"
+        ? "bg-(--inlay-warning-surface) text-(--inlay-warning-strong)"
+        : color === "info"
+          ? "bg-(--inlay-info-surface) text-(--inlay-info-strong)"
+          : color === "primary" || color === "accent"
+            ? "bg-(--inlay-accent-soft) text-(--inlay-accent-strong)"
+            : "bg-(--inlay-surface-strong) text-(--inlay-muted-strong)";
 }
 
 function triggerButtonClass(action?: Action): string {
@@ -2592,12 +2672,12 @@ function semanticTextClass(color?: string | null) {
               : '';
 }
 function textBadgeClass(color?: string | null) {
-  return color === 'primary' ? 'bg-(--inlay-accent)/10 text-(--inlay-accent)'
-    : color === 'danger' ? 'bg-(--inlay-danger-surface) text-(--inlay-danger)'
-      : color === 'info' ? 'bg-(--inlay-info-surface) text-(--inlay-info)'
-        : color === 'success' ? 'bg-(--inlay-success-surface) text-(--inlay-success)'
-          : color === 'warning' ? 'bg-(--inlay-warning-surface) text-(--inlay-warning)'
-            : color === 'gray' || !color ? 'bg-(--inlay-surface-muted) text-(--inlay-text)'
+  return color === 'primary' ? 'bg-(--inlay-accent-soft) text-(--inlay-accent-strong)'
+    : color === 'danger' ? 'bg-(--inlay-danger-surface) text-(--inlay-danger-strong)'
+      : color === 'info' ? 'bg-(--inlay-info-surface) text-(--inlay-info-strong)'
+        : color === 'success' ? 'bg-(--inlay-success-surface) text-(--inlay-success-strong)'
+          : color === 'warning' ? 'bg-(--inlay-warning-surface) text-(--inlay-warning-strong)'
+            : color === 'gray' || !color ? 'bg-(--inlay-surface-strong) text-(--inlay-muted-strong)'
               : '';
 }
 function semanticTextStyle(color?: string | null, badge = false): CSSProperties | undefined {

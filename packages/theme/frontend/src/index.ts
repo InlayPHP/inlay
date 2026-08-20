@@ -86,6 +86,48 @@ export type BuiltInThemeToken =
   | 'font-family'
   | 'dashboard-max-width'
   | 'shadow'
+  | 'surface-subtle'
+  | 'surface-strong'
+  | 'fg-strong'
+  | 'muted-strong'
+  | 'border-strong'
+  | 'accent-soft'
+  | 'accent-strong'
+  | 'accent-border'
+  | 'success-strong'
+  | 'success-soft'
+  | 'warning-strong'
+  | 'warning-soft'
+  | 'danger-strong'
+  | 'danger-soft'
+  | 'info-strong'
+  | 'sidebar-badge-bg'
+  | 'sidebar-card-bg'
+  | 'shadow-md'
+  | 'radius-sm'
+  | 'radius-md'
+  | 'radius-lg'
+  | 'table-row-height'
+  | 'page-padding'
+  | 'space-1'
+  | 'space-2'
+  | 'space-3'
+  | 'space-4'
+  | 'space-5'
+  | 'space-6'
+  | 'space-7'
+  | 'space-8'
+  | 'text-xs'
+  | 'text-sm'
+  | 'text-md'
+  | 'text-lg'
+  | 'text-xl'
+  | 'leading-meta'
+  | 'font-mono'
+  | 'icon-size-sm'
+  | 'icon-size-md'
+  | 'icon-stroke'
+  | 'focus-ring'
 
 const builtInThemeTokens = new Set<string>([
   'accent', 'accent-foreground', 'background', 'surface', 'surface-muted',
@@ -103,6 +145,14 @@ const builtInThemeTokens = new Set<string>([
   'motion-duration-slow', 'motion-easing',
   'sidebar-width', 'collapsed-sidebar-width', 'topbar-height', 'sidebar-surface', 'sidebar-foreground', 'sidebar-muted', 'sidebar-border', 'sidebar-hover', 'sidebar-active', 'sidebar-active-foreground', 'sidebar-badge',
   'font-family', 'dashboard-max-width', 'shadow',
+  'surface-subtle', 'surface-strong', 'fg-strong', 'muted-strong', 'border-strong',
+  'accent-soft', 'accent-strong', 'accent-border',
+  'success-strong', 'success-soft', 'warning-strong', 'warning-soft', 'danger-strong', 'danger-soft', 'info-strong',
+  'sidebar-badge-bg', 'sidebar-card-bg', 'shadow-md',
+  'radius-sm', 'radius-md', 'radius-lg', 'table-row-height', 'page-padding',
+  'space-1', 'space-2', 'space-3', 'space-4', 'space-5', 'space-6', 'space-7', 'space-8',
+  'text-xs', 'text-sm', 'text-md', 'text-lg', 'text-xl', 'leading-meta', 'font-mono',
+  'icon-size-sm', 'icon-size-md', 'icon-stroke', 'focus-ring',
 ])
 
 /**
@@ -132,16 +182,16 @@ export function normalizeThemeTokens(tokens: ThemeTokens | ThemeInput): ThemeTok
 
 export const baseTheme: ThemeContract = {
   contract: 'inlay.themes.v1', name: 'base',
-  tokens: { accent: '#18181b', 'accent-foreground': '#ffffff', background: '#fafafa', surface: '#ffffff', 'surface-muted': '#f4f4f5', foreground: '#18181b', muted: '#71717a', border: 'rgb(24 24 27 / 0.12)', 'control-border': '#d4d4d8', hover: '#f4f4f5', badge: '#e4e4e7', danger: '#dc2626', 'danger-surface': 'rgb(220 38 38 / 0.08)', success: '#16a34a', 'success-surface': 'rgb(22 163 74 / 0.08)', warning: '#d97706', 'warning-surface': 'rgb(217 119 6 / 0.1)', info: '#0284c7', 'info-surface': 'rgb(2 132 199 / 0.08)', overlay: 'rgb(24 24 27 / 0.55)', scrim: 'rgb(0 0 0 / 0.3)', radius: '0.5rem', 'control-height': '2.5rem', 'button-height': '2.5rem', 'button-xs-height': '2rem', 'button-sm-height': '2.25rem', 'button-lg-height': '2.75rem', 'icon-button-size': '2.5rem', 'space-control-x': '0.75rem', 'space-control-y': '0.5rem', 'space-button-x': '0.75rem', 'space-button-y': '0.375rem', 'space-card': '1.25rem', 'space-dialog': '1.25rem', 'space-menu-x': '0.625rem', 'space-menu-y': '0.5rem', 'space-table-x': '0.75rem', 'space-table-y': '0.75rem', 'space-stack': '0.75rem', 'space-inline': '0.5rem', 'space-field': '0.375rem', 'font-size-body': '0.875rem', 'font-size-control': '1rem', 'font-size-label': '0.875rem', 'font-size-caption': '0.75rem', 'font-size-heading': '1.125rem', 'font-size-title': '1.5rem', 'line-height-body': '1.5', 'line-height-control': '1.5', 'line-height-tight': '1.25', 'font-weight-label': '500', 'font-weight-heading': '600', 'focus-ring-color': 'var(--inlay-accent)', 'focus-ring-width': '2px', 'focus-ring-offset': '0px', 'motion-duration': '160ms', 'motion-duration-fast': '120ms', 'motion-duration-slow': '240ms', 'motion-easing': 'cubic-bezier(0.2, 0, 0, 1)', 'font-family': 'ui-sans-serif, system-ui, sans-serif', shadow: '0 1px 2px rgb(0 0 0 / 0.05)', 'dashboard-max-width': '100rem', 'topbar-height': '4rem', 'sidebar-surface': '#ffffff', 'sidebar-foreground': '#18181b', 'sidebar-muted': '#71717a', 'sidebar-border': 'rgb(24 24 27 / 0.12)', 'sidebar-hover': '#f4f4f5', 'sidebar-active': 'rgb(24 24 27 / 0.08)', 'sidebar-active-foreground': 'var(--inlay-accent)', 'sidebar-badge': '#e4e4e7' },
+  tokens: { accent: '#18181b', 'accent-foreground': '#ffffff', background: '#fafafa', surface: '#ffffff', 'surface-muted': '#f4f4f5', foreground: '#18181b', muted: '#71717a', border: 'rgb(24 24 27 / 0.12)', 'control-border': '#d4d4d8', hover: '#f4f4f5', badge: '#e4e4e7', danger: '#dc2626', 'danger-surface': 'rgb(220 38 38 / 0.08)', success: '#16a34a', 'success-surface': 'rgb(22 163 74 / 0.08)', warning: '#d97706', 'warning-surface': 'rgb(217 119 6 / 0.1)', info: '#0284c7', 'info-surface': 'rgb(2 132 199 / 0.08)', overlay: 'rgb(24 24 27 / 0.55)', scrim: 'rgb(0 0 0 / 0.3)', radius: '0.5rem', 'control-height': '2.5rem', 'button-height': '2.5rem', 'button-xs-height': '2rem', 'button-sm-height': '2.25rem', 'button-lg-height': '2.75rem', 'icon-button-size': '2.5rem', 'space-control-x': '0.75rem', 'space-control-y': '0.5rem', 'space-button-x': '0.75rem', 'space-button-y': '0.375rem', 'space-card': '1.25rem', 'space-dialog': '1.25rem', 'space-menu-x': '0.625rem', 'space-menu-y': '0.5rem', 'space-table-x': '1.25rem', 'space-table-y': '0', 'space-stack': '0.75rem', 'space-inline': '0.5rem', 'space-field': '0.375rem', 'font-size-body': '0.875rem', 'font-size-control': '1rem', 'font-size-label': '0.875rem', 'font-size-caption': '0.75rem', 'font-size-heading': '1.125rem', 'font-size-title': '1.5rem', 'line-height-body': '1.5', 'line-height-control': '1.5', 'line-height-tight': '1.25', 'font-weight-label': '500', 'font-weight-heading': '600', 'focus-ring-color': 'var(--inlay-accent)', 'focus-ring-width': '2px', 'focus-ring-offset': '0px', 'motion-duration': '160ms', 'motion-duration-fast': '120ms', 'motion-duration-slow': '240ms', 'motion-easing': 'cubic-bezier(0.2, 0, 0, 1)', 'font-family': 'ui-sans-serif, system-ui, sans-serif', shadow: '0 1px 2px rgb(0 0 0 / 0.05)', 'dashboard-max-width': '100rem', 'topbar-height': '4rem', 'sidebar-surface': '#ffffff', 'sidebar-foreground': '#18181b', 'sidebar-muted': '#71717a', 'sidebar-border': 'rgb(24 24 27 / 0.12)', 'sidebar-hover': '#f4f4f5', 'sidebar-active': 'rgb(24 24 27 / 0.08)', 'sidebar-active-foreground': 'var(--inlay-accent)', 'sidebar-badge': '#e4e4e7', 'focus-ring': 'rgb(142 148 229 / 0.45)', 'surface-subtle': '#fafbfe', 'surface-strong': '#f1f3f9', 'fg-strong': '#0c111c', 'muted-strong': '#484d58', 'border-strong': '#c1c8d5', 'accent-soft': '#e4eaff', 'accent-strong': '#4244b9', 'accent-border': '#9ba1e8', 'success-strong': '#006f3b', 'warning-strong': '#805400', 'danger-strong': '#a1262b', 'info-strong': '#0e5a8a', 'sidebar-badge-bg': '#f1f3f9', 'sidebar-card-bg': '#f3f6fb', 'shadow-md': '0 14px 36px oklch(0.18 0.02 264 / 0.09), 0 2px 6px oklch(0.18 0.02 264 / 0.05)', 'radius-sm': '0.4375rem', 'radius-md': '0.625rem', 'radius-lg': '0.875rem', 'table-row-height': '3.375rem', 'page-padding': 'clamp(18px, 3vw, 40px)', 'space-1': '0.25rem', 'space-2': '0.5rem', 'space-3': '0.75rem', 'space-4': '1rem', 'space-5': '1.25rem', 'space-6': '1.5rem', 'space-7': '2rem', 'space-8': '2.5rem', 'text-xs': '0.6875rem', 'text-sm': '0.75rem', 'text-md': '0.875rem', 'text-lg': '1.0625rem', 'text-xl': '1.5rem', 'leading-meta': '1.5', 'font-mono': 'SFMono-Regular, Consolas, Liberation Mono, monospace', 'icon-size-sm': '1rem', 'icon-size-md': '1.125rem', 'icon-stroke': 1.8 },
   darkTokens: { background: '#09090b', surface: '#18181b', 'surface-muted': '#27272a', foreground: '#fafafa', muted: '#a1a1aa', border: 'rgb(255 255 255 / 0.12)', 'control-border': 'rgb(255 255 255 / 0.2)', hover: '#27272a', badge: '#3f3f46', danger: '#f87171', 'danger-surface': 'rgb(248 113 113 / 0.12)', success: '#4ade80', 'success-surface': 'rgb(74 222 128 / 0.12)', warning: '#fbbf24', 'warning-surface': 'rgb(251 191 36 / 0.14)', info: '#38bdf8', 'info-surface': 'rgb(56 189 248 / 0.12)', overlay: 'rgb(0 0 0 / 0.65)', scrim: 'rgb(0 0 0 / 0.55)', 'sidebar-surface': '#18181b', 'sidebar-foreground': '#fafafa', 'sidebar-muted': '#a1a1aa', 'sidebar-border': 'rgb(255 255 255 / 0.12)', 'sidebar-hover': '#27272a', 'sidebar-active': 'rgb(129 140 248 / 0.18)', 'sidebar-active-foreground': '#c4b5fd', 'sidebar-badge': '#3f3f46' },
 }
 export const orbitTheme: ThemeContract = mergeTheme(baseTheme, {
   name: 'orbit',
   tokens: {
-    accent: '#5b64db', 'accent-foreground': '#fcfcff', background: '#f5f7fb', surface: '#ffffff', 'surface-muted': '#fafbfe', foreground: '#1a1f29', muted: '#696f7a', border: '#dadee6', 'control-border': '#cfd5df', hover: '#f1f3fd', badge: '#f1f3f9', danger: '#d33a3c', 'danger-surface': '#ffe5e1', success: '#008d49', 'success-surface': '#d5f5de', warning: '#cc8900', 'warning-surface': '#ffecc5', info: '#1769aa', 'info-surface': '#e4f2ff', radius: '0.4375rem', 'control-height': '2.75rem', 'button-height': '2.75rem', 'button-xs-height': '2.5rem', 'button-sm-height': '2.5rem', 'button-lg-height': '3rem', 'icon-button-size': '2.75rem', 'font-size-heading': '1.0625rem', 'line-height-body': '1.6', 'line-height-tight': '1.35', 'focus-ring-color': 'rgb(142 148 229 / 0.45)', 'focus-ring-width': '3px', 'motion-duration': '140ms', 'motion-duration-slow': '180ms', 'sidebar-width': '15.5rem', 'topbar-height': '4.5rem', 'sidebar-surface': '#fcfdff', 'sidebar-foreground': '#1a1f29', 'sidebar-muted': '#535862', 'sidebar-border': '#d7dbe3', 'sidebar-hover': '#f1f3fd', 'sidebar-active': '#e4eaff', 'sidebar-active-foreground': '#4244b9', 'sidebar-badge': '#f1f3f9', 'font-family': 'DM Sans, PingFang HK, PingFang TC, Microsoft JhengHei, ui-sans-serif, sans-serif', shadow: '0 1px 2px rgb(24 31 41 / 0.05), 0 1px 3px rgb(24 31 41 / 0.04)',
+    accent: '#5b64db', 'accent-foreground': '#fcfcff', background: '#f5f7fb', surface: '#ffffff', 'surface-muted': '#fafbfe', foreground: '#1a1f29', muted: '#696f7a', border: '#dadee6', 'control-border': '#cfd5df', hover: '#f1f3fd', badge: '#f1f3f9', danger: '#d33a3c', 'danger-surface': '#ffe5e1', success: '#008d49', 'success-surface': '#d5f5de', warning: '#cc8900', 'warning-surface': '#ffecc5', info: '#1769aa', 'info-surface': '#e4f2ff', radius: '0.4375rem', 'control-height': '2.75rem', 'button-height': '2.75rem', 'button-xs-height': '2.5rem', 'button-sm-height': '2.5rem', 'button-lg-height': '3rem', 'icon-button-size': '2.75rem', 'font-size-heading': '1.0625rem', 'line-height-body': '1.6', 'line-height-tight': '1.35', 'focus-ring-color': 'rgb(142 148 229 / 0.45)', 'focus-ring-width': '3px', 'motion-duration': '140ms', 'motion-duration-slow': '180ms', 'sidebar-width': '15.5rem', 'topbar-height': '4.5rem', 'sidebar-surface': '#fcfdff', 'sidebar-foreground': '#1a1f29', 'sidebar-muted': '#535862', 'sidebar-border': '#d7dbe3', 'sidebar-hover': '#f1f3fd', 'sidebar-active': '#e4eaff', 'sidebar-active-foreground': '#4244b9', 'sidebar-badge': '#f1f3f9', 'font-family': 'DM Sans, PingFang HK, PingFang TC, Microsoft JhengHei, ui-sans-serif, sans-serif', shadow: '0 1px 2px rgb(24 31 41 / 0.05), 0 1px 3px rgb(24 31 41 / 0.04)', 'focus-ring': 'rgb(142 148 229 / 0.45)', 'focus-ring-offset': '2px', 'surface-subtle': '#fafbfe', 'surface-strong': '#f1f3f9', 'fg-strong': '#0c111c', 'muted-strong': '#484d58', 'border-strong': '#c1c8d5', 'accent-soft': '#e4eaff', 'accent-strong': '#4244b9', 'accent-border': '#9ba1e8', 'success-strong': '#006f3b', 'warning-strong': '#805400', 'danger-strong': '#a1262b', 'info-strong': '#0e5a8a', 'sidebar-badge-bg': '#f1f3f9', 'sidebar-card-bg': '#f3f6fb', 'shadow-md': '0 14px 36px oklch(0.18 0.02 264 / 0.09), 0 2px 6px oklch(0.18 0.02 264 / 0.05)', 'radius-sm': '0.4375rem', 'radius-md': '0.625rem', 'radius-lg': '0.875rem', 'table-row-height': '3.375rem', 'page-padding': 'clamp(18px, 3vw, 40px)', 'space-1': '0.25rem', 'space-2': '0.5rem', 'space-3': '0.75rem', 'space-4': '1rem', 'space-5': '1.25rem', 'space-6': '1.5rem', 'space-7': '2rem', 'space-8': '2.5rem', 'text-xs': '0.6875rem', 'text-sm': '0.75rem', 'text-md': '0.875rem', 'text-lg': '1.0625rem', 'text-xl': '1.5rem', 'leading-meta': '1.5', 'font-mono': 'SFMono-Regular, Consolas, Liberation Mono, monospace', 'icon-size-sm': '1rem', 'icon-size-md': '1.125rem', 'icon-stroke': 1.8,
   },
   darkTokens: {
-    accent: 'oklch(0.72 0.14 276)', 'accent-foreground': 'oklch(0.19 0.018 264)', background: 'oklch(0.19 0.018 264)', surface: 'oklch(0.235 0.022 264)', 'surface-muted': 'oklch(0.265 0.024 264)', foreground: 'oklch(0.97 0.01 264)', muted: 'oklch(0.68 0.018 264)', border: 'oklch(0.36 0.025 264)', 'control-border': 'oklch(0.48 0.032 264)', hover: 'oklch(0.28 0.024 276)', badge: 'oklch(0.31 0.025 264)', danger: 'oklch(0.76 0.14 25)', 'danger-surface': 'oklch(0.34 0.09 25)', success: 'oklch(0.76 0.12 154)', 'success-surface': 'oklch(0.3 0.07 154)', warning: 'oklch(0.82 0.12 76)', 'warning-surface': 'oklch(0.34 0.08 76)', info: 'oklch(0.78 0.12 230)', 'info-surface': 'oklch(0.32 0.06 230)', 'sidebar-surface': 'oklch(0.215 0.02 264)', 'sidebar-foreground': 'oklch(0.97 0.01 264)', 'sidebar-muted': 'oklch(0.72 0.018 264)', 'sidebar-border': 'oklch(0.34 0.024 264)', 'sidebar-hover': 'oklch(0.28 0.024 276)', 'sidebar-active': 'oklch(0.34 0.09 276)', 'sidebar-active-foreground': 'oklch(0.98 0.006 276)', 'sidebar-badge': 'oklch(0.31 0.025 264)', shadow: '0 1px 2px oklch(0.06 0.02 264 / 0.24), 0 1px 3px oklch(0.06 0.02 264 / 0.18)',
+    accent: 'oklch(0.72 0.14 276)', 'accent-foreground': 'oklch(0.19 0.018 264)', background: 'oklch(0.19 0.018 264)', surface: 'oklch(0.235 0.022 264)', 'surface-muted': 'oklch(0.265 0.024 264)', foreground: 'oklch(0.97 0.01 264)', muted: 'oklch(0.68 0.018 264)', border: 'oklch(0.36 0.025 264)', 'control-border': 'oklch(0.48 0.032 264)', hover: 'oklch(0.28 0.024 276)', badge: 'oklch(0.31 0.025 264)', danger: 'oklch(0.76 0.14 25)', 'danger-surface': 'oklch(0.34 0.09 25)', success: 'oklch(0.76 0.12 154)', 'success-surface': 'oklch(0.3 0.07 154)', warning: 'oklch(0.82 0.12 76)', 'warning-surface': 'oklch(0.34 0.08 76)', info: 'oklch(0.78 0.12 230)', 'info-surface': 'oklch(0.32 0.06 230)', 'sidebar-surface': 'oklch(0.215 0.02 264)', 'sidebar-foreground': 'oklch(0.97 0.01 264)', 'sidebar-muted': 'oklch(0.72 0.018 264)', 'sidebar-border': 'oklch(0.34 0.024 264)', 'sidebar-hover': 'oklch(0.28 0.024 276)', 'sidebar-active': 'oklch(0.34 0.09 276)', 'sidebar-active-foreground': 'oklch(0.98 0.006 276)', 'sidebar-badge': 'oklch(0.31 0.025 264)', shadow: '0 1px 2px oklch(0.06 0.02 264 / 0.24), 0 1px 3px oklch(0.06 0.02 264 / 0.18)', 'focus-ring': 'oklch(0.78 0.14 276 / 0.62)', 'surface-subtle': 'oklch(0.265 0.024 264)', 'surface-strong': 'oklch(0.31 0.027 264)', 'fg-strong': 'oklch(0.97 0.01 264)', 'muted-strong': 'oklch(0.78 0.018 264)', 'border-strong': 'oklch(0.48 0.032 264)', 'accent-soft': 'oklch(0.32 0.08 276)', 'accent-strong': 'oklch(0.72 0.14 276)', 'accent-border': 'oklch(0.62 0.12 276)', 'success-strong': 'oklch(0.76 0.12 154)', 'success-soft': 'oklch(0.3 0.07 154)', 'warning-strong': 'oklch(0.82 0.12 76)', 'warning-soft': 'oklch(0.34 0.08 76)', 'danger-strong': 'oklch(0.76 0.14 25)', 'danger-soft': 'oklch(0.34 0.09 25)', 'info-strong': 'oklch(0.84 0.11 230)', 'sidebar-badge-bg': 'oklch(0.31 0.025 264)', 'sidebar-card-bg': 'oklch(0.255 0.022 264)', 'shadow-md': '0 14px 36px oklch(0.06 0.02 264 / 0.32), 0 2px 6px oklch(0.06 0.02 264 / 0.22)',
   },
 })
 export const defaultTheme: ThemeContract = mergeTheme(orbitTheme, { name: 'default' })
@@ -227,8 +277,8 @@ export function recipeVariables(theme: ThemeSource, mode: 'light' | 'dark' = 'li
     'space-dialog': '1.25rem',
     'space-menu-x': '0.625rem',
     'space-menu-y': '0.5rem',
-    'space-table-x': '0.75rem',
-    'space-table-y': '0.75rem',
+    'space-table-x': '1.25rem',
+    'space-table-y': '0',
     'space-stack': '0.75rem',
     'space-inline': '0.5rem',
     'space-field': '0.375rem',
@@ -244,7 +294,7 @@ export function recipeVariables(theme: ThemeSource, mode: 'light' | 'dark' = 'li
     'font-weight-label': '500',
     'font-weight-heading': '600',
     'focus-ring-width': '2px',
-    'focus-ring-offset': '0px',
+    'focus-ring-offset': '2px',
     'motion-duration': '160ms',
     'motion-duration-fast': '120ms',
     'motion-duration-slow': '240ms',
@@ -259,6 +309,45 @@ export function recipeVariables(theme: ThemeSource, mode: 'light' | 'dark' = 'li
     'sidebar-active': 'rgb(24 24 27 / 0.08)',
     'sidebar-active-foreground': 'var(--inlay-accent)',
     'sidebar-badge': '#e4e4e7',
+    'focus-ring': 'rgb(142 148 229 / 0.45)',
+    'surface-subtle': '#fafbfe',
+    'surface-strong': '#f1f3f9',
+    'fg-strong': '#0c111c',
+    'muted-strong': '#484d58',
+    'border-strong': '#c1c8d5',
+    'accent-soft': '#e4eaff',
+    'accent-strong': '#4244b9',
+    'accent-border': '#9ba1e8',
+    'success-strong': '#006f3b',
+    'warning-strong': '#805400',
+    'danger-strong': '#a1262b',
+    'info-strong': '#0e5a8a',
+    'sidebar-badge-bg': '#f1f3f9',
+    'sidebar-card-bg': '#f3f6fb',
+    'shadow-md': '0 14px 36px oklch(0.18 0.02 264 / 0.09), 0 2px 6px oklch(0.18 0.02 264 / 0.05)',
+    'radius-sm': '0.4375rem',
+    'radius-md': '0.625rem',
+    'radius-lg': '0.875rem',
+    'table-row-height': '3.375rem',
+    'page-padding': 'clamp(18px, 3vw, 40px)',
+    'space-1': '0.25rem',
+    'space-2': '0.5rem',
+    'space-3': '0.75rem',
+    'space-4': '1rem',
+    'space-5': '1.25rem',
+    'space-6': '1.5rem',
+    'space-7': '2rem',
+    'space-8': '2.5rem',
+    'text-xs': '0.6875rem',
+    'text-sm': '0.75rem',
+    'text-md': '0.875rem',
+    'text-lg': '1.0625rem',
+    'text-xl': '1.5rem',
+    'leading-meta': '1.5',
+    'font-mono': 'SFMono-Regular, Consolas, Liberation Mono, monospace',
+    'icon-size-sm': '1rem',
+    'icon-size-md': '1.125rem',
+    'icon-stroke': '1.8',
   }
 
   // Include semantic variables as well as recipe variables. Standalone

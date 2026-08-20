@@ -376,8 +376,11 @@ describe('Table', () => {
     const cards = container.querySelectorAll('[data-slot="aggregate"]')
     expect(cards).toHaveLength(2)
     expect(cards[0].textContent).toContain('Revenue')
-    // Aggregates reuse the summary formatter, so currency is respected.
-    expect(cards[0].textContent).toContain('$70')
+    // Aggregates reuse the summary formatter, so currency is respected. The
+    // symbol varies by ICU locale ('$70.00' vs 'USD 70.00'), so compare against
+    // the formatter output rather than a hard-coded glyph.
+    const currency70 = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(70)
+    expect(cards[0].textContent).toContain(currency70)
     expect(cards[1].textContent).toContain('3')
 
     cleanup()
@@ -398,7 +401,7 @@ describe('Table', () => {
     expect(rows).toHaveLength(3)
     expect(rows[0]).not.toHaveClass('bg-(--inlay-surface-muted)')
     expect(rows[1]).toHaveClass('bg-(--inlay-surface-muted)')
-    expect(rows[1]).toHaveClass('hover:bg-(--inlay-hover)')
+    expect(rows[1]).toHaveClass('hover:bg-(--inlay-surface-subtle)')
     expect(rows[1]).toHaveClass('is-featured')
     expect(rows[2]).not.toHaveClass('bg-(--inlay-surface-muted)')
   })
@@ -469,7 +472,7 @@ describe('Table', () => {
 
     expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument()
     const input = screen.getByRole('searchbox', { name: 'Search Name' })
-    expect(input).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-2', 'focus:ring-(--inlay-focus-ring-color)')
+    expect(input).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-(length:--inlay-focus-ring-width)', 'focus:ring-(--inlay-focus-ring)')
     await userEvent.type(input, 'Ada')
 
     expect(onQueryChange).toHaveBeenLastCalledWith(expect.objectContaining({
@@ -1161,8 +1164,13 @@ describe('Table', () => {
     const view = render(<Table onQueryChange={onQueryChange} resource={data} />)
 
     expect(screen.getByText('Status: Active')).toBeInTheDocument()
-    expect(screen.getByText('Total: $70.00')).toBeInTheDocument()
-    expect(screen.getByText('Page: $30.00')).toBeInTheDocument()
+    // Currency symbols and grouping are locale-dependent ('$70.00' vs 'USD 70.00'),
+    // and Intl can emit a non-breaking space that testing-library does not
+    // normalize on the matcher side, so compare against the same Intl output
+    // with whitespace collapsed to plain spaces.
+    const fmt = (value: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value).replace(/\s+/g, ' ')
+    expect(screen.getByText(`Total: ${fmt(70)}`)).toBeInTheDocument()
+    expect(screen.getByText(`Page: ${fmt(30)}`)).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /Status: Active/ }))
     expect(screen.queryByText('Ada')).not.toBeInTheDocument()
     await userEvent.click(screen.getByLabelText('Group records'))
@@ -1313,6 +1321,65 @@ describe('Table', () => {
 
     expect(screen.getAllByRole('button', { name: 'Delete' })).toHaveLength(1)
     expect(screen.getAllByRole('button', { name: 'Restore' })).toHaveLength(1)
+  })
+
+  it('renders one row action group trigger per row and executes nested actions through the row handler', async () => {
+    const onAction = vi.fn().mockResolvedValue(undefined)
+    const process = { name: 'process', label: 'Process', url: null, method: 'post' as const, color: 'warning', requiresConfirmation: false, icon: null, modalHeading: null }
+    const edit = { name: 'edit', label: 'Edit', url: '/users/{id}/edit', method: 'get' as const, color: 'default', requiresConfirmation: false, icon: null, modalHeading: null }
+    const group = { type: 'action-group' as const, name: 'actions', label: 'Actions', icon: 'ellipsis-horizontal', color: 'default', triggerStyle: 'icon-button' as const, size: 'small' as const, tooltip: 'Row actions', dropdownPlacement: 'top-end' as const, actions: [process, edit] }
+    const data = { ...resource([column({})]), rows: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Grace' }], actions: [group] }
+    const view = render(<Table onAction={onAction} resource={data} />)
+
+    // One compact trigger per row — the flat buttons live inside its menu.
+    const triggers = view.container.querySelectorAll('[data-slot="row-action-group"] > summary[data-slot="action-trigger"]')
+    expect(triggers).toHaveLength(2)
+    expect(triggers[0]).toHaveAttribute('title', 'Row actions')
+    expect(triggers[0]).toHaveAttribute('data-trigger-style', 'icon-button')
+
+    const row1 = document.querySelector('tr[data-row-key="1"]') as HTMLElement
+    const row1Trigger = row1.querySelector('[data-slot="row-action-group"] > summary') as HTMLElement
+    await userEvent.click(row1Trigger)
+    expect((row1Trigger.parentElement as HTMLDetailsElement).open).toBe(true)
+    expect(within(row1).getByRole('button', { name: 'Process' })).toBeInTheDocument()
+    expect(within(row1).getByRole('button', { name: 'Edit' })).toBeInTheDocument()
+    await userEvent.click(within(row1).getByRole('button', { name: 'Process' }))
+
+    // The nested action runs through the exact same handler as a flat action.
+    expect(onAction).toHaveBeenCalledTimes(1)
+    expect(onAction).toHaveBeenCalledWith(process, [data.rows[0]])
+  })
+
+  it('filters nested row actions per record inside a group', async () => {
+    const process = { name: 'process', label: 'Process', url: null, method: 'post' as const, color: 'warning', requiresConfirmation: false, icon: null, modalHeading: null, visibleWhen: { path: 'status', operator: 'equals' as const, value: 'new' } }
+    const ship = { name: 'ship', label: 'Ship', url: null, method: 'post' as const, color: 'success', requiresConfirmation: false, icon: null, modalHeading: null, visibleWhen: { path: 'status', operator: 'equals' as const, value: 'processing' } }
+    const group = { type: 'action-group' as const, name: 'actions', label: 'Actions', icon: null, color: 'default', triggerStyle: 'icon-button' as const, size: 'small' as const, actions: [process, ship] }
+    const data = { ...resource([column({})]), rows: [{ id: 1, name: 'Ada', status: 'new' }, { id: 2, name: 'Grace', status: 'processing' }], actions: [group] }
+    render(<Table resource={data} />)
+
+    const row1 = document.querySelector('tr[data-row-key="1"]') as HTMLElement
+    await userEvent.click(row1.querySelector('[data-slot="row-action-group"] > summary') as HTMLElement)
+    expect(within(row1).getByRole('button', { name: 'Process' })).toBeInTheDocument()
+    expect(within(row1).queryByRole('button', { name: 'Ship' })).not.toBeInTheDocument()
+
+    const row2 = document.querySelector('tr[data-row-key="2"]') as HTMLElement
+    await userEvent.click(row2.querySelector('[data-slot="row-action-group"] > summary') as HTMLElement)
+    expect(within(row2).getByRole('button', { name: 'Ship' })).toBeInTheDocument()
+    expect(within(row2).queryByRole('button', { name: 'Process' })).not.toBeInTheDocument()
+  })
+
+  it('hides a row action group entirely when no nested action is visible for the row', () => {
+    const restore = { name: 'restore', label: 'Restore', url: null, method: 'post' as const, color: 'success', requiresConfirmation: false, icon: null, modalHeading: null, visibleWhen: { path: 'deleted_at', operator: 'filled' as const, value: null } }
+    const group = { type: 'action-group' as const, name: 'actions', label: 'Actions', icon: null, color: 'default', triggerStyle: 'icon-button' as const, size: 'small' as const, actions: [restore] }
+    const data = { ...resource([column({})]), rows: [{ id: 1, name: 'Live', deleted_at: null }, { id: 2, name: 'Trashed', deleted_at: '2026-07-28' }], actions: [group] }
+    const view = render(<Table resource={data} />)
+
+    // Only the trashed row keeps its trigger; the live row's group is gone.
+    expect(view.container.querySelectorAll('[data-slot="row-action-group"]')).toHaveLength(1)
+    const row1 = document.querySelector('tr[data-row-key="1"]') as HTMLElement
+    expect(row1.querySelector('[data-slot="row-action-group"]')).toBeNull()
+    const row2 = document.querySelector('tr[data-row-key="2"]') as HTMLElement
+    expect(row2.querySelector('[data-slot="row-action-group"] > summary')).toHaveTextContent('…')
   })
 
   it('interpolates URLs and includes action data in bulk request payloads', async () => {
@@ -1486,7 +1553,7 @@ describe('Table', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Filters' }))
     await userEvent.click(screen.getByRole('button', { name: 'Add condition' }))
     for (const control of screen.getAllByRole('combobox')) {
-      expect(control).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-2', 'focus:ring-(--inlay-focus-ring-color)')
+      expect(control).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-(length:--inlay-focus-ring-width)', 'focus:ring-(--inlay-focus-ring)')
     }
   })
 
@@ -1660,11 +1727,11 @@ describe('Table', () => {
     expect(container.querySelector('[data-slot="header-actions"]')).toBeInTheDocument()
     expect(container.querySelector('[data-slot="table-scroll"]')).toHaveClass('custom-shell')
     expect(container.querySelector('[data-slot="table-head"]')).toBeInTheDocument()
-    expect(container.querySelector('[data-slot="table-row"]')).toHaveClass('custom-row', 'focus-within:bg-(--inlay-hover)')
+    expect(container.querySelector('[data-slot="table-row"]')).toHaveClass('custom-row', 'focus-within:bg-(--inlay-surface-subtle)')
     expect(container.querySelector('[data-slot="table-cell"]')).toHaveClass('custom-cell')
     expect(container.querySelector('[data-slot="row-actions"]')).toHaveClass('custom-actions')
     expect(screen.getByRole('button', { name: 'Edit' })).toHaveClass('min-h-(--inlay-button-height)')
-      expect(screen.getByRole('button', { name: 'Edit' })).toHaveClass('focus-visible:ring-2', 'focus-visible:ring-(--inlay-focus-ring-color)')
+      expect(screen.getByRole('button', { name: 'Edit' })).toHaveClass('focus-visible:ring-(length:--inlay-focus-ring-width)', 'focus-visible:ring-(--inlay-focus-ring)')
     expect(screen.getByRole('button', { name: 'Edit' })).not.toHaveClass('hover:border-(--inlay-muted)')
     expect(screen.getByRole('navigation', { name: 'Pagination' })).toHaveClass('custom-pagination')
     expect(screen.getByText('Showing 11–20 of 115')).toBeInTheDocument()
@@ -1873,7 +1940,9 @@ describe('actions position', () => {
       const headerIndex = headerCells.findIndex(cell => cell.textContent?.includes('Actions'))
       const rowIndex = rowCells.findIndex(cell => cell.querySelector('[data-slot="row-actions"]'))
       expect(headerIndex).toBe(rowIndex)
-      expect(headerCells[headerIndex]).toHaveClass('w-max', 'min-w-32', 'whitespace-nowrap')
+      expect(headerCells[headerIndex]).toHaveClass('w-32', 'min-w-32', 'max-w-48', 'whitespace-nowrap')
+      expect(headerCells[headerIndex]).not.toHaveClass('border-l')
+      expect(rowCells[rowIndex]).not.toHaveClass('border-l')
       cleanup()
     }
   })
@@ -1895,6 +1964,17 @@ describe('filter width and extreme pagination links', () => {
 
     expect(container.querySelector('[data-slot="pagination-first"]')).toBeNull()
     expect(container.querySelector('[data-slot="pagination-last"]')).toBeNull()
+  })
+
+  it('keeps page-number buttons from shrinking so 2-3 digit pages never clip', () => {
+    const { container } = render(<Table resource={paged({ lastPage: 130, currentPage: 13 }) as never} />)
+
+    const pageButtons = [...container.querySelectorAll('[data-slot="pagination-pages"] button')]
+    expect(pageButtons.length).toBeGreaterThan(0)
+    for (const button of pageButtons) {
+      expect(button.className).toContain('shrink-0')
+      expect(button.className).toContain('min-w-10')
+    }
   })
 })
 

@@ -8,14 +8,14 @@ afterEach(cleanup)
 describe('Select', () => {
   it('uses a subtle resting border and an accent focus ring without a dark hover border', () => {
     expect(controlClass).toContain('ring-1 ring-(--inlay-control-border)')
-    expect(controlClass).toContain('focus:ring-2')
-    expect(controlClass).toContain('focus:ring-(--inlay-focus-ring-color)')
+    expect(controlClass).toContain('focus:ring-(length:--inlay-focus-ring-width)')
+    expect(controlClass).toContain('focus:ring-(--inlay-focus-ring)')
     expect(controlClass).not.toContain('hover:ring-[var(--inlay-muted)]')
   })
 
   it('shares a stable button border and accent keyboard focus treatment', () => {
-    expect(buttonBaseClass).toContain('focus-visible:ring-2')
-    expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring-color)')
+    expect(buttonBaseClass).toContain('focus-visible:ring-(length:--inlay-focus-ring-width)')
+    expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring)')
     expect(buttonBaseClass).not.toContain('hover:border-(--inlay-muted)')
   })
 

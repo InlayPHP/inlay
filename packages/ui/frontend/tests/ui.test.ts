@@ -27,8 +27,8 @@ import {
 describe('@inlayphp/ui recipes', () => {
   it('keeps the core recipes token-driven and keyboard accessible', () => {
     expect(controlClass).toContain('ring-(--inlay-control-border)')
-    expect(controlClass).toContain('focus:ring-(--inlay-focus-ring-color)')
-    expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring-color)')
+    expect(controlClass).toContain('focus:ring-(--inlay-focus-ring)')
+    expect(buttonBaseClass).toContain('focus-visible:ring-(--inlay-focus-ring)')
     expect(buttonPrimaryClass).toContain('bg-(--inlay-accent)')
     expect(buttonSecondaryClass).toContain('border-(--inlay-control-border)')
     expect(buttonExtraSmallClass).toContain('--inlay-button-xs-height')
@@ -58,9 +58,11 @@ describe('@inlayphp/ui recipes', () => {
 
   it('provides token-driven table primitives with bounded cell content', () => {
     expect(tableHeaderClass).toContain('border-(--inlay-border)')
-    expect(tableRowClass).toContain('hover:bg-(--inlay-hover)')
+    expect(tableRowClass).toContain('hover:bg-(--inlay-surface-subtle)')
     expect(tableCellClass).toContain('min-w-0')
     expect(tableCellClass).toContain('overflow-hidden')
+    expect(tableCellClass).toContain('h-(--inlay-table-row-height)')
+    expect(recipes.typography.meta).toContain('--inlay-text-xs')
   })
 
   it('resolves exact icons before wildcards and lower-priority registries', () => {

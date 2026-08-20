@@ -45,7 +45,7 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
   <th
     v-bind="headerAttributes"
     :aria-sort="query.sort === column.name ? `${query.direction}ending` : 'none'"
-    :class="`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) px-3 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase lg:px-4 ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`"
+    :class="`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`"
     :rowspan="rowSpan"
     scope="col"
     :style="dimensionStyle"
@@ -54,7 +54,7 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
     <div class="grid min-w-0 gap-2">
       <button
         v-if="column.sortable"
-        class="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)"
+        class="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-fg-strong) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)"
         type="button"
         @click="emit('sort', column)"
       >

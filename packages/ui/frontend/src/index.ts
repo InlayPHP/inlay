@@ -43,13 +43,18 @@ export const recipeTypography = {
   control: '[font-size:var(--inlay-font-size-control)] [line-height:var(--inlay-line-height-control)] sm:[font-size:var(--inlay-font-size-body)]',
   label: '[font-size:var(--inlay-font-size-label)] [font-weight:var(--inlay-font-weight-label)]',
   caption: '[font-size:var(--inlay-font-size-caption)] [line-height:var(--inlay-line-height-body)]',
+  meta: '[font-size:var(--inlay-text-xs)] [line-height:var(--inlay-leading-meta)]',
   heading: '[font-size:var(--inlay-font-size-heading)] [line-height:var(--inlay-line-height-tight)] [font-weight:var(--inlay-font-weight-heading)]',
   title: '[font-size:var(--inlay-font-size-title)] [line-height:var(--inlay-line-height-tight)] [font-weight:var(--inlay-font-weight-heading)]',
 } as const
 
 export const recipeFocus = {
-  visible: 'focus-visible:ring-2 focus-visible:[--tw-ring-width:var(--inlay-focus-ring-width)] focus-visible:ring-(--inlay-focus-ring-color) focus-visible:ring-offset-(--inlay-focus-ring-offset) focus-visible:outline-none',
-  control: 'focus:ring-2 focus:[--tw-ring-width:var(--inlay-focus-ring-width)] focus:ring-(--inlay-focus-ring-color) focus:ring-offset-(--inlay-focus-ring-offset) focus:outline-none',
+  // `ring-(length:--inlay-focus-ring-width)` drives the ring width from the
+  // theme token (3px in Orbit). The bare `ring-(--var)` shorthand is inferred
+  // as a *color* by Tailwind v4 when the variable has no @property type, so the
+  // length hint is required for the width utility to compile to a ring shadow.
+  visible: 'focus-visible:ring-(length:--inlay-focus-ring-width) focus-visible:ring-(--inlay-focus-ring) focus-visible:ring-offset-(length:--inlay-focus-ring-offset) focus-visible:outline-none',
+  control: 'focus:ring-(length:--inlay-focus-ring-width) focus:ring-(--inlay-focus-ring) focus:ring-offset-(length:--inlay-focus-ring-offset) focus:bg-(--inlay-surface) focus:outline-none',
 } as const
 
 export const recipeMotion = {
@@ -60,13 +65,13 @@ export const recipeMotion = {
 
 export const recipeVariants = {
   control: {
-    base: `min-h-(--inlay-control-height) w-full rounded-(--inlay-radius) border-0 bg-(--inlay-surface) ${recipeSpacing.control} ${recipeTypography.control} text-(--inlay-text) shadow-xs ring-1 ring-(--inlay-control-border) outline-none ${recipeMotion.interactive} placeholder:text-(--inlay-muted) ${recipeFocus.control} aria-invalid:ring-(--inlay-danger) disabled:cursor-not-allowed disabled:bg-(--inlay-surface-muted) disabled:text-(--inlay-muted) disabled:shadow-none`,
-    invalid: 'aria-invalid:ring-(--inlay-danger) aria-invalid:ring-offset-(--inlay-focus-ring-offset)',
+    base: `min-h-(--inlay-control-height) w-full rounded-(--inlay-radius) border-0 bg-(--inlay-surface-subtle) ${recipeSpacing.control} ${recipeTypography.control} text-(--inlay-text) shadow-xs ring-1 ring-(--inlay-control-border) outline-none ${recipeMotion.interactive} placeholder:text-(--inlay-muted) ${recipeFocus.control} aria-invalid:ring-(--inlay-danger-strong) disabled:cursor-not-allowed disabled:bg-(--inlay-surface-strong) disabled:text-(--inlay-muted-strong) disabled:shadow-none`,
+    invalid: 'aria-invalid:ring-(--inlay-danger-strong) aria-invalid:ring-offset-(length:--inlay-focus-ring-offset)',
     compact: 'min-h-(--inlay-button-sm-height) px-2 py-1',
   },
   button: {
     base: `inline-flex min-h-(--inlay-button-height) items-center justify-center ${recipeSpacing.inline} rounded-(--inlay-radius) border ${recipeSpacing.button} ${recipeTypography.body} text-center shadow-xs ${recipeMotion.interactive} ${recipeFocus.visible} active:translate-y-px disabled:pointer-events-none disabled:opacity-50`,
-    primary: 'border-(--inlay-accent) bg-(--inlay-accent) text-(--inlay-accent-foreground) hover:brightness-95',
+    primary: 'border-(--inlay-accent) bg-(--inlay-accent) text-(--inlay-accent-foreground) hover:border-(--inlay-accent-strong) hover:bg-(--inlay-accent-strong)',
     secondary: 'border-(--inlay-control-border) bg-(--inlay-surface) text-(--inlay-text) hover:bg-(--inlay-hover)',
     danger: 'border-(--inlay-danger)/25 bg-(--inlay-danger-surface) text-(--inlay-danger) hover:border-(--inlay-danger)/45',
     ghost: 'border-transparent bg-transparent text-(--inlay-text) hover:border-transparent hover:bg-(--inlay-hover)',
@@ -84,9 +89,9 @@ export const recipeVariants = {
     warning: 'bg-(--inlay-warning-surface) text-(--inlay-warning)',
   },
   table: {
-    header: `border-b border-(--inlay-border) bg-(--inlay-surface-muted) ${recipeSpacing.tableCell} text-left ${recipeTypography.caption} font-semibold tracking-wide text-(--inlay-muted) uppercase`,
-    row: `${recipeMotion.fast} hover:bg-(--inlay-hover) focus-within:bg-(--inlay-hover)`,
-    cell: `min-w-0 overflow-hidden ${recipeSpacing.tableCell} ${recipeTypography.body} text-(--inlay-text)`,
+    header: `border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-left ${recipeTypography.meta} font-semibold text-(--inlay-muted)`,
+    row: `${recipeMotion.fast} hover:bg-(--inlay-surface-subtle) focus-within:bg-(--inlay-surface-subtle)`,
+    cell: `min-w-0 overflow-hidden h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-xs text-(--inlay-muted-strong)`,
   },
 } as const
 
@@ -114,7 +119,7 @@ export const descriptionClass = `mt-1 ${recipeTypography.body} text-(--inlay-mut
 /** Neutral surfaces, status tags, and icon-only actions. */
 export const cardClass = recipeVariants.surface.card
 export const badgeClass = recipeVariants.badge.neutral
-export const iconButtonClass = `${buttonBaseClass} size-(--inlay-icon-button-size) min-h-0 shrink-0 p-0`
+export const iconButtonClass = `${buttonBaseClass} border-transparent bg-transparent p-0 text-(--inlay-muted-strong) hover:border-(--inlay-border) hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong) size-(--inlay-icon-button-size) min-h-0 shrink-0 [box-shadow:none]`
 
 /** Menu and command-palette items share hit area, truncation, and hover state. */
 export const menuItemClass = `flex min-h-9 w-full items-center ${recipeSpacing.inline} rounded-[calc(var(--inlay-radius)-0.25rem)] ${recipeSpacing.menu} text-left ${recipeTypography.body} text-(--inlay-text) ${recipeMotion.fast} hover:bg-(--inlay-surface-muted) ${recipeFocus.visible}`
@@ -123,14 +128,14 @@ export const menuItemClass = `flex min-h-9 w-full items-center ${recipeSpacing.i
 // Keep option popovers inside the viewport even when a server-provided label
 // is very long. Options themselves truncate, so the menu can stay the width of
 // its control instead of creating document-level horizontal scrolling.
-export const selectMenuClass = `absolute z-50 mt-1.5 w-full min-w-0 max-w-[calc(100vw-2rem)] rounded-(--inlay-radius) bg-(--inlay-surface) p-1.5 ${recipeTypography.body} text-(--inlay-text) shadow-xl ring-1 ring-(--inlay-border)`
+export const selectMenuClass = `absolute z-50 mt-1.5 w-full min-w-0 max-w-[calc(100vw-2rem)] rounded-(--inlay-radius-md) bg-(--inlay-surface) p-1.5 ${recipeTypography.body} text-(--inlay-text) shadow-(--inlay-shadow-md) ring-1 ring-(--inlay-border)`
 export const selectOptionClass = `flex min-h-9 cursor-default items-center ${recipeSpacing.inline} rounded-[calc(var(--inlay-radius)-0.25rem)] ${recipeSpacing.menu} outline-none ${recipeMotion.fast} hover:bg-(--inlay-surface-muted) ${recipeFocus.visible}`
 
 /** Table and dialog primitives use the same surface and interaction recipes. */
 export const tableHeaderClass = recipeVariants.table.header
 export const tableRowClass = recipeVariants.table.row
 export const tableCellClass = recipeVariants.table.cell
-export const dialogClass = `${cardClass} max-h-[calc(100dvh-2rem)] overflow-y-auto ${recipeSpacing.dialog} shadow-2xl`
+export const dialogClass = `${cardClass} rounded-(--inlay-radius-md) max-h-[calc(100dvh-2rem)] overflow-y-auto ${recipeSpacing.dialog} shadow-(--inlay-shadow-md)`
 
 /** A discoverable aggregate for applications and community packages. */
 export const recipes = {

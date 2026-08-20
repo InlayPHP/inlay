@@ -199,3 +199,107 @@ it('publishes the refresh behaviour a dashboard declares', function (): void {
     // Turning polling off again is how a widget stops asking.
     expect($live->poll(null)->jsonSerialize()['pollingInterval'])->toBeNull();
 });
+
+it('ships the canonical Orbit roles and keeps every previous token', function (): void {
+    $light = Theme::orbit()->light();
+    $dark = Theme::orbit()->dark();
+
+    $new = [
+        'surface-subtle' => '#fafbfe',
+        'surface-strong' => '#f1f3f9',
+        'fg-strong' => '#0c111c',
+        'muted-strong' => '#484d58',
+        'border-strong' => '#c1c8d5',
+        'accent-soft' => '#e4eaff',
+        'accent-strong' => '#4244b9',
+        'accent-border' => '#9ba1e8',
+        'success-strong' => '#006f3b',
+        'warning-strong' => '#805400',
+        'danger-strong' => '#a1262b',
+        'info-strong' => '#0e5a8a',
+        'sidebar-badge-bg' => '#f1f3f9',
+        'sidebar-card-bg' => '#f3f6fb',
+        'shadow-md' => '0 14px 36px oklch(0.18 0.02 264 / 0.09), 0 2px 6px oklch(0.18 0.02 264 / 0.05)',
+        'radius-sm' => '0.4375rem',
+        'radius-md' => '0.625rem',
+        'radius-lg' => '0.875rem',
+        'table-row-height' => '3.375rem',
+        'page-padding' => 'clamp(18px, 3vw, 40px)',
+        'space-1' => '0.25rem',
+        'space-4' => '1rem',
+        'space-8' => '2.5rem',
+        'text-xs' => '0.6875rem',
+        'text-md' => '0.875rem',
+        'text-xl' => '1.5rem',
+        'leading-meta' => '1.5',
+        'font-mono' => 'SFMono-Regular, Consolas, Liberation Mono, monospace',
+        'icon-size-sm' => '1rem',
+        'icon-size-md' => '1.125rem',
+        'icon-stroke' => 1.8,
+        'focus-ring' => 'rgb(142 148 229 / 0.45)',
+        'focus-ring-offset' => '2px',
+    ];
+
+    foreach ($new as $name => $value) {
+        expect($light)->toHaveKey($name);
+        expect($light[$name])->toBe($value);
+    }
+
+    expect($dark['surface-subtle'])->toBe('oklch(0.265 0.024 264)')
+        ->and($dark['surface-strong'])->toBe('oklch(0.31 0.027 264)')
+        ->and($dark['fg-strong'])->toBe('oklch(0.97 0.01 264)')
+        ->and($dark['muted-strong'])->toBe('oklch(0.78 0.018 264)')
+        ->and($dark['border-strong'])->toBe('oklch(0.48 0.032 264)')
+        ->and($dark['accent-soft'])->toBe('oklch(0.32 0.08 276)')
+        ->and($dark['accent-strong'])->toBe('oklch(0.72 0.14 276)')
+        ->and($dark['accent-border'])->toBe('oklch(0.62 0.12 276)')
+        ->and($dark['success-strong'])->toBe('oklch(0.76 0.12 154)')
+        ->and($dark['success-soft'])->toBe('oklch(0.3 0.07 154)')
+        ->and($dark['warning-strong'])->toBe('oklch(0.82 0.12 76)')
+        ->and($dark['danger-strong'])->toBe('oklch(0.76 0.14 25)')
+        ->and($dark['danger-soft'])->toBe('oklch(0.34 0.09 25)')
+        ->and($dark['sidebar-badge-bg'])->toBe('oklch(0.31 0.025 264)')
+        ->and($dark['sidebar-card-bg'])->toBe('oklch(0.255 0.022 264)')
+        ->and($dark['shadow-md'])->toBe('0 14px 36px oklch(0.06 0.02 264 / 0.32), 0 2px 6px oklch(0.06 0.02 264 / 0.22)');
+
+    // Every previously shipped token still exists with its exact value.
+    $previous = [
+        'accent' => '#5b64db',
+        'accent-foreground' => '#fcfcff',
+        'background' => '#f5f7fb',
+        'surface' => '#ffffff',
+        'surface-muted' => '#fafbfe',
+        'foreground' => '#1a1f29',
+        'muted' => '#696f7a',
+        'border' => '#dadee6',
+        'control-border' => '#cfd5df',
+        'hover' => '#f1f3fd',
+        'badge' => '#f1f3f9',
+        'danger' => '#d33a3c',
+        'danger-surface' => '#ffe5e1',
+        'success' => '#008d49',
+        'success-surface' => '#d5f5de',
+        'warning' => '#cc8900',
+        'warning-surface' => '#ffecc5',
+        'info' => '#1769aa',
+        'info-surface' => '#e4f2ff',
+        'radius' => '0.4375rem',
+        'control-height' => '2.75rem',
+        'sidebar-width' => '15.5rem',
+        'topbar-height' => '4.5rem',
+        'sidebar-active' => '#e4eaff',
+        'sidebar-active-foreground' => '#4244b9',
+        'sidebar-badge' => '#f1f3f9',
+        'focus-ring-color' => 'rgb(142 148 229 / 0.45)',
+        'focus-ring-width' => '3px',
+    ];
+
+    foreach ($previous as $name => $value) {
+        expect($light)->toHaveKey($name);
+        expect($light[$name])->toBe($value);
+    }
+
+    // Base preset carries the same new tokens so base==orbit for these roles.
+    expect(Theme::base()->light()['table-row-height'])->toBe('3.375rem')
+        ->and(Theme::base()->light()['focus-ring'])->toBe('rgb(142 148 229 / 0.45)');
+});
