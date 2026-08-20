@@ -1179,7 +1179,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
           <span class="sr-only">Search</span>
           <input
             aria-label="Search"
-            :class="`${controlClass} w-full`"
+            :class="`${controlClass} w-full focus:ring-offset-0`"
             data-slot="search"
             :placeholder="resource.searchPlaceholder"
             type="search"
@@ -1589,7 +1589,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
         <table :class="`${gridLayout || customLayout ? 'block' : stackedLayout ? 'block sm:table' : `${fixedTableLayout ? 'table-fixed' : 'table-auto'} w-max min-w-full`} border-separate border-spacing-0 ${classNames?.table ?? ''}`" data-slot="table">
           <thead :class="`${gridLayout || customLayout ? 'hidden' : stackedLayout ? 'hidden bg-(--inlay-surface-subtle) sm:table-header-group' : 'bg-(--inlay-surface-subtle)'} ${classNames?.head ?? ''}`" data-slot="table-head">
             <tr>
-              <th v-if="resource.actions?.length && actionsPosition === 'before-cells'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
+                <th v-if="resource.actions?.length && actionsPosition === 'before-cells'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
               <th v-if="reordering" class="w-32 border-b border-(--inlay-border) py-2.5" :rowspan="hasColumnGroups ? 2 : undefined"><span class="sr-only">Reorder controls</span></th>
@@ -1607,7 +1607,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
                   "
                 />
               </th>
-              <th v-if="resource.actions?.length && actionsPosition === 'before-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
+              <th v-if="resource.actions?.length && actionsPosition === 'before-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
               <template v-if="hasColumnGroups">
@@ -1617,7 +1617,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
                 </template>
               </template>
               <TableColumnHeader v-else v-for="column in columns" :key="column.name" :column="column" :query="query" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
-              <th v-if="resource.actions?.length && actionsPosition === 'after-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
+              <th v-if="resource.actions?.length && actionsPosition === 'after-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
             </tr>

@@ -957,14 +957,14 @@ export function Table({
   // here, so `after-cells` renders where `after-columns` does rather than being
   // refused for a table ported from the documented contract.
   const actionsPosition = resource.actionsPosition === "after-cells" ? "after-columns" : resource.actionsPosition ?? "after-columns";
-  const actionsAt = (slot: string, row: TableRow) => resource.actions.length && actionsPosition === slot ? <td className={`${cardLayout ? "block px-2 py-2" : "w-32 min-w-32 max-w-48 whitespace-nowrap bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10"} text-right ${classNames?.cell ?? ""}`}><div className={`flex items-center justify-end gap-1.5 whitespace-nowrap ${classNames?.rowActions ?? ""}`} data-slot="row-actions">
+  const actionsAt = (slot: string, row: TableRow) => resource.actions.length && actionsPosition === slot ? <td className={`${cardLayout ? "block px-2 py-2" : "w-32 min-w-32 max-w-48 whitespace-nowrap border-l-0 border-r-0 bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10"} text-right ${classNames?.cell ?? ""}`}><div className={`flex items-center justify-end gap-1.5 whitespace-nowrap ${classNames?.rowActions ?? ""}`} data-slot="row-actions">
         {resource.actions.filter((action) => isActionGroup(action) ? rowGroupVisibleActions(action.actions, row).length > 0 : actionVisible(action.visibleWhen, row)).map((action) => isActionGroup(action)
           ? <RowActionGroupMenu definition={action} execute={execute} key={action.instanceKey ?? action.name} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} row={row} />
           : <ActionButton action={action} key={action.instanceKey ?? action.name} onClick={() => execute(action, [row])} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} rows={[row]} />)}
       </div></td> : null;
 
   const actionsHeaderAt = (slot: string) => resource.actions.length && actionsPosition === slot ? (<th
-                    className="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20"
+                    className="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20"
                     rowSpan={hasColumnGroups ? 2 : undefined}
                     scope="col"
                   >
@@ -1046,7 +1046,7 @@ export function Table({
               <span className="sr-only">Search</span>
               <input
                 aria-label="Search"
-                className={`${controlClass} w-full`}
+                className={`${controlClass} w-full focus:ring-offset-0`}
                 data-slot="search"
                 onBlur={() => resource.searchOnBlur && commitSearch(searchDraft)}
                 onChange={(event) => {
@@ -2573,7 +2573,7 @@ function ColumnHeaderCell({ column, query, onQueryChange, rowSpan, searchDebounc
         <span className="sr-only">Search {column.label}</span>
         <input
           aria-label={`Search ${column.label}`}
-          className={`${controlClass} min-h-8 w-full px-2 py-1 text-sm font-normal`}
+          className={`${controlClass} min-h-8 w-full px-2 py-1 text-sm font-normal focus:ring-offset-0`}
           data-slot="column-search"
           onBlur={() => searchOnBlur && commitSearch(searchDraft)}
           onChange={(event) => {

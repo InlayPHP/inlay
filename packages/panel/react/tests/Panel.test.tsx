@@ -76,7 +76,8 @@ describe('Panel', () => {
 
     const search = container.querySelector('[data-slot="global-search"]')
     expect(search).toHaveAttribute('data-placement', 'sidebar-footer')
-    expect(search?.querySelector('input[name="global-search"]')).toBeInTheDocument()
+    expect(search?.querySelector('input[name="global-search"]')).toHaveClass('focus:ring-offset-0')
+    expect(search?.querySelector('input[name="global-search"]')).not.toHaveClass('ring-(--inlay-panel-border)')
     expect(search?.querySelector('svg[data-icon="search"]')).toBeInTheDocument()
     expect(search?.className).toContain('w-full')
   })
@@ -165,7 +166,7 @@ describe('Panel', () => {
     expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('main')).toHaveAttribute('data-component', 'PanelLayout')
 
-    expect(within(screen.getByRole('banner')).getByRole('button', { name: 'Collapse sidebar' })).toHaveClass('size-9', 'lg:inline-flex')
+    expect(within(screen.getByRole('complementary', { name: 'Primary' })).getByRole('button', { name: 'Collapse sidebar' })).toHaveClass('size-9', 'inline-flex')
 
     await userEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }))
     expect(sidebar).toHaveAttribute('data-collapsed', 'true')
@@ -178,6 +179,16 @@ describe('Panel', () => {
     expect(overlay).toBeInTheDocument()
     await userEvent.click(overlay)
     expect(mobile).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('publishes dark recipe overrides and a scrollable Orbit sidebar', () => {
+    const { container } = render(<Panel resource={resource()}><h1>Dashboard content</h1></Panel>)
+    const sidebar = screen.getByRole('complementary', { name: 'Primary' })
+    const themeStyle = container.querySelector('[data-inlay-theme-style]')
+
+    expect(sidebar).toHaveClass('min-h-0', 'overflow-y-auto', 'overscroll-contain')
+    expect(themeStyle?.textContent).toContain('--inlay-surface-subtle:')
+    expect(themeStyle?.textContent).toContain('!important')
   })
 
   it('sorts groups and items, filters hidden entries, marks active conditions, and renders badges', async () => {

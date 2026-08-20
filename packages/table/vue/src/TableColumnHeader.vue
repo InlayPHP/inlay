@@ -66,7 +66,7 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
         <span class="sr-only">Search {{ column.label }}</span>
         <input
           :aria-label="`Search ${column.label}`"
-          :class="`${controlClass} min-h-8 px-2 py-1 text-sm font-normal`"
+          :class="`${controlClass} min-h-8 px-2 py-1 text-sm font-normal focus:ring-offset-0`"
           data-slot="column-search"
           type="search"
           :value="searchDraft"

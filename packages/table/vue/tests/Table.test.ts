@@ -1220,8 +1220,8 @@ describe('Vue actions position', () => {
       const rowIndex = rowCells.findIndex(cell => cell.querySelector('[data-slot="row-actions"]'))
       expect(headerIndex).toBe(rowIndex)
       expect(headerCells[headerIndex]).toHaveClass('w-32', 'min-w-32', 'max-w-48', 'whitespace-nowrap')
-      expect(headerCells[headerIndex]).not.toHaveClass('border-l')
-      expect(rowCells[rowIndex]).not.toHaveClass('border-l')
+      expect(headerCells[headerIndex]).not.toHaveClass('border-l', 'border-r')
+      expect(rowCells[rowIndex]).not.toHaveClass('border-l', 'border-r')
       cleanup()
     }
   })

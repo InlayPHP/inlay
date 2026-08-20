@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <td :class="`${cardLayout ? 'block px-2 py-2' : 'w-32 min-w-32 max-w-48 whitespace-nowrap bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10'} text-right ${props.classNames.cell ?? ''}`">
+  <td :class="`${cardLayout ? 'block px-2 py-2' : 'w-32 min-w-32 max-w-48 whitespace-nowrap border-l-0 border-r-0 bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10'} text-right ${props.classNames.cell ?? ''}`">
     <div :class="`flex items-center justify-end gap-1.5 whitespace-nowrap ${props.classNames.rowActions ?? ''}`" data-slot="row-actions">
       <TableRowActionTree
         v-for="action in actions"
