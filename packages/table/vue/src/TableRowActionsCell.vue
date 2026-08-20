@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import TableAction from './TableAction.vue'
-import type { Action, TableClassNames, TableRow } from './types'
-import type { ActionExecutionContext } from '@inlayphp/actions'
+import type { ActionExecutionContext, ActionResource } from '@inlayphp/actions'
+import type { TableClassNames, TableRendererRegistries, TableRenderers, TableRow, RowActionDefinition } from './types'
+import TableRowActionTree from './TableRowActionTree.vue'
 
 /**
  * The row action cell, in one place rather than three.
@@ -12,35 +12,35 @@ import type { ActionExecutionContext } from '@inlayphp/actions'
  * that would drift apart.
  */
 const props = withDefaults(defineProps<{
-  actions: Action[]
+  actions: RowActionDefinition[]
   /** The cell and its action row are host-stylable in React, so they are here too. */
   classNames?: TableClassNames
   row: TableRow
   recordKey: string | number
   cardLayout: boolean
-  visible: (condition: Action['visibleWhen'], row: TableRow) => boolean
-  execute: (action: Action, rows: TableRow[], context?: ActionExecutionContext) => unknown
-  complete: (action: Action) => void
-  registries?: unknown
-  renderers?: unknown
+  visible: (condition: ActionResource['visibleWhen'], row: TableRow) => boolean
+  execute: (action: ActionResource, rows: TableRow[], context?: ActionExecutionContext) => unknown
+  complete: (action: ActionResource) => void
+  registries?: TableRendererRegistries
+  renderers?: TableRenderers
 }>(), { classNames: () => ({}) })
 </script>
 
 <template>
   <td :class="`${cardLayout ? 'block px-2 py-2' : 'w-32 min-w-32 max-w-48 whitespace-nowrap bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10'} text-right ${props.classNames.cell ?? ''}`">
     <div :class="`flex items-center justify-end gap-1.5 whitespace-nowrap ${props.classNames.rowActions ?? ''}`" data-slot="row-actions">
-      <template v-for="action in actions" :key="action.instanceKey ?? action.name">
-        <TableAction
-          v-if="visible(action.visibleWhen, row)"
-          :action="action"
-          :executor="(context: ActionExecutionContext) => execute(action, [row], context)"
-          :record-keys="[recordKey]"
-          :registries="registries as never"
-          :renderers="renderers as never"
-          :rows="[row]"
-          @success="complete(action)"
-        />
-      </template>
+      <TableRowActionTree
+        v-for="action in actions"
+        :key="action.instanceKey ?? action.name"
+        :complete="complete"
+        :definition="action"
+        :execute="execute"
+        :record-keys="[recordKey]"
+        :registries="registries"
+        :renderers="renderers"
+        :rows="[row]"
+        :visible="visible"
+      />
     </div>
   </td>
 </template>

@@ -7,13 +7,15 @@ import NamedIcon from './NamedIcon.vue'
 
 const props = withDefaults(defineProps<{
   definition: ActionGroupResource
+  context?: 'bulk' | 'row'
   disabled?: boolean
   registries?: TableRendererRegistries
   renderers?: TableRenderers
   groupPosition?: 'first' | 'middle' | 'last' | 'single'
-}>(), { disabled: false })
+}>(), { context: 'bulk', disabled: false })
 
 const details = ref<HTMLDetailsElement | null>(null)
+const rowContext = 'row'
 const refused = computed(() => props.disabled || Boolean(props.definition.disabled))
 const style = computed(() => props.definition.triggerStyle ?? 'button')
 
@@ -52,14 +54,14 @@ onBeforeUnmount(() => document.removeEventListener('keydown', toggleFromKeyboard
 </script>
 
 <template>
-  <div v-if="definition.buttonGroup" :aria-label="definition.label" class="inline-flex max-w-full -space-x-px overflow-x-auto" data-slot="action-button-group" role="group">
+  <div v-if="definition.buttonGroup" :aria-label="definition.label" class="inline-flex max-w-full -space-x-px overflow-x-auto" :data-slot="context === rowContext ? 'row-action-button-group' : 'action-button-group'" role="group">
     <slot />
   </div>
-  <div v-else-if="definition.dropdown === false" class="mt-1 grid gap-1 border-t border-(--inlay-border) pt-1" data-slot="action-group-section" role="group">
+  <div v-else-if="definition.dropdown === false" class="mt-1 grid gap-1 border-t border-(--inlay-border) pt-1" :data-slot="context === rowContext ? 'row-action-group-section' : 'action-group-section'" role="group">
     <span class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-(--inlay-muted)">{{ definition.label }}</span>
     <slot />
   </div>
-  <details v-else ref="details" class="group relative" data-slot="bulk-action-group">
+  <details v-else ref="details" class="group relative" :data-slot="context === rowContext ? 'row-action-group' : 'bulk-action-group'">
     <summary
       :aria-disabled="refused || undefined"
       :aria-keyshortcuts="ariaShortcuts"
@@ -78,7 +80,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', toggleFromKeyboard
       <NamedIcon v-if="style !== 'icon-button'" fallback="⌄" name="chevron-down" :registries="registries" :renderers="renderers" />
       <span v-if="definition.badge !== null && definition.badge !== undefined" :class="[style === 'icon-button' ? 'absolute -right-1 -top-1 min-w-4' : 'ml-1', 'rounded-full border px-1.5 text-xs font-semibold', badgeTone]" :data-color="definition.badgeColor ?? 'default'" data-slot="action-group-badge">{{ definition.badge }}</span>
     </summary>
-    <div :class="['absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)', placement, width]" :data-placement="definition.dropdownPlacement ?? 'top-start'" data-slot="action-group-menu">
+    <div :class="['absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)', placement, width]" :data-placement="definition.dropdownPlacement ?? 'top-start'" :data-slot="context === rowContext ? 'row-action-group-menu' : 'action-group-menu'">
       <slot />
     </div>
   </details>

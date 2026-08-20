@@ -673,6 +673,20 @@ describe('Vue Table', () => {
 
   it('runs a column action when its cell is activated', async () => { const actionExecutor = vi.fn().mockResolvedValue('handled'); const action = { name: 'rename', label: 'Rename', url: '/users/{id}?_inlay_action=rename', method: 'post' as const, color: 'primary', requiresConfirmation: false, icon: null, modalHeading: null, lifecycle: true }; const data = { ...resource([column({ action }), column({ name: 'email', label: 'Email' })]), rows: [{ id: 7, name: 'Ada', email: 'ada@example.com' }] }; const view = render(Table, { props: { actionExecutor, manual: true, resource: data } }); const triggers = view.container.querySelectorAll('[data-slot="column-action"]'); expect(triggers).toHaveLength(1); await userEvent.click(triggers[0] as HTMLElement); const [calledAction, calledRows, context] = actionExecutor.mock.calls[0] as [{ name: string }, unknown[], { url: string }]; expect(calledAction.name).toBe('rename'); expect(calledRows).toEqual([data.rows[0]]); expect(context.url).toBe('/users/7?_inlay_action=rename') })
 
+  it('renders grouped row actions with the shared Orbit menu contract', async () => {
+    const edit = { name: 'edit', label: 'Edit', url: null, method: 'get' as const, color: 'default', requiresConfirmation: false, icon: null, modalHeading: null }
+    const group = { type: 'action-group' as const, name: 'more', label: 'More', icon: 'ellipsis-horizontal', color: 'default', actions: [edit] }
+    const data = { ...resource([column({})]), actions: [group] }
+    const view = render(Table, { props: { resource: data, manual: true } })
+
+    await userEvent.click(screen.getByText('More'))
+    expect(view.container.querySelector('[data-slot="row-action-group"]')).not.toBeNull()
+    expect(view.container.querySelector('[data-slot="row-action-group-menu"]')).toHaveClass('rounded-(--inlay-radius-md)', 'shadow-(--inlay-shadow-md)')
+    expect(view.container.querySelector('[data-slot="row-actions"] [data-icon="ellipsis-horizontal"]')).not.toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    expect(view.emitted().action?.[0]).toEqual([edit, [data.rows[0]]])
+  })
+
   it('pairs page summaries with their query summary by label', async () => { const summary = (type: string, label: string, value: unknown) => ({ type, label, value, decimalPlaces: null, prefix: null, suffix: null, currency: null }); const data = { ...resource([column({ name: 'total', label: 'Total' })]), rows: [{ id: 1, total: 100 }], summaries: { query: { total: [summary('sum', 'All', 1250), summary('count', 'Distinct statuses', 2), summary('sum', 'Query only', 900)] }, page: { total: [summary('sum', 'All', 100), summary('count', 'Distinct statuses', 1)] } } as TableResource['summaries'] }; const view = render(Table, { props: { resource: data, manual: true } }); const footer = view.container.querySelector('tfoot') as HTMLElement; expect(footer.textContent).toContain('All: 1,250'); expect(footer.textContent).toContain('Page: 100'); expect(footer.textContent).toContain('Query only: 900'); expect(footer.textContent).not.toContain('Page: 900') })
 
   it('honors page and all-table summary visibility conditions', () => { const summary = (value: number) => ({ type: 'sum' as const, label: 'Total', value, decimalPlaces: null, prefix: null, suffix: null, currency: null }); const pageOnly = { ...resource([column({ name: 'total', label: 'Total' })]), summaries: { page: { total: [summary(100)] }, query: { total: [summary(1250)] }, pageVisible: true, queryVisible: false } } as TableResource; const pageView = render(Table, { props: { resource: pageOnly, manual: true } }); expect(pageView.container.querySelector('tfoot')?.textContent).toContain('Page: 100'); expect(pageView.container.querySelector('tfoot')?.textContent).not.toContain('1,250'); pageView.unmount(); const hidden = { ...pageOnly, summaries: { ...pageOnly.summaries!, pageVisible: false, queryVisible: false } } as TableResource; const hiddenView = render(Table, { props: { resource: hidden, manual: true } }); expect(hiddenView.container.querySelector('tfoot')).toBeNull(); })
