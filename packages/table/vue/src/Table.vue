@@ -1587,9 +1587,9 @@ function rawComponent(component: Component | undefined): Component | undefined {
         class="inline-block min-w-full px-4 py-2 align-middle sm:px-6 lg:px-8"
       >
         <table :class="`${gridLayout || customLayout ? 'block' : stackedLayout ? 'block sm:table' : `${fixedTableLayout ? 'table-fixed' : 'table-auto'} w-max min-w-full`} border-separate border-spacing-0 ${classNames?.table ?? ''}`" data-slot="table">
-          <thead :class="`${gridLayout || customLayout ? 'hidden' : stackedLayout ? 'hidden sm:table-header-group' : ''} ${classNames?.head ?? ''}`" data-slot="table-head">
-            <tr class="border-b border-(--inlay-border)">
-              <th v-if="resource.actions?.length && actionsPosition === 'before-cells'" class="w-max min-w-32 whitespace-nowrap border-b border-l border-(--inlay-border) bg-(--inlay-surface-muted) px-3 py-3 text-right lg:sticky lg:right-0 lg:z-20 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]" :rowspan="hasColumnGroups ? 2 : undefined">
+          <thead :class="`${gridLayout || customLayout ? 'hidden' : stackedLayout ? 'hidden bg-(--inlay-surface-subtle) sm:table-header-group' : 'bg-(--inlay-surface-subtle)'} ${classNames?.head ?? ''}`" data-slot="table-head">
+            <tr>
+              <th v-if="resource.actions?.length && actionsPosition === 'before-cells'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
               <th v-if="reordering" class="w-32 border-b border-(--inlay-border) py-2.5" :rowspan="hasColumnGroups ? 2 : undefined"><span class="sr-only">Reorder controls</span></th>
@@ -1607,17 +1607,17 @@ function rawComponent(component: Component | undefined): Component | undefined {
                   "
                 />
               </th>
-              <th v-if="resource.actions?.length && actionsPosition === 'before-columns'" class="w-max min-w-32 whitespace-nowrap border-b border-l border-(--inlay-border) bg-(--inlay-surface-muted) px-3 py-3 text-right lg:sticky lg:right-0 lg:z-20 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]" :rowspan="hasColumnGroups ? 2 : undefined">
+              <th v-if="resource.actions?.length && actionsPosition === 'before-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
               <template v-if="hasColumnGroups">
                 <template v-for="(segment, index) in headerSegments" :key="`${segment.group?.label ?? segment.columns[0].name}-${index}`">
-                  <th v-if="segment.group" :class="`${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} border-b border-(--inlay-border) px-4 py-2.5 text-xs font-semibold tracking-wide text-(--inlay-muted) uppercase ${alignmentClass(segment.group.alignment)}`" :colspan="segment.columns.length" scope="colgroup" :title="segment.group.tooltip ?? undefined">{{ segment.group.label }}</th>
+                  <th v-if="segment.group" :class="`${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(segment.group.alignment)}`" :colspan="segment.columns.length" scope="colgroup" :title="segment.group.tooltip ?? undefined">{{ segment.group.label }}</th>
                   <TableColumnHeader v-else :column="segment.columns[0]" :query="query" :row-span="2" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
                 </template>
               </template>
               <TableColumnHeader v-else v-for="column in columns" :key="column.name" :column="column" :query="query" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
-              <th v-if="resource.actions?.length && actionsPosition === 'after-columns'" class="w-max min-w-32 whitespace-nowrap border-b border-l border-(--inlay-border) bg-(--inlay-surface-muted) px-3 py-3 text-right lg:sticky lg:right-0 lg:z-20 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]" :rowspan="hasColumnGroups ? 2 : undefined">
+              <th v-if="resource.actions?.length && actionsPosition === 'after-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
             </tr>
@@ -1629,10 +1629,10 @@ function rawComponent(component: Component | undefined): Component | undefined {
               </template>
             </tr>
           </thead>
-            <tbody :class="gridLayout ? `grid gap-4 p-4 ${contentGridClass(resource.layout?.contentGrid ?? {})}` : customLayout ? 'grid gap-3 p-3' : stackedLayout ? 'block p-3 sm:table-row-group sm:p-0' : 'divide-y divide-(--inlay-border)'">
+            <tbody :class="gridLayout ? `grid gap-4 p-4 ${contentGridClass(resource.layout?.contentGrid ?? {})}` : customLayout ? 'grid gap-3 p-3' : stackedLayout ? 'block p-3 sm:table-row-group sm:p-0' : undefined">
               <template v-for="item in displayRows" :key="item.key">
               <tr v-if="item.kind === 'group'" class="bg-(--inlay-surface-muted)" data-slot="group-header">
-                <th class="whitespace-normal px-4 py-3 text-left" :colspan="columns.length + (reordering ? 1 : 0) + (resource.selectable ? 1 : 0) + (resource.actions?.length ? 1 : 0)" scope="rowgroup">
+                <th class="whitespace-normal h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-left" :colspan="columns.length + (reordering ? 1 : 0) + (resource.selectable ? 1 : 0) + (resource.actions?.length ? 1 : 0)" scope="rowgroup">
                   <button class="flex w-full items-start justify-between gap-4 text-left" :disabled="!resource.grouping?.active?.collapsible" type="button" @click="toggleGroup(item.bucket.key)">
                     <span><span class="font-semibold text-(--inlay-text)">{{ item.bucket.title }}</span><span v-if="item.bucket.description" class="mt-0.5 block text-sm font-normal text-(--inlay-muted)">{{ item.bucket.description }}</span></span>
                     <span class="text-sm font-normal text-(--inlay-muted)">{{ summaryText(item.bucket.summaries) }} {{ resource.grouping?.active?.collapsible ? (collapsedGroups.includes(item.bucket.key) ? '▾' : '▴') : '' }}</span>
@@ -1642,7 +1642,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
               <tr
                 v-else
                 :key="item.key"
-                :class="`group h-[66px] transition hover:bg-(--inlay-hover) ${resource.striped && rowIndexFor(item.row) % 2 === 1 ? 'bg-(--inlay-surface-muted)' : ''} ${resource.rowClasses?.[String(keyFor(item.row))] ?? ''} ${reordering && String(dragTargetKey) === String(keyFor(item.row)) ? 'bg-(--inlay-hover) outline-2 -outline-offset-2 outline-(--inlay-accent)' : ''} ${gridLayout || customLayout ? 'block h-auto rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-3 shadow-xs' : stackedLayout ? 'mb-3 block h-auto rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-2 shadow-xs sm:mb-0 sm:table-row sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none' : ''} ${recordUrl(item.row) ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--inlay-accent)' : ''} ${classNames?.row ?? ''}`"
+                :class="`group transition-colors hover:bg-(--inlay-surface-subtle) focus-within:bg-(--inlay-surface-subtle) ${resource.striped && rowIndexFor(item.row) % 2 === 1 ? 'bg-(--inlay-surface-muted)' : ''} ${resource.rowClasses?.[String(keyFor(item.row))] ?? ''} ${reordering && String(dragTargetKey) === String(keyFor(item.row)) ? 'bg-(--inlay-surface-subtle) outline-2 -outline-offset-2 outline-(--inlay-accent)' : ''} ${gridLayout || customLayout ? 'block h-auto rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-3 shadow-xs' : stackedLayout ? 'mb-3 block h-auto rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-2 shadow-xs sm:mb-0 sm:table-row sm:rounded-none sm:border-0 sm:p-0 sm:shadow-none' : ''} ${recordUrl(item.row) ? 'cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)' : ''} ${classNames?.row ?? ''}`"
                 :data-drag-target="reordering && String(dragTargetKey) === String(keyFor(item.row)) ? 'true' : undefined"
                 :data-row-key="keyFor(item.row)"
                 data-slot="table-row"
@@ -1656,7 +1656,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
               >
               <TableRowActionsCell v-if="resource.actions?.length && actionsPosition === 'before-cells'" :actions="resource.actions ?? []" :class-names="classNames" :card-layout="cardLayout" :complete="completeAction" :execute="execute" :record-key="keyFor(item.row)" :registries="registries" :renderers="renderers" :row="item.row" :visible="actionVisible" />
               <td v-if="reordering" class="w-32 py-2 pr-2"><div class="flex justify-center gap-1"><button :aria-label="`Drag row ${keyFor(item.row)}`" class="min-h-8 cursor-grab rounded-(--inlay-radius) px-2 ring-1 ring-(--inlay-border) hover:bg-(--inlay-hover) active:cursor-grabbing" draggable="true" type="button" @click.stop @dragend="stopDragging" @dragstart.stop="startDragging(item.row, $event)">⋮⋮</button><button :aria-label="`Move row ${keyFor(item.row)} up`" class="min-h-8 rounded-(--inlay-radius) px-2 ring-1 ring-(--inlay-border) hover:bg-(--inlay-hover) disabled:opacity-40" :disabled="orderedRows[0] === item.row" type="button" @click="moveRecord(item.row, -1)">↑</button><button :aria-label="`Move row ${keyFor(item.row)} down`" class="min-h-8 rounded-(--inlay-radius) px-2 ring-1 ring-(--inlay-border) hover:bg-(--inlay-hover) disabled:opacity-40" :disabled="orderedRows[orderedRows.length - 1] === item.row" type="button" @click="moveRecord(item.row, 1)">↓</button></div></td>
-              <td v-if="resource.selectable" :class="`${cardLayout ? 'block w-full px-2 py-2 sm:w-auto' : 'w-12 py-2.5 pr-3'} ${classNames?.cell ?? ''}`">
+              <td v-if="resource.selectable" :class="`${cardLayout ? 'block w-full px-2 py-2 sm:w-auto' : 'w-12 h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle'} ${classNames?.cell ?? ''}`">
                 <input
                   :aria-describedby="`${resource.name}-selection-status`"
                   :aria-label="`Select row ${keyFor(item.row)}`"
@@ -1683,7 +1683,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
                 v-bind="cellAttributesFor(item.row, column)"
                 :data-no-record-click="column.disabledClick ? 'true' : undefined"
                 data-slot="table-cell"
-                :class="`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? 'sm:table-cell sm:px-3 sm:py-4 lg:px-4' : ''}` : 'min-w-0 overflow-hidden px-3 py-4 lg:px-4'} text-sm leading-5 text-(--inlay-text) ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? 'whitespace-normal' : ''} ${classNames?.cell ?? ''}`"
+                :class="`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? 'sm:table-cell sm:h-(--inlay-table-row-height) sm:px-(--inlay-space-table-x) sm:align-middle' : ''}` : 'min-w-0 overflow-hidden h-(--inlay-table-row-height) px-(--inlay-space-table-x)'} text-xs text-(--inlay-muted-strong) ${column.numeric || column.money ? 'tabular-nums' : ''} ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? 'whitespace-normal' : ''} ${classNames?.cell ?? ''}`"
                 :style="columnDimensionStyle(column)"
               >
                 <span v-if="cardLayout" :class="`text-left text-xs font-medium text-(--inlay-muted) ${stackedLayout && !gridLayout ? 'sm:hidden' : ''}`">{{ column.label }}</span>
@@ -1753,7 +1753,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
             <tr>
               <td v-if="reordering" />
               <td v-if="resource.selectable" />
-              <td v-for="column in columns" :key="column.name" :class="`min-w-0 whitespace-normal border-t border-(--inlay-border) px-3 py-3 text-sm lg:px-4 ${alignmentClass(column.alignment)} ${classNames?.cell ?? ''}`">
+              <td v-for="column in columns" :key="column.name" :class="`min-w-0 whitespace-normal border-t border-(--inlay-border) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-sm ${column.numeric || column.money ? 'tabular-nums' : ''} ${alignmentClass(column.alignment)} ${classNames?.cell ?? ''}`">
                 <template v-if="summaryQueryVisible">
                   <div v-for="(summary, index) in summaryQuery[column.name] ?? []" :key="`${summary.type}-${index}`" class="grid min-w-0 gap-0.5">
                     <span class="font-medium text-(--inlay-text)">{{ summary.label }}: {{ summaryValue(summary) }}</span>

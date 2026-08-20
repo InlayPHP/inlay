@@ -27,8 +27,8 @@ const props = withDefaults(defineProps<{
 </script>
 
 <template>
-  <td :class="`${cardLayout ? 'block px-2 py-2' : 'w-max min-w-32 whitespace-nowrap border-l border-(--inlay-border) bg-(--inlay-surface) px-3 py-3 group-hover:bg-(--inlay-hover) group-focus-within:bg-(--inlay-hover) lg:sticky lg:right-0 lg:z-10 lg:shadow-[-8px_0_12px_-12px_rgb(0_0_0_/_0.35)]'} text-right ${props.classNames.cell ?? ''}`">
-    <div :class="`flex justify-end gap-2 whitespace-nowrap ${props.classNames.rowActions ?? ''}`" data-slot="row-actions">
+  <td :class="`${cardLayout ? 'block px-2 py-2' : 'w-32 min-w-32 max-w-48 whitespace-nowrap bg-(--inlay-surface) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle group-hover:bg-(--inlay-surface-subtle) group-focus-within:bg-(--inlay-surface-subtle) lg:sticky lg:right-0 lg:z-10'} text-right ${props.classNames.cell ?? ''}`">
+    <div :class="`flex items-center justify-end gap-1.5 whitespace-nowrap ${props.classNames.rowActions ?? ''}`" data-slot="row-actions">
       <template v-for="action in actions" :key="action.instanceKey ?? action.name">
         <TableAction
           v-if="visible(action.visibleWhen, row)"

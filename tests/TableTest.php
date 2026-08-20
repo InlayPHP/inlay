@@ -22,8 +22,10 @@ use Inlay\Actions\ActionGroup;
 use Inlay\Actions\ActionModal;
 use Inlay\Actions\ActionRunner;
 use Inlay\Forms\Fields\TextInput;
+use Inlay\Support\Condition;
 use Inlay\Tables\Actions\Action;
 use Inlay\Tables\Actions\BulkAction;
+use Inlay\Tables\Actions\DeleteBulkAction;
 use Inlay\Tables\Actions\ExportAction;
 use Inlay\Tables\Column;
 use Inlay\Tables\Columns\BadgeColumn;
@@ -412,6 +414,74 @@ it('serializes grouped bulk actions and server-authoritative selection policy', 
         ]);
 });
 
+it('accepts action groups as row actions and serializes nested actions', function (): void {
+    $process = Action::make('process')
+        ->icon('refresh-cw')
+        ->color('warning')
+        ->visibleWhen(Condition::make('status', 'new', 'equals'))
+        ->authorizeUsing(fn (): bool => true)
+        ->action(fn (): null => null);
+    $edit = Action::make('edit')->label('Edit')->url('/orders/{id}/edit')->method('get');
+
+    $table = Table::make('orders')
+        ->columns([TextColumn::make('number')])
+        ->actions([
+            ActionGroup::make('actions', [$process, $edit])
+                ->label('Actions')
+                ->iconButton()
+                ->icon('ellipsis-horizontal')
+                ->tooltip('Row actions')
+                ->dropdownPlacement('top-end'),
+        ])
+        ->defaultLifecycleActionUrls('/orders');
+
+    $payload = json_decode(json_encode($table, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($payload['actions'])->toHaveCount(1)
+        ->and($payload['actions'][0])->toMatchArray([
+            'type' => 'action-group',
+            'name' => 'actions',
+            'label' => 'Actions',
+            'icon' => 'ellipsis-horizontal',
+            'tooltip' => 'Row actions',
+            'triggerStyle' => 'icon-button',
+            'dropdownPlacement' => 'top-end',
+        ])->and($payload['actions'][0]['actions'])->toHaveCount(2)
+        ->and($payload['actions'][0]['actions'][0])->toMatchArray([
+            'name' => 'process',
+            'lifecycle' => true,
+            'url' => '/orders?table=orders&_inlay_action=process&_inlay_action_scope=row&record={id}',
+            'visibleWhen' => ['path' => 'status', 'operator' => 'equals', 'value' => 'new'],
+        ])->and($payload['actions'][0]['actions'][1])->toMatchArray([
+            'name' => 'edit',
+            'url' => '/orders/{id}/edit',
+            'method' => 'get',
+        ])->and($table->getAction('process'))->toBe($process)
+        ->and($table->getAction('edit'))->toBe($edit)
+        ->and($table->lifecycleAction('process', 'row'))->toBe($process);
+});
+
+it('keeps flat row action lists serializing exactly as before', function (): void {
+    $delete = Action::make('delete')->method('delete')->requiresConfirmation();
+
+    $table = Table::make('users')
+        ->columns([TextColumn::make('name')])
+        ->actions([$delete])
+        ->rows([['id' => 1, 'name' => 'Ada']]);
+
+    $payload = json_decode(json_encode($table, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
+
+    expect($payload['actions'])->toHaveCount(1)
+        ->and($payload['actions'][0])->toMatchArray([
+            'name' => 'delete',
+            'method' => 'delete',
+            'requiresConfirmation' => true,
+        ])->and(array_key_exists('type', $payload['actions'][0]))->toBeFalse()
+        ->and(array_key_exists('actions', $payload['actions'][0]))->toBeFalse()
+        ->and(fn () => Table::make('users')->actions(['not-an-action']))
+        ->toThrow(InvalidArgumentException::class, 'actions or action groups');
+});
+
 it('hosts and resolves lifecycle actions inside deeply nested bulk action groups', function (): void {
     $archive = BulkAction::make('archive')
         ->authorizeUsing(fn (): bool => true)
@@ -520,6 +590,90 @@ it('selects all matching records across pages and processes them in bounded chun
 
     expect($processed)->toBe(2)
         ->and($chunks)->toBe([[1], [3]]);
+});
+
+it('ships a ready-made delete bulk action with destructive defaults', function (): void {
+    $action = DeleteBulkAction::make();
+
+    $payload = $action->jsonSerialize();
+
+    expect($payload)->toMatchArray([
+        'name' => 'delete',
+        'label' => 'Delete',
+        'color' => 'danger',
+        'method' => 'post',
+        'requiresConfirmation' => true,
+        'modalHeading' => 'Delete selected records',
+        'bulk' => true,
+        'minimumSelection' => 1,
+        'lifecycle' => true,
+    ])->and($payload['modal']['description'])->toBe('This will permanently delete the selected records.')
+        ->and($action->hasLifecycleHandler())->toBeTrue()
+        ->and($action->minimumSelectionCount())->toBe(1)
+        ->and($action->maximumSelectionCount())->toBeNull();
+});
+
+it('deletes the selected records through the delete bulk action', function (): void {
+    $container = new Container;
+    $capsule = new Capsule($container);
+    $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:']);
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+    $capsule->schema()->create('delete_bulk_records', function ($table): void {
+        $table->id();
+        $table->string('title');
+    });
+    $capsule->table('delete_bulk_records')->insert([
+        ['title' => 'One'],
+        ['title' => 'Two'],
+        ['title' => 'Three'],
+    ]);
+    $page = new class extends TablePage
+    {
+        protected static string $component = 'records/index';
+
+        protected function name(): string
+        {
+            return 'records';
+        }
+
+        protected function table(Table $table): Table
+        {
+            return $table
+                ->columns([TextColumn::make('title')])
+                ->bulkActions([
+                    DeleteBulkAction::make()->authorizeUsing(fn (): bool => true),
+                ]);
+        }
+
+        protected function query(Request $request): Builder
+        {
+            return (new class extends Model
+            {
+                protected $table = 'delete_bulk_records';
+
+                public $timestamps = false;
+
+                protected $guarded = [];
+            })->newQuery();
+        }
+    };
+
+    $request = Request::create('/records?table=records&_inlay_action=delete&_inlay_action_scope=bulk', 'POST');
+    $request->setUserResolver(fn () => null);
+    $result = $page->runTableLifecycleAction(
+        $request,
+        tableActionRunner($container, $capsule),
+        'records',
+        'delete',
+        'bulk',
+        selection: ['mode' => 'page', 'records' => [1, 2]],
+    );
+
+    expect($result->jsonSerialize()['status'])->toBe('succeeded')
+        ->and($result->jsonSerialize()['message'])->toBe('Deleted.')
+        ->and($capsule->table('delete_bulk_records')->count())->toBe(1)
+        ->and($capsule->table('delete_bulk_records')->pluck('title')->all())->toBe(['Three']);
 });
 
 it('keeps explicit page selection backward compatible', function (): void {

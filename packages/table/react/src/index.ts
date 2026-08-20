@@ -17,4 +17,4 @@ export type {
   TableRenderers,
   TableTheme,
 } from './Table'
-export type { Action, Column, ColumnUpdateRequest, ColumnUpdateResponse, ColumnUpdater, EditableColumnsConfig, Filter, Pagination, QueryConstraint, QueryGroup, QueryOperatorDefinition, QueryRule, QueryState, TableResource, TableRow, TableView, TableViewManagement, TableViewQuery } from './types'
+export type { Action, Column, ColumnUpdateRequest, ColumnUpdateResponse, ColumnUpdater, EditableColumnsConfig, Filter, Pagination, QueryConstraint, QueryGroup, QueryOperatorDefinition, QueryRule, QueryState, RowActionDefinition, TableResource, TableRow, TableView, TableViewManagement, TableViewQuery } from './types'

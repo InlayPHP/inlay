@@ -59,7 +59,7 @@ final class Table implements JsonSerializable
     /** @var list<Filter> */
     private array $filters = [];
 
-    /** @var list<Action> */
+    /** @var list<Action|ActionGroup> */
     private array $actions = [];
 
     private string $actionsPosition = 'after-columns';
@@ -321,7 +321,7 @@ final class Table implements JsonSerializable
         return null;
     }
 
-    /** @return list<Action> */
+    /** @return list<Action|ActionGroup> */
     public function getActions(): array
     {
         return $this->actions;
@@ -329,9 +329,19 @@ final class Table implements JsonSerializable
 
     public function getAction(string $name): ?Action
     {
-        foreach ($this->actions as $action) {
-            if ($action->name() === $name) {
-                return $action;
+        foreach ($this->actions as $definition) {
+            if ($definition instanceof ActionGroup) {
+                foreach ($this->flattenActionDefinitions($definition->groupedActions()) as $action) {
+                    if ($action->name() === $name) {
+                        return $action;
+                    }
+                }
+
+                continue;
+            }
+
+            if ($definition->name() === $name) {
+                return $definition;
             }
         }
 
@@ -478,10 +488,14 @@ final class Table implements JsonSerializable
         return $this;
     }
 
-    /** @param list<Action> $actions */
+    /** @param list<Action|ActionGroup> $actions */
     public function actions(array $actions): self
     {
-        self::assertInstances($actions, Action::class, 'actions');
+        foreach ($actions as $action) {
+            if (! $action instanceof Action && ! $action instanceof ActionGroup) {
+                throw new \InvalidArgumentException('Table row actions must be actions or action groups.');
+            }
+        }
         $this->actions = array_values($actions);
 
         return $this;
@@ -1079,7 +1093,7 @@ final class Table implements JsonSerializable
         foreach ($this->headerActions as $action) {
             $action->defaultUrl($base.'&_inlay_action='.rawurlencode($action->name()).'&_inlay_action_scope=header');
         }
-        foreach ($this->flattenModalActionTree([...$this->actions, ...$this->columnActions()]) as $action) {
+        foreach ($this->flattenActionDefinitions([...$this->actions, ...$this->columnActions()]) as $action) {
             $action->defaultUrl($base.'&_inlay_action='.rawurlencode($action->name()).'&_inlay_action_scope=row&record={'.$this->primaryKey.'}');
         }
         foreach ($this->bulkActions as $definition) {
@@ -1237,7 +1251,7 @@ final class Table implements JsonSerializable
         $definitions = match ($scope) {
             'header' => $this->flattenModalActionTree([...$this->headerActions, ...$this->emptyStateActions]),
             // Column actions share the row scope: both act on one record.
-            'row' => $this->flattenModalActionTree([...$this->actions, ...$this->columnActions()]),
+            'row' => $this->flattenActionDefinitions([...$this->actions, ...$this->columnActions()]),
             'bulk' => $this->getBulkActions(),
             default => throw new \InvalidArgumentException("Unknown table action scope [{$scope}]."),
         };
