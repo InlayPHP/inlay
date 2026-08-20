@@ -405,7 +405,7 @@ describe('Vue Table', () => {
 
     expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument()
     const input = screen.getByRole('searchbox', { name: 'Search Name' })
-    expect(input).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-2', 'focus:ring-(--inlay-focus-ring-color)')
+    expect(input).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-(length:--inlay-focus-ring-width)', 'focus:ring-(--inlay-focus-ring)')
     await userEvent.type(input, 'Ada')
 
     expect((view.emitted('queryChange') as unknown[][]).at(-1)?.[0]).toEqual(expect.objectContaining({
@@ -779,7 +779,7 @@ describe('Vue Table', () => {
     render(Table, { props: { resource: data, manual: true } })
     await userEvent.click(screen.getByRole('button', { name: 'Filters' }))
     await userEvent.click(screen.getByRole('button', { name: 'Add condition' }))
-    for (const control of screen.getAllByRole('combobox')) expect(control).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-2', 'focus:ring-(--inlay-focus-ring-color)')
+    for (const control of screen.getAllByRole('combobox')) expect(control).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-(length:--inlay-focus-ring-width)', 'focus:ring-(--inlay-focus-ring)')
   })
 
   it('normalizes stale query-builder rules before applying filters', async () => {
