@@ -78,7 +78,7 @@ describe('PermissionMatrix', () => {
     render(<PermissionMatrix {...rendererContext} abilities={[{ name: 'posts.viewAny', label: 'Browse entries', group: 'Content', description: 'Read the editorial archive' }]} value={[]} />)
 
     const search = screen.getByRole('searchbox', { name: 'Search permissions' })
-    expect(search).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-2', 'focus:ring-(--inlay-focus-ring-color)')
+    expect(search).toHaveClass('ring-1', 'ring-(--inlay-control-border)', 'focus:ring-(length:--inlay-focus-ring-width)', 'focus:ring-(--inlay-focus-ring)')
     expect(search).not.toHaveClass('hover:ring-(--inlay-muted)')
     await user.type(search, 'editorial')
     expect(screen.getByText('Browse entries')).toBeInTheDocument()
