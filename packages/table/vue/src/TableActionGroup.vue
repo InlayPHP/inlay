@@ -75,10 +75,10 @@ onBeforeUnmount(() => document.removeEventListener('keydown', toggleFromKeyboard
       <NamedIcon v-if="definition.icon && definition.iconPosition !== 'after'" fallback="◆" :name="definition.icon" :registries="registries" :renderers="renderers" />
       <span :class="style === 'icon-button' ? 'sr-only' : undefined">{{ definition.label }}</span>
       <NamedIcon v-if="definition.icon && definition.iconPosition === 'after'" fallback="◆" :name="definition.icon" :registries="registries" :renderers="renderers" />
-      <span v-if="style !== 'icon-button'" aria-hidden="true">⌄</span>
+      <NamedIcon v-if="style !== 'icon-button'" fallback="⌄" name="chevron-down" :registries="registries" :renderers="renderers" />
       <span v-if="definition.badge !== null && definition.badge !== undefined" :class="[style === 'icon-button' ? 'absolute -right-1 -top-1 min-w-4' : 'ml-1', 'rounded-full border px-1.5 text-xs font-semibold', badgeTone]" :data-color="definition.badgeColor ?? 'default'" data-slot="action-group-badge">{{ definition.badge }}</span>
     </summary>
-    <div :class="['absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-lg', placement, width]" :data-placement="definition.dropdownPlacement ?? 'top-start'" data-slot="action-group-menu">
+    <div :class="['absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)', placement, width]" :data-placement="definition.dropdownPlacement ?? 'top-start'" data-slot="action-group-menu">
       <slot />
     </div>
   </details>

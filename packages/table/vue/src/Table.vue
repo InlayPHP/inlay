@@ -1709,13 +1709,13 @@ function rawComponent(component: Component | undefined): Component | undefined {
                   @change="handleCellChange(item.row, column, $event)"
                 /></button><span
                   v-if="openColumnActions === cellKey(item.row, column)"
-                  class="absolute left-0 top-full z-30 mt-1 grid min-w-40 gap-0.5 rounded-(--inlay-radius) bg-(--inlay-surface) p-1 shadow-lg ring-1 ring-(--inlay-border)"
+                  class="absolute left-0 top-full z-30 mt-1 grid min-w-40 gap-0.5 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)"
                   data-slot="column-actions"
                   role="menu"
                 ><button
                   v-for="action in column.actions"
                   :key="action.instanceKey ?? action.name"
-                  class="rounded-(--inlay-radius) px-2 py-1 text-left text-sm"
+                  class="flex min-h-9 items-center rounded-(--inlay-radius-sm) px-2.5 py-2 text-left text-sm text-(--inlay-fg-strong) transition-colors hover:bg-(--inlay-surface-subtle) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)"
                   role="menuitem"
                   type="button"
                   @click.stop="openColumnActions = null; execute(action, [item.row])"

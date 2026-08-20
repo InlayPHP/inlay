@@ -21,6 +21,8 @@ const builtInPaths: Record<string, string[]> = {
   'arrows-up-down': ['M8 5v14', 'm5 8 3-3 3 3', 'm5 16 3 3 3-3', 'M16 5v14', 'm13 8 3-3 3 3', 'm13 16 3 3 3-3'],
   check: ['m5 12 4 4L19 6'],
   x: ['m6 6 12 12', 'm18 6-12 12'],
+  'chevron-down': ['m6 9 6 6 6-6'],
+  'ellipsis-horizontal': ['M5 12h.01', 'M12 12h.01', 'M19 12h.01'],
 }
 const paths = computed(() => builtInPaths[props.name] ?? [])
 </script>

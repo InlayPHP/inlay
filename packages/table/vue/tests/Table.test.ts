@@ -760,6 +760,19 @@ describe('Vue Table', () => {
     await userEvent.click(screen.getByText('More'))
     expect(screen.getByRole('button', { name: 'Defer' })).toBeInTheDocument()
   })
+
+  it('uses the Orbit menu surface and icon for grouped actions', async () => {
+    const action = { name: 'archive', label: 'Archive', url: null, method: 'post' as const, color: 'default', requiresConfirmation: false, icon: null, modalHeading: null, bulk: true }
+    const data = { ...resource([column({})]), selectable: true, bulkActions: [{ type: 'action-group' as const, name: 'more', label: 'More', icon: null, color: 'default', actions: [action] }] }
+    const view = render(Table, { props: { resource: data } })
+
+    await userEvent.click(screen.getByLabelText('Select row 1'))
+    await userEvent.click(screen.getByText('More'))
+    const menu = view.container.querySelector('[data-slot="action-group-menu"]') as HTMLElement
+    expect(menu).toHaveClass('rounded-(--inlay-radius-md)', 'shadow-(--inlay-shadow-md)')
+    expect(view.container.querySelector('[data-slot="bulk-action-group"] [data-icon="chevron-down"]')).not.toBeNull()
+  })
+
   it('selects all matching records compactly and tracks exclusions', async () => {
     const archive = { name: 'archive', label: 'Archive', url: null, method: 'post' as const, color: 'default', requiresConfirmation: false, icon: null, modalHeading: null, bulk: true }
     const data = { ...resource([column({})]), rows: [{ id: 1, name: 'Ada' }, { id: 2, name: 'Grace' }], selectable: true, selection: { recordKeys: [1, 2], maximum: null, selectAllMode: 'query' as const, total: 25 }, bulkActions: [archive], query: { search: 'a', sort: null, direction: 'asc' as const, page: 1, filters: { status: 'active' } } }
