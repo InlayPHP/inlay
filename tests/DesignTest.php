@@ -36,6 +36,12 @@ it('provides one PHP façade for presets, variables, and CSS output', function (
         ->and($css)->toContain('--inlay-control-height: 2.75rem;')
         ->and($css)->toContain('--inlay-space-card: 1.25rem;')
         ->and($css)->toContain('--inlay-focus-ring-color: rgb(142 148 229 / 0.45);')
+        ->and($css)->toContain('--inlay-focus-ring-offset: 2px;')
+        ->and($css)->toContain('--inlay-table-row-height: 3.375rem;')
+        ->and($css)->toContain('--inlay-page-padding: clamp(18px, 3vw, 40px);')
+        ->and($css)->toContain('--inlay-radius-md: 0.625rem;')
+        ->and($css)->toContain('--inlay-accent-strong: #4244b9;')
+        ->and($css)->toContain('--inlay-danger-strong: #a1262b;')
         ->and($css)->toContain('@media (prefers-color-scheme: dark)')
         ->and($css)->toContain('[data-theme="dark"]')
         ->and($css)->toContain('--inlay-surface: #17131f;');
