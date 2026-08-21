@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/notifications-vue",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Accessible Vue notification renderer for Inlay.",
   "license": "MIT",
   "type": "module",

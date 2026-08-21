@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/actions-vue",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Vue renderer for Inlay actions and confirmation flows.",
   "license": "MIT",
   "type": "module",
