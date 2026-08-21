@@ -493,6 +493,28 @@ it('covers every v1 form component type', function (): void {
         ->each->toBe('layout');
 });
 
+it('serializes per-option toggle button colors alongside multiple and inline', function (): void {
+    $payload = ToggleButtons::make('status')
+        ->options(['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived'])
+        ->colors(['draft' => 'gray', 'published' => 'success', 'archived' => 'danger'])
+        ->inline()
+        ->jsonSerialize();
+
+    expect($payload)->toMatchArray([
+        'type' => 'toggle-buttons',
+        'multiple' => false,
+        'inline' => true,
+        'options' => [
+            ['value' => 'draft', 'label' => 'Draft'],
+            ['value' => 'published', 'label' => 'Published'],
+            ['value' => 'archived', 'label' => 'Archived'],
+        ],
+        'colors' => ['draft' => 'gray', 'published' => 'success', 'archived' => 'danger'],
+    ]);
+
+    expect(ToggleButtons::make('status')->options(['draft' => 'Draft'])->jsonSerialize()['colors'])->toBe([]);
+});
+
 it('rejects invalid form methods', function (): void {
     Form::make()->method('get');
 })->throws(InvalidArgumentException::class);

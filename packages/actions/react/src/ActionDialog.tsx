@@ -63,7 +63,7 @@ export function ActionDialog({ runtime, children, className = '', onCancelParent
       aria-describedby={modal.description ? descriptionId : undefined}
       aria-labelledby={titleId}
       aria-modal="true"
-      className={`w-full overflow-y-auto bg-(--inlay-surface) text-(--inlay-foreground) shadow-2xl ring-1 ring-(--inlay-border) ${widths[modal.width] ?? widths.md} ${modal.slideOver ? 'h-dvh max-h-dvh rounded-none' : 'max-h-[calc(100dvh-2rem)] rounded-(--inlay-radius)'} ${modal.alignment === 'center' ? 'text-center' : 'text-left'} ${className}`.trim()}
+      className={`w-full overflow-y-auto bg-(--inlay-surface) text-(--inlay-foreground) rounded-(--inlay-radius-md) shadow-(--inlay-shadow-md) ring-1 ring-(--inlay-border) ${widths[modal.width] ?? widths.md} ${modal.slideOver ? 'h-dvh max-h-dvh rounded-none' : 'max-h-[calc(100dvh-2rem)]'} ${modal.alignment === 'center' ? 'text-center' : 'text-left'} ${className}`.trim()}
       data-presentation={modal.slideOver ? 'slide-over' : 'modal'}
       data-slot="action-dialog"
       onKeyDown={onKeyDown}
@@ -71,13 +71,13 @@ export function ActionDialog({ runtime, children, className = '', onCancelParent
       role="dialog"
       tabIndex={-1}
     >
-      <div className={`relative border-b border-(--inlay-border) p-5 ${modal.stickyHeader ? 'sticky top-0 z-10 bg-(--inlay-surface) pb-4' : ''}`} data-slot="action-dialog-header">
+      <div className={`relative border-b border-(--inlay-border) p-(--inlay-space-dialog) ${modal.stickyHeader ? 'sticky top-0 z-10 bg-(--inlay-surface) pb-4' : ''}`} data-slot="action-dialog-header">
         {modal.icon ? <span aria-hidden="true" className="mb-3 inline-flex size-10 items-center justify-center rounded-full bg-(--inlay-surface-muted)" data-color={modal.iconColor ?? undefined}>{modal.icon}</span> : null}
         <h2 className="text-lg font-semibold" id={titleId}>{modal.heading}</h2>
         {modal.description ? <p className="mt-2 text-sm text-(--inlay-muted)" id={descriptionId}>{modal.description}</p> : null}
-        <button aria-label="Close dialog" className="absolute right-5 top-5 inline-flex size-11 items-center justify-center rounded-(--inlay-radius) border border-transparent text-(--inlay-muted) hover:border-(--inlay-border) hover:bg-(--inlay-surface-muted) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" data-modal-role="close" disabled={processing} onClick={dismiss} type="button">×</button>
+        <button aria-label="Close dialog" className="absolute right-(--inlay-space-dialog) top-(--inlay-space-dialog) inline-flex size-11 items-center justify-center rounded-(--inlay-radius) border border-transparent text-(--inlay-muted) hover:border-(--inlay-border) hover:bg-(--inlay-surface-muted) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" data-modal-role="close" disabled={processing} onClick={dismiss} type="button">×</button>
       </div>
-      <div className="px-5 pb-5" data-slot="action-dialog-body">
+      <div className="px-(--inlay-space-dialog) pb-(--inlay-space-dialog)" data-slot="action-dialog-body">
         {state.phase === 'mounting' ? <p className="mt-4 text-sm text-(--inlay-muted)" role="status">Loading form…</p> : null}
         {content && state.phase !== 'mounting' ? <div className="mt-4 text-left" data-slot="action-dialog-content">{content}</div> : null}
         {errors.length ? <div className="mt-4 rounded-md bg-(--inlay-danger-surface) p-3 text-left text-sm text-(--inlay-danger)" role="alert"><p className="font-medium">Please correct the following:</p><ul className="mt-1 list-disc pl-5">{errors.flatMap(([path, messages]) => messages.map((message, index) => <li key={`${path}:${index}`}>{message}</li>))}</ul></div> : null}
@@ -85,7 +85,7 @@ export function ActionDialog({ runtime, children, className = '', onCancelParent
         {state.phase === 'halted' && state.message ? <p className="mt-4 rounded-md bg-(--inlay-warning-surface) p-3 text-sm text-(--inlay-warning)" role="status">{state.message}</p> : null}
         {processing ? <p aria-live="polite" className="mt-4 text-sm" role="status">Processing…</p> : null}
       </div>
-      <div className={`flex gap-2 border-t border-(--inlay-border) px-5 pb-5 pt-4 ${modal.stickyFooter ? 'sticky bottom-0 z-10 bg-(--inlay-surface)' : ''} ${modal.alignment === 'center' ? 'justify-center' : 'justify-end'}`} data-slot="action-dialog-footer">
+      <div className={`flex gap-2 border-t border-(--inlay-border) px-(--inlay-space-dialog) pb-(--inlay-space-dialog) pt-4 ${modal.stickyFooter ? 'sticky bottom-0 z-10 bg-(--inlay-surface)' : ''} ${modal.alignment === 'center' ? 'justify-center' : 'justify-end'}`} data-slot="action-dialog-footer">
         {modal.cancelAction ? <ActionButton action={modal.cancelAction} data-modal-role="cancel" disabled={processing} onClick={(event) => { event.preventDefault(); dismiss() }} runtime={runtime} /> : null}
         {modal.extraFooterActions.map(action => action.modalFooterMode === 'action'
           ? <NestedFooterAction action={action} input={state.input} key={action.instanceKey ?? action.name} onCancelParents={cancelParentChain} renderContent={children} runtime={runtime} />

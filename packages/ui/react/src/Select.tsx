@@ -126,7 +126,7 @@ export function Select<TMultiple extends boolean = false>({ options, value = '' 
         <svg aria-hidden="true" className={`size-4 shrink-0 text-(--inlay-muted) transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg>
       </button>
       {name ? multiple ? selectedValues.map(item => <input key={item} name={`${name}[]`} type="hidden" value={item} />) : <input name={name} type="hidden" value={String(value ?? '')} /> : null}
-      {open ? <div className={`${selectMenuClass} ${menuClassName}`.trim()}>
+      {open ? <div className={`${selectMenuClass} ${menuClassName}`.trim()} style={{ backgroundColor: 'var(--inlay-surface, #ffffff)', border: '1px solid var(--inlay-border, #d4d4d8)', boxShadow: 'var(--inlay-shadow-md, 0 14px 36px rgb(15 23 42 / 0.12))' }}>
         {searchable ? <input aria-label={`Search ${searchAriaLabel ?? ariaLabel ?? name ?? 'options'}`} className={`${controlClass} mb-1.5`} onChange={(event) => { setSearch(event.target.value); onSearchChange?.(event.target.value) }} placeholder={searchPlaceholder} ref={searchInput} role="searchbox" value={search} /> : null}
         <ul aria-labelledby={ariaLabel ? undefined : controlId} aria-multiselectable={multiple || undefined} className="max-h-60 overflow-auto" id={listboxId} role="listbox">
         {loading ? <li className="px-2.5 py-3 text-(--inlay-muted)" role="status">{loadingMessage}</li> : visibleOptions.length === 0 ? <li className="px-2.5 py-3 text-(--inlay-muted)" role="status">{emptyMessage}</li> : visibleOptions.map((option, index) => {

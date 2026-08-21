@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { buttonBaseClass, buttonDangerClass, buttonPrimaryClass, buttonSecondaryClass, controlClass as sharedControlClass } from '@inlayphp/ui'
-import { customThemeVariables, recipeVariables, themeToken } from '@inlayphp/theme'
+import { buttonBaseClass, buttonDangerClass, buttonPrimaryClass, buttonSecondaryClass, controlClass as sharedControlClass, iconButtonClass } from '@inlayphp/ui'
+import { customThemeVariables, defaultTheme, recipeVariables, themeToken } from '@inlayphp/theme'
+import type { ThemeSource } from '@inlayphp/theme'
 import { Select as InlaySelect } from '@inlayphp/ui-vue'
 import { router } from "@inertiajs/vue3";
 import { computed, getCurrentInstance, onBeforeUnmount, onMounted, ref, toRaw, watch } from "vue";
@@ -91,9 +92,20 @@ function actionVisible(condition: Action["visibleWhen"], row: TableRow): boolean
 }
 
 function triggerButtonClass(action?: Action): string {
-  if (action?.color === 'primary') return `${buttonPrimaryClass} font-medium`
-  if (action?.color === 'danger') return `${buttonDangerClass} font-medium`
-  return `${buttonSecondaryClass} font-medium`
+  const density = 'min-h-(--inlay-button-sm-height) px-3 py-1 text-sm'
+  if (action?.color === 'primary') return `${buttonPrimaryClass} ${density} font-medium`
+  if (action?.color === 'danger') return `${buttonDangerClass} ${density} font-medium`
+  return `${buttonSecondaryClass} ${density} font-medium`
+}
+function scopedDarkThemeCss(theme: ThemeSource | undefined, scope: string): string {
+  const source = theme ?? defaultTheme
+  const variables = { ...customThemeVariables(source, 'dark'), ...recipeVariables(source, 'dark') }
+  const declarations = Object.entries(variables)
+    .filter(([, value]) => !/[\r\n;{}]|<\/style/i.test(value))
+    .map(([name, value]) => `  ${name}: ${value} !important;`)
+    .join('\n')
+  if (!declarations) return ''
+  return `.dark [data-inlay-table-theme="${scope}"],\n[data-inlay-table-theme="${scope}"][data-theme-mode="dark"] {\n${declarations}\n}`
 }
 const query = ref<QueryState>(
   props.resource.query ?? {
@@ -225,6 +237,21 @@ const themeStyle = computed(() => ({
   "--inlay-icon-button-size": themeToken(props.theme, "icon-button-size", "var(--inlay-panel-icon-button-size, var(--inlay-button-height, 2.5rem))"),
   "--inlay-shadow": themeToken(props.theme, "shadow", "var(--inlay-panel-shadow, 0 1px 2px rgb(15 23 42 / 0.06))"),
 }));
+const tableThemeScope = computed(() => `table-${props.resource.name.replace(/[^a-z0-9_-]/gi, '-')}`)
+const darkThemeCss = computed(() => scopedDarkThemeCss(props.theme, tableThemeScope.value))
+const darkThemeStyleElement = ref<HTMLStyleElement | null>(null)
+function syncDarkThemeStyle(): void {
+  if (darkThemeStyleElement.value) darkThemeStyleElement.value.textContent = darkThemeCss.value
+}
+onMounted(() => {
+  const element = document.createElement('style')
+  element.dataset.inlayTableDarkTheme = tableThemeScope.value
+  element.textContent = darkThemeCss.value
+  document.head.appendChild(element)
+  darkThemeStyleElement.value = element
+})
+watch(darkThemeCss, syncDarkThemeStyle)
+onBeforeUnmount(() => { darkThemeStyleElement.value?.remove() })
 const activeFilters = computed(() =>
   props.resource.filters.filter((filter) =>
     isActiveFilter(query.value.filters[filter.name]),
@@ -1159,6 +1186,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
     :aria-label="resource.name"
     :class="`antialiased isolate min-w-0 max-w-full overflow-x-hidden ${classNames?.root ?? ''}`"
     :data-contract="resource.contract"
+    :data-inlay-table-theme="tableThemeScope"
     data-slot="root"
     :style="themeStyle"
   >
@@ -1168,18 +1196,19 @@ function rawComponent(component: Component | undefined): Component | undefined {
       <p v-if="resource.description" class="mt-1 text-base text-(--inlay-muted) sm:text-sm">{{ resource.description }}</p>
     </div>
     <div
-      :class="`flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between ${classNames?.toolbar ?? ''}`"
+      :class="`flex min-h-(--inlay-control-height) flex-col gap-3 rounded-t-(--inlay-radius-lg) border-b border-(--inlay-border) bg-(--inlay-surface) px-4 py-3 lg:flex-row lg:items-center lg:justify-between sm:px-5 ${classNames?.toolbar ?? ''}`"
       data-slot="toolbar"
     >
       <div class="flex min-w-0 flex-1 flex-wrap items-center gap-3">
         <label
           v-if="resource.searchable ?? resource.columns.some((column) => column.searchable)"
-          class="w-full max-w-[250px] flex-none"
+          class="relative w-full max-w-[280px] flex-none lg:ml-auto"
         >
           <span class="sr-only">Search</span>
+          <NamedIcon class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--inlay-muted)" fallback="⌕" name="search" :registries="registries" :renderers="renderers" />
           <input
             aria-label="Search"
-            :class="`${controlClass} w-full focus:ring-offset-0`"
+            :class="`${controlClass} w-full pl-9 focus:ring-offset-0`"
             data-slot="search"
             :placeholder="resource.searchPlaceholder"
             type="search"
@@ -1210,7 +1239,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
           type="button"
           @click="filtersOpen = !filtersOpen"
         >
-          <NamedIcon v-if="resource.triggers?.filters?.icon" fallback="◆" :name="resource.triggers.filters.icon" :registries="registries" :renderers="renderers" />{{ resource.triggers?.filters?.label ?? 'Filters' }}<span
+          <NamedIcon fallback="◆" :name="resource.triggers?.filters?.icon ?? 'funnel'" :registries="registries" :renderers="renderers" />{{ resource.triggers?.filters?.label ?? 'Filters' }}<span
             v-if="activeFilters.length"
             :aria-label="`${activeFilters.length} active filters`"
             class="rounded-full bg-(--inlay-accent) px-1.5 py-0.5 text-xs text-(--inlay-accent-foreground)"
@@ -1230,7 +1259,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
             <button :class="primaryButton" :disabled="reorderSubmitting" type="button" @click="saveReordering">{{ reorderSubmitting ? 'Saving…' : 'Save order' }}</button>
             <button :class="secondaryButton" :disabled="reorderSubmitting" type="button" @click="cancelReordering">Cancel</button>
           </template>
-          <button v-else :class="`${triggerButtonClass(resource.triggers?.reordering)} ${classNames?.headerActions ?? ''}`" :disabled="Boolean(resource.grouping?.active) || resource.rows.length < 2" :title="resource.grouping?.active ? 'Remove grouping before reordering records.' : undefined" type="button" @click="orderedRows = [...resource.rows]; reorderError = null; reorderAnnouncement = 'Drag a row handle or use its move up and move down buttons.'; reordering = true"><NamedIcon v-if="resource.triggers?.reordering?.icon" fallback="◆" :name="resource.triggers.reordering.icon" :registries="registries" :renderers="renderers" />{{ resource.triggers?.reordering?.label ?? 'Reorder records' }}</button>
+          <button v-else :class="`${triggerButtonClass(resource.triggers?.reordering)} ${classNames?.headerActions ?? ''}`" :disabled="Boolean(resource.grouping?.active) || resource.rows.length < 2" :title="resource.grouping?.active ? 'Remove grouping before reordering records.' : undefined" type="button" @click="orderedRows = [...resource.rows]; reorderError = null; reorderAnnouncement = 'Drag a row handle or use its move up and move down buttons.'; reordering = true"><NamedIcon :name="resource.triggers?.reordering?.icon ?? 'arrows-up-down'" fallback="◆" :registries="registries" :renderers="renderers" />{{ resource.triggers?.reordering?.label ?? 'Reorder records' }}</button>
         </template>
         <button
           v-if="resource.columnManager && (resource.columnManager.reorderable || resource.columns.some((column) => column.toggleable))"
@@ -1240,7 +1269,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
           data-slot="columns-trigger"
           type="button"
           @click="toggleColumns"
-        ><NamedIcon v-if="resource.triggers?.columnManager?.icon" fallback="◆" :name="resource.triggers.columnManager.icon" :registries="registries" :renderers="renderers" />{{ resource.triggers?.columnManager?.label ?? 'Columns' }}</button>
+        ><NamedIcon :name="resource.triggers?.columnManager?.icon ?? 'columns'" fallback="◆" :registries="registries" :renderers="renderers" />{{ resource.triggers?.columnManager?.label ?? 'Columns' }}</button>
         <div v-if="resource.viewManagement" class="flex items-center gap-2" data-slot="view-actions">
           <button :class="secondaryButton" type="button" @click="viewNameDraft = activePersonalView?.name ?? ''; viewLabelDraft = activePersonalView?.label ?? ''; viewDescriptionDraft = activePersonalView?.description ?? ''; viewError = null; viewEditorOpen = true">{{ activePersonalView ? 'Edit view' : 'Save view' }}</button>
           <button v-if="activePersonalView" :class="secondaryButton" type="button" @click="deletePersonalView">Delete view</button>
@@ -1286,8 +1315,8 @@ function rawComponent(component: Component | undefined): Component | undefined {
     >
     <div
       :id="`${resource.name}-columns`"
-      :aria-label="resource.columnManager?.layout === 'modal' ? undefined : 'Table columns'"
-      :aria-labelledby="resource.columnManager?.layout === 'modal' ? `${resource.name}-columns-heading` : undefined"
+      :aria-label="resource.columnManager?.layout === 'modal' ? 'Manage columns' : 'Table columns'"
+      :aria-labelledby="resource.columnManager?.layout === 'modal' ? undefined : `${resource.name}-columns-heading`"
       :aria-modal="resource.columnManager?.layout === 'modal' ? true : undefined"
       :class="resource.columnManager?.layout === 'modal'
         ? 'max-h-[min(42rem,calc(100dvh-2rem))] w-full max-w-3xl overflow-y-auto rounded-(--inlay-radius) bg-(--inlay-surface) p-5 shadow-2xl ring-1 ring-(--inlay-border)'
@@ -1296,11 +1325,11 @@ function rawComponent(component: Component | undefined): Component | undefined {
       :role="resource.columnManager?.layout === 'modal' ? 'dialog' : 'region'"
       @keydown.esc="resource.columnManager?.layout === 'modal' && closeColumns()"
     >
-      <div class="mb-4 flex items-center justify-between gap-3">
-        <h3 :id="`${resource.name}-columns-heading`" class="text-base font-semibold text-(--inlay-text)">Manage columns</h3>
+      <div class="mb-4 flex items-center justify-between gap-3 border-b border-(--inlay-border) pb-3">
+        <h3 :id="`${resource.name}-columns-heading`" class="text-base font-semibold text-(--inlay-text)">Columns</h3>
         <div class="flex items-center gap-2">
-          <button v-if="(resource.columnManager?.resetActionPosition ?? 'header') === 'header'" :class="secondaryButton" type="button" @click="resetColumns">Reset columns</button>
-          <button v-if="resource.columnManager?.layout === 'modal'" aria-label="Close column manager" autofocus :class="`${smallButton} min-w-(--inlay-icon-button-size) px-2`" type="button" @click="closeColumns">×</button>
+          <button v-if="(resource.columnManager?.resetActionPosition ?? 'header') === 'header'" aria-label="Reset columns" class="rounded-md px-2 py-1 text-sm font-medium text-(--inlay-danger) hover:bg-(--inlay-danger-surface) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" type="button" @click="resetColumns">Reset</button>
+          <button v-if="resource.columnManager?.layout === 'modal'" aria-label="Close column manager" autofocus :class="`${iconButtonClass} min-h-8 size-8`" type="button" @click="closeColumns"><NamedIcon fallback="×" name="x" :registries="registries" :renderers="renderers" /></button>
         </div>
       </div>
       <div :class="`grid gap-2 ${columnManagerGridClass(resource.columnManager?.columns ?? 1)}`">
@@ -1312,14 +1341,14 @@ function rawComponent(component: Component | undefined): Component | undefined {
             </label>
             <span v-else class="min-w-0 flex-1 truncate">{{ columnsByName.get(name)!.label }}</span>
             <span v-if="resource.columnManager?.reorderable" class="flex gap-1">
-              <button :aria-label="`Move ${columnsByName.get(name)!.label} up`" :disabled="index === 0" type="button" @click="moveColumn(name, -1)">↑</button>
-              <button :aria-label="`Move ${columnsByName.get(name)!.label} down`" :disabled="index === draftColumnOrder.length - 1" type="button" @click="moveColumn(name, 1)">↓</button>
+              <button :aria-label="`Move ${columnsByName.get(name)!.label} up`" :class="`${iconButtonClass} min-h-8 size-8`" :disabled="index === 0" type="button" @click="moveColumn(name, -1)"><NamedIcon fallback="↑" name="chevron-up" :registries="registries" :renderers="renderers" /></button>
+              <button :aria-label="`Move ${columnsByName.get(name)!.label} down`" :class="`${iconButtonClass} min-h-8 size-8`" :disabled="index === draftColumnOrder.length - 1" type="button" @click="moveColumn(name, 1)"><NamedIcon fallback="↓" name="chevron-down" :registries="registries" :renderers="renderers" /></button>
             </span>
           </template>
         </div>
       </div>
       <div v-if="resource.columnManager?.deferred || resource.columnManager?.resetActionPosition === 'footer'" class="mt-4 flex items-center justify-between gap-3 border-t border-(--inlay-border) pt-4">
-        <button v-if="resource.columnManager?.resetActionPosition === 'footer'" :class="secondaryButton" type="button" @click="resetColumns">Reset columns</button>
+        <button v-if="resource.columnManager?.resetActionPosition === 'footer'" aria-label="Reset columns" class="rounded-md px-2 py-1 text-sm font-medium text-(--inlay-danger) hover:bg-(--inlay-danger-surface) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" type="button" @click="resetColumns">Reset</button>
         <span v-else />
         <button v-if="resource.columnManager?.deferred" :class="primaryButton" type="button" @click="commitColumns(draftColumnVisibility, draftColumnOrder); columnsOpen = false">Apply columns</button>
       </div>
@@ -1577,7 +1606,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
         />
         <TableAction v-else :action="definition" :disabled="selectionReason(definition) !== null" :disabled-reason="selectionReason(definition)" :executor="(context) => execute(definition, selectedRows(), context)" :record-keys="selectedRows().map(keyFor)" :registries="registries" :renderers="renderers" :rows="selectedRows()" @success="completeAction(definition)" />
       </template>
-      <button :class="secondaryButton" type="button" @click="selected = []; allMatchingSelected = false; excluded = []">Clear selection</button>
+      <button :class="`${secondaryButton} min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm`" type="button" @click="selected = []; allMatchingSelected = false; excluded = []">Clear selection</button>
     </div>
     <div
       :class="`-mx-4 -my-2 mt-4 overflow-x-auto whitespace-nowrap sm:-mx-6 lg:-mx-8 ${classNames?.tableShell ?? ''}`"
@@ -1589,7 +1618,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
         <table :class="`${gridLayout || customLayout ? 'block' : stackedLayout ? 'block sm:table' : `${fixedTableLayout ? 'table-fixed' : 'table-auto'} w-max min-w-full`} border-separate border-spacing-0 ${classNames?.table ?? ''}`" data-slot="table">
           <thead :class="`${gridLayout || customLayout ? 'hidden' : stackedLayout ? 'hidden bg-(--inlay-surface-subtle) sm:table-header-group' : 'bg-(--inlay-surface-subtle)'} ${classNames?.head ?? ''}`" data-slot="table-head">
             <tr>
-                <th v-if="resource.actions?.length && actionsPosition === 'before-cells'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
+              <th v-if="resource.actions?.length && actionsPosition === 'before-cells'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-xs font-medium text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
               <th v-if="reordering" class="w-32 border-b border-(--inlay-border) py-2.5" :rowspan="hasColumnGroups ? 2 : undefined"><span class="sr-only">Reorder controls</span></th>
@@ -1607,24 +1636,24 @@ function rawComponent(component: Component | undefined): Component | undefined {
                   "
                 />
               </th>
-              <th v-if="resource.actions?.length && actionsPosition === 'before-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
+              <th v-if="resource.actions?.length && actionsPosition === 'before-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-xs font-medium text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
               <template v-if="hasColumnGroups">
                 <template v-for="(segment, index) in headerSegments" :key="`${segment.group?.label ?? segment.columns[0].name}-${index}`">
-                  <th v-if="segment.group" :class="`${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(segment.group.alignment)}`" :colspan="segment.columns.length" scope="colgroup" :title="segment.group.tooltip ?? undefined">{{ segment.group.label }}</th>
-                  <TableColumnHeader v-else :column="segment.columns[0]" :query="query" :row-span="2" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
+                  <th v-if="segment.group" :class="`${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-xs font-medium text-(--inlay-muted) ${alignmentClass(segment.group.alignment)}`" :colspan="segment.columns.length" scope="colgroup" :title="segment.group.tooltip ?? undefined">{{ segment.group.label }}</th>
+                  <TableColumnHeader v-else :column="segment.columns[0]" :has-search-row="columns.some(column => column.individuallySearchable)" :query="query" :row-span="2" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
                 </template>
               </template>
-              <TableColumnHeader v-else v-for="column in columns" :key="column.name" :column="column" :query="query" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
-              <th v-if="resource.actions?.length && actionsPosition === 'after-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-[11px] font-semibold text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
+              <TableColumnHeader v-else v-for="column in columns" :key="column.name" :column="column" :has-search-row="columns.some(item => item.individuallySearchable)" :query="query" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
+              <th v-if="resource.actions?.length && actionsPosition === 'after-columns'" class="w-32 min-w-32 max-w-48 whitespace-nowrap border-b border-l-0 border-r-0 border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-right text-xs font-medium text-(--inlay-muted) lg:sticky lg:right-0 lg:z-20" :rowspan="hasColumnGroups ? 2 : undefined">
                 <span class="sr-only">Actions</span>
               </th>
             </tr>
             <tr v-if="hasColumnGroups">
               <template v-for="(segment, index) in headerSegments" :key="`members-${segment.group?.label ?? index}-${index}`">
                 <template v-if="segment.group">
-                  <TableColumnHeader v-for="column in segment.columns" :key="column.name" :column="column" :query="query" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
+                  <TableColumnHeader v-for="column in segment.columns" :key="column.name" :column="column" :has-search-row="columns.some(item => item.individuallySearchable)" :query="query" :search-debounce="resource.searchDebounce" :search-on-blur="resource.searchOnBlur" @search="searchColumn" @sort="sortColumn" />
                 </template>
               </template>
             </tr>
@@ -1683,7 +1712,7 @@ function rawComponent(component: Component | undefined): Component | undefined {
                 v-bind="cellAttributesFor(item.row, column)"
                 :data-no-record-click="column.disabledClick ? 'true' : undefined"
                 data-slot="table-cell"
-                :class="`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? 'sm:table-cell sm:h-(--inlay-table-row-height) sm:px-(--inlay-space-table-x) sm:align-middle' : ''}` : 'min-w-0 overflow-hidden h-(--inlay-table-row-height) px-(--inlay-space-table-x)'} text-xs text-(--inlay-muted-strong) ${column.numeric || column.money ? 'tabular-nums' : ''} ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? 'whitespace-normal' : ''} ${classNames?.cell ?? ''}`"
+                :class="`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? 'sm:table-cell sm:h-(--inlay-table-row-height) sm:px-(--inlay-space-table-x) sm:align-middle' : ''}` : `min-w-0 ${column.type === 'select-column' ? 'overflow-visible' : 'overflow-hidden'} h-(--inlay-table-row-height) px-(--inlay-space-table-x)`} text-sm leading-5 text-(--inlay-muted-strong) ${column.numeric || column.money ? 'tabular-nums' : ''} ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? 'whitespace-normal' : ''} ${classNames?.cell ?? ''}`"
                 :style="columnDimensionStyle(column)"
               >
                 <span v-if="cardLayout" :class="`text-left text-xs font-medium text-(--inlay-muted) ${stackedLayout && !gridLayout ? 'sm:hidden' : ''}`">{{ column.label }}</span>

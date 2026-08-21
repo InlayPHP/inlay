@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<{
   registries?: TableRendererRegistries
   renderers?: TableRenderers
   groupPosition?: 'first' | 'middle' | 'last' | 'single'
+  menuItem?: boolean
 }>(), { rows: () => [], recordKeys: () => [] })
 
 function isGroup(definition: ActionResource | ActionGroupResource): definition is ActionGroupResource {
@@ -54,6 +55,7 @@ function hasVisibleAction(definition: ActionResource | ActionGroupResource): boo
       :complete="complete"
       :definition="child"
       :group-position="definition.buttonGroup ? childPosition(index, definition.actions.length) : undefined"
+      :menu-item="menuItem || (isGroup(definition) && definition.dropdown !== false && !definition.buttonGroup)"
       :execute="execute"
       :record-keys="recordKeys"
       :registries="registries"
@@ -67,6 +69,7 @@ function hasVisibleAction(definition: ActionResource | ActionGroupResource): boo
     :action="asAction(definition)"
     :executor="(context) => execute(asAction(definition), rows, context)"
     :group-position="groupPosition"
+    :menu-item="menuItem"
     :record-keys="recordKeys"
     :registries="registries"
     :renderers="renderers"

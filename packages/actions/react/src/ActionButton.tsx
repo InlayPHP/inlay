@@ -36,25 +36,25 @@ function ActionIcon({ name, icons }: { name: string; icons?: ActionIconRegistry 
 }
 
 const colors: Record<string, string> = {
-  default: 'border-(--inlay-border) bg-(--inlay-surface) text-(--inlay-foreground) hover:bg-(--inlay-hover)',
-  primary: 'border-(--inlay-accent) bg-(--inlay-accent) text-(--inlay-accent-foreground) hover:brightness-95',
-  danger: 'border-(--inlay-danger)/25 bg-(--inlay-danger-surface) text-(--inlay-danger) hover:brightness-95',
-  success: 'border-(--inlay-success)/25 bg-(--inlay-success-surface) text-(--inlay-success) hover:brightness-95',
-  warning: 'border-(--inlay-warning)/25 bg-(--inlay-warning-surface) text-(--inlay-warning) hover:brightness-95',
-  info: 'border-(--inlay-info)/25 bg-(--inlay-info-surface) text-(--inlay-info) hover:brightness-95',
-  gray: 'border-(--inlay-border) text-(--inlay-foreground) hover:bg-(--inlay-hover)',
+  default: 'border-(--inlay-border) bg-(--inlay-surface) text-(--inlay-fg-strong) hover:border-(--inlay-border-strong) hover:bg-(--inlay-surface-subtle)',
+  primary: 'border-(--inlay-accent) bg-(--inlay-accent) text-(--inlay-accent-foreground) hover:border-(--inlay-accent-strong) hover:bg-(--inlay-accent-strong)',
+  danger: 'border-(--inlay-danger-strong)/40 bg-(--inlay-danger-surface) text-(--inlay-danger-strong) hover:brightness-95',
+  success: 'border-(--inlay-success-strong)/40 bg-(--inlay-success-surface) text-(--inlay-success-strong) hover:brightness-95',
+  warning: 'border-(--inlay-warning-strong)/40 bg-(--inlay-warning-surface) text-(--inlay-warning-strong) hover:brightness-95',
+  info: 'border-(--inlay-info-strong)/40 bg-(--inlay-info-surface) text-(--inlay-info-strong) hover:brightness-95',
+  gray: 'border-transparent bg-transparent text-(--inlay-muted-strong) hover:border-(--inlay-border) hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong)',
 }
 
 // An outlined trigger keeps its colour but drops the fill, so a primary action
 // can sit beside a destructive one without both shouting.
 const outlines: Record<string, string> = {
-  default: 'border-(--inlay-border) text-(--inlay-foreground) hover:bg-(--inlay-hover)',
+  default: 'border-(--inlay-border) bg-transparent text-(--inlay-fg-strong) hover:border-(--inlay-border-strong) hover:bg-(--inlay-surface-subtle)',
   primary: 'border-(--inlay-accent) text-(--inlay-accent) hover:bg-(--inlay-accent)/10',
-  danger: 'border-(--inlay-danger) text-(--inlay-danger) hover:bg-(--inlay-danger-surface)',
-  success: 'border-(--inlay-success) text-(--inlay-success) hover:bg-(--inlay-success-surface)',
-  warning: 'border-(--inlay-warning) text-(--inlay-warning) hover:bg-(--inlay-warning-surface)',
-  info: 'border-(--inlay-info) text-(--inlay-info) hover:bg-(--inlay-info-surface)',
-  gray: 'border-(--inlay-border) text-(--inlay-foreground) hover:bg-(--inlay-hover)',
+  danger: 'border-(--inlay-danger-strong) text-(--inlay-danger-strong) hover:bg-(--inlay-danger-surface)',
+  success: 'border-(--inlay-success-strong) text-(--inlay-success-strong) hover:bg-(--inlay-success-surface)',
+  warning: 'border-(--inlay-warning-strong) text-(--inlay-warning-strong) hover:bg-(--inlay-warning-surface)',
+  info: 'border-(--inlay-info-strong) text-(--inlay-info-strong) hover:bg-(--inlay-info-surface)',
+  gray: 'border-transparent bg-transparent text-(--inlay-muted-strong) hover:border-(--inlay-border) hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong)',
 }
 
 const links: Record<string, string> = {
@@ -68,20 +68,20 @@ const links: Record<string, string> = {
 }
 
 const badges: Record<string, string> = {
-  default: 'border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-foreground)',
+  default: 'border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-fg-strong)',
   primary: 'border-(--inlay-accent)/20 bg-(--inlay-accent)/10 text-(--inlay-accent)',
-  danger: 'border-(--inlay-danger)/20 bg-(--inlay-danger-surface) text-(--inlay-danger)',
-  success: 'border-(--inlay-success)/20 bg-(--inlay-success-surface) text-(--inlay-success)',
-  warning: 'border-(--inlay-warning)/20 bg-(--inlay-warning-surface) text-(--inlay-warning)',
-  info: 'border-(--inlay-info)/20 bg-(--inlay-info-surface) text-(--inlay-info)',
-  gray: 'border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-muted)',
+  danger: 'border-(--inlay-danger-strong)/20 bg-(--inlay-danger-surface) text-(--inlay-danger-strong)',
+  success: 'border-(--inlay-success-strong)/20 bg-(--inlay-success-surface) text-(--inlay-success-strong)',
+  warning: 'border-(--inlay-warning-strong)/20 bg-(--inlay-warning-surface) text-(--inlay-warning-strong)',
+  info: 'border-(--inlay-info-strong)/20 bg-(--inlay-info-surface) text-(--inlay-info-strong)',
+  gray: 'border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-muted-strong)',
 }
 
 const sizes: Record<string, string> = {
-  'extra-small': 'min-h-(--inlay-button-xs-height) px-2 py-1 text-xs',
-  small: 'min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm',
-  medium: 'min-h-(--inlay-button-height) px-3 py-1.5 text-sm',
-  large: 'min-h-(--inlay-button-lg-height) px-4 py-2 text-base',
+  'extra-small': 'min-h-(--inlay-button-xs-height) px-(--inlay-space-button-x) py-1 text-xs',
+  small: 'min-h-(--inlay-button-sm-height) px-(--inlay-space-button-x) py-1 text-sm',
+  medium: 'min-h-(--inlay-button-height) px-(--inlay-space-button-x) py-(--inlay-space-button-y) text-sm',
+  large: 'min-h-(--inlay-button-lg-height) px-(--inlay-space-button-x) py-(--inlay-space-button-y) text-base',
 }
 
 export function ActionButton({ action, runtime, input, children, disabled, onClick, icons, type = 'button', className = '', ...props }: ActionButtonProps) {
@@ -121,7 +121,7 @@ export function ActionButton({ action, runtime, input, children, disabled, onCli
     return <a
       aria-disabled={refused || undefined}
       aria-label={style === 'icon-button' ? action.label : props['aria-label']}
-      className={`relative inline-flex items-center justify-center gap-2 border font-medium focus-visible:ring-2 focus-visible:ring-(--inlay-accent) focus-visible:outline-none ${refused ? 'pointer-events-none opacity-50' : ''} ${style === 'icon-button' ? 'rounded-full p-0 shadow-xs' : style === 'link' ? 'rounded-sm border-transparent bg-transparent shadow-none underline-offset-4 hover:underline' : style === 'badge' ? 'rounded-full shadow-none' : 'rounded-(--inlay-radius) shadow-xs'} ${size} ${palette} ${className}`.trim()}
+      className={`relative inline-flex items-center justify-center gap-2 border font-medium focus-visible:ring-(length:--inlay-focus-ring-width) focus-visible:ring-(--inlay-focus-ring) focus-visible:ring-offset-(length:--inlay-focus-ring-offset) focus-visible:outline-none ${refused ? 'pointer-events-none opacity-50' : ''} ${style === 'icon-button' ? 'rounded-full p-0 shadow-xs' : style === 'link' ? 'rounded-sm border-transparent bg-transparent shadow-none underline-offset-4 hover:underline' : style === 'badge' ? 'rounded-full shadow-none' : 'rounded-(--inlay-radius) shadow-xs'} ${size} ${palette} ${className}`.trim()}
       data-color={action.color ?? 'default'}
       data-outlined={action.outlined ? 'true' : undefined}
       data-size={action.size ?? 'medium'}
@@ -145,7 +145,7 @@ export function ActionButton({ action, runtime, input, children, disabled, onCli
     aria-disabled={refused || undefined}
     aria-keyshortcuts={ariaKeyShortcuts(action.keyBindings)}
     aria-label={style === 'icon-button' ? action.label : props['aria-label']}
-    className={`relative inline-flex items-center justify-center gap-2 border font-medium focus-visible:ring-2 focus-visible:ring-(--inlay-accent) focus-visible:outline-none active:translate-y-px disabled:pointer-events-none disabled:opacity-50 ${style === 'icon-button' ? 'rounded-full p-0 shadow-xs' : style === 'link' ? 'rounded-sm border-transparent bg-transparent shadow-none underline-offset-4 hover:underline' : style === 'badge' ? 'rounded-full shadow-none' : 'rounded-(--inlay-radius) shadow-xs'} ${size} ${palette} ${className}`.trim()}
+    className={`relative inline-flex items-center justify-center gap-2 border font-medium focus-visible:ring-(length:--inlay-focus-ring-width) focus-visible:ring-(--inlay-focus-ring) focus-visible:ring-offset-(length:--inlay-focus-ring-offset) focus-visible:outline-none active:translate-y-px disabled:pointer-events-none disabled:opacity-50 ${style === 'icon-button' ? 'rounded-full p-0 shadow-xs' : style === 'link' ? 'rounded-sm border-transparent bg-transparent shadow-none underline-offset-4 hover:underline' : style === 'badge' ? 'rounded-full shadow-none' : 'rounded-(--inlay-radius) shadow-xs'} ${size} ${palette} ${className}`.trim()}
     data-color={action.color ?? 'default'}
     data-outlined={action.outlined ? 'true' : undefined}
     data-size={action.size ?? 'medium'}

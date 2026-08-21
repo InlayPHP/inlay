@@ -16,6 +16,7 @@ defineProps<{
   registries?: TableRendererRegistries
   renderers?: TableRenderers
   groupPosition?: 'first' | 'middle' | 'last' | 'single'
+  menuItem?: boolean
 }>()
 
 function isGroup(definition: ActionResource | ActionGroupResource): definition is ActionGroupResource {
@@ -48,6 +49,7 @@ function childPosition(index: number, count: number): 'first' | 'middle' | 'last
       :complete="complete"
       :definition="child"
       :group-position="definition.buttonGroup ? childPosition(index, definition.actions.length) : undefined"
+      :menu-item="menuItem || (isGroup(definition) && definition.dropdown !== false && !definition.buttonGroup)"
       :execute="execute"
       :record-keys="recordKeys"
       :registries="registries"
@@ -62,6 +64,7 @@ function childPosition(index: number, count: number): 'first' | 'middle' | 'last
     :disabled="selectionReason(asAction(definition)) !== null"
     :disabled-reason="selectionReason(asAction(definition))"
     :group-position="groupPosition"
+    :menu-item="menuItem"
     :executor="(context) => execute(asAction(definition), context)"
     :record-keys="recordKeys"
     :registries="registries"

@@ -119,7 +119,7 @@ export const descriptionClass = `mt-1 ${recipeTypography.body} text-(--inlay-mut
 /** Neutral surfaces, status tags, and icon-only actions. */
 export const cardClass = recipeVariants.surface.card
 export const badgeClass = recipeVariants.badge.neutral
-export const iconButtonClass = `${buttonBaseClass} border-transparent bg-transparent p-0 text-(--inlay-muted-strong) hover:border-(--inlay-border) hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong) size-(--inlay-icon-button-size) min-h-0 shrink-0 [box-shadow:none]`
+export const iconButtonClass = `${buttonBaseClass} border-transparent bg-transparent p-0 text-(--inlay-muted-strong) hover:border-transparent hover:bg-(--inlay-surface-subtle) hover:text-(--inlay-fg-strong) size-(--inlay-icon-button-size) min-h-0 shrink-0 [box-shadow:none]`
 
 /** Menu and command-palette items share hit area, truncation, and hover state. */
 export const menuItemClass = `flex min-h-9 w-full items-center ${recipeSpacing.inline} rounded-[calc(var(--inlay-radius)-0.25rem)] ${recipeSpacing.menu} text-left ${recipeTypography.body} text-(--inlay-text) ${recipeMotion.fast} hover:bg-(--inlay-surface-muted) ${recipeFocus.visible}`

@@ -5,6 +5,21 @@ Laravel and Inertia applications. It keeps the familiar fluent
 API while making the payload safe for React, Vue, JSON, queued, session, and
 database boundaries.
 
+The React and Vue toast renderers also listen for the browser event
+`inlay:notification`. Renderer-neutral components can dispatch the same
+validated contract without depending on a specific frontend adapter:
+
+```ts
+window.dispatchEvent(new CustomEvent('inlay:notification', {
+    detail: {
+        id: 'profile-saved',
+        title: 'Profile saved',
+        status: 'success',
+        duration: 2500,
+    },
+}))
+```
+
 ## Installation
 
 The package is included by `inlayphp/inlay`, or can be installed directly:

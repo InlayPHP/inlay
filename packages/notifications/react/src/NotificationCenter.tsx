@@ -47,10 +47,10 @@ export function NotificationCenter({ notifications = [], onMarkRead, onMarkAllRe
   }
 
   return <div className={`relative ${className}`.trim()} data-slot="notification-center">
-    <button aria-expanded={open} aria-haspopup="dialog" aria-label={ariaLabel} className={`${iconButtonClass} relative`} onClick={() => setOpen(value => !value)} type="button">
+    <button aria-expanded={open} aria-haspopup="dialog" aria-label={ariaLabel} className={iconButtonClass} onClick={() => setOpen(value => !value)} type="button">
       <svg aria-hidden="true" fill="none" height="18" viewBox="0 0 24 24" width="18"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Zm-8 12h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" /></svg>
-      {unread.length ? <span aria-label={`${unread.length} unread`} className="absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full bg-(--inlay-danger-surface) px-1 text-[0.65rem] font-semibold leading-5 text-(--inlay-danger)">{unread.length > 99 ? '99+' : unread.length}</span> : null}
     </button>
+    {unread.length ? <span aria-label={`${unread.length} unread`} className="pointer-events-none absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full bg-(--inlay-danger-surface) px-1 text-[0.65rem] font-semibold leading-5 text-(--inlay-danger)">{unread.length > 99 ? '99+' : unread.length}</span> : null}
     {open ? <div aria-label={ariaLabel} className={`${cardClass} absolute top-[calc(100%+0.5rem)] right-0 z-50 w-[min(calc(100vw-2rem),24rem)] overflow-hidden border bg-(--inlay-surface) shadow-xl`} data-slot="notification-center-panel" role="dialog">
       <header className="flex items-center justify-between gap-3 border-b border-(--inlay-border) px-4 py-3">
         <div><h2 className="font-semibold text-(--inlay-text)">{heading}</h2><p className="text-xs text-(--inlay-muted)">{unread.length ? `${unread.length} unread` : 'No unread notifications'}</p></div>

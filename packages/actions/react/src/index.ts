@@ -1,6 +1,6 @@
 export { ActionButton } from './ActionButton'
 export { ActionDialog } from './ActionDialog'
 export { useActionRuntime } from './useActionRuntime'
-export type { ActionButtonProps } from './ActionButton'
+export type { ActionButtonProps, ActionIconProps, ActionIconRegistry } from './ActionButton'
 export type { ActionDialogProps } from './ActionDialog'
 export type { ReactActionRuntime } from './useActionRuntime'

@@ -8,3 +8,9 @@ packages:
   - '!packages/cms-client'
   # Framework-neutral packages that ship no renderer of their own.
   - examples/*
+  # Local dev target: the demo app consumes workspace packages directly.
+  - demo
+
+# Prefer the workspace copy of every @inlayphp package over the published
+# registry version so the demo runs the code being changed in this checkout.
+prefer-workspace-packages: true

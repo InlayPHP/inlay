@@ -1,8 +1,9 @@
 import { createElement, isValidElement, useEffect, useRef, useState } from 'react'
-import type { CSSProperties, ReactNode } from 'react'
+import type { ComponentType, CSSProperties, ReactNode } from 'react'
 import { router } from '@inertiajs/react'
 import { executeActionEndpoint } from '@inlayphp/actions'
 import { ActionButton, ActionDialog, useActionRuntime } from '@inlayphp/actions-react'
+import type { ActionIconRegistry } from '@inlayphp/actions-react'
 import { ActionForm } from '@inlayphp/forms-react'
 import type { ActionExecutor, ActionExecutionInput, ActionResource } from '@inlayphp/actions'
 import { isSafeUrl } from '@inlayphp/core'
@@ -10,7 +11,7 @@ import { Form } from '@inlayphp/forms-react'
 import { Infolist } from '@inlayphp/infolists-react'
 import { customThemeVariables, recipeVariables, themeToken } from '@inlayphp/theme'
 import { Table } from '@inlayphp/tables-react'
-import type { ChartWidget, StatsOverviewWidget, WidgetDashboardProps, WidgetResource, WidgetStat, WidgetTheme } from './types'
+import type { ChartWidget, StatsOverviewWidget, WidgetDashboardProps, WidgetIconRegistry, WidgetResource, WidgetStat, WidgetTheme } from './types'
 
 /**
  * A widget occupies the span PHP gave it, never more than the grid it sits in.
@@ -32,6 +33,21 @@ function startClass(columnStart: number | null | undefined, columns: number): st
   const start = Math.max(1, Math.min(columnStart, columns))
 
   return dashboardStartClasses[start] ?? ''
+}
+
+// Widget registries may hold plain elements as well as component factories; the
+// shared action/renderer contracts only accept factories, so the element
+// entries are dropped here rather than passed through and mis-invoked.
+function componentIcons(icons: WidgetIconRegistry): Record<string, ComponentType<{ name: string }>> {
+  const renderers: Record<string, ComponentType<{ name: string }>> = {}
+  for (const [name, icon] of Object.entries(icons)) {
+    if (typeof icon === 'function') renderers[name] = icon as ComponentType<{ name: string }>
+  }
+  return renderers
+}
+
+function actionIcons(icons: WidgetIconRegistry): ActionIconRegistry {
+  return componentIcons(icons) as unknown as ActionIconRegistry
 }
 
 export function WidgetDashboard({ resource, theme, className = '', classNames = {}, icons = {}, renderers = {}, empty, onRefresh, actionExecutor, actionInput }: WidgetDashboardProps) {
@@ -98,8 +114,8 @@ export function WidgetDashboard({ resource, theme, className = '', classNames = 
   const widgets = resource.widgets.filter((widget) => widget.visible && (!selectedNames || selectedNames.has(widget.name)))
   const headerActions = resource.headerActions ?? []
   return <section aria-label="Dashboard widgets" className={`text-(--inlay-widget-text) ${classNames.root ?? ''} ${className}`.trim()} data-contract={resource.contract} data-slot="widget-dashboard" style={style}>
-      {resource.eyebrow || resource.heading || resource.description || headerActions.length ? <header className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between" data-slot="dashboard-header"><div>{resource.eyebrow ? <p className="mb-1.5 text-xs font-semibold tracking-wide text-(--inlay-widget-accent) uppercase">{resource.eyebrow}</p> : null}{resource.heading ? <h1 className="text-3xl font-semibold tracking-tight">{resource.heading}</h1> : null}{resource.description ? <p className="mt-1.5 max-w-[58ch] text-sm text-(--inlay-widget-muted)">{resource.description}</p> : null}</div>{headerActions.length ? <WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} /> : null}</header> : null}
-      {tabs.length > 1 ? <div className="mb-6 flex gap-5 overflow-x-auto overflow-y-hidden border-b border-(--inlay-widget-border)" data-slot="dashboard-tabs" role="tablist">{tabs.map((tab) => <button aria-selected={tab.name === activeTab} className={`-mb-px min-h-11 shrink-0 border-b-2 px-0.5 text-sm font-medium transition-colors ${tab.name === activeTab ? 'border-(--inlay-widget-accent) text-(--inlay-widget-accent)' : 'border-transparent text-(--inlay-widget-muted) hover:text-(--inlay-widget-text)'}`} key={tab.name} onClick={() => setActiveTab(tab.name)} role="tab" type="button">{tab.label}</button>)}</div> : null}
+      {resource.eyebrow || resource.heading || resource.description || headerActions.length ? <header className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between" data-slot="dashboard-header"><div>{resource.eyebrow ? <p className="mb-1.5 text-xs font-semibold tracking-wide text-(--inlay-widget-accent) uppercase">{resource.eyebrow}</p> : null}{resource.heading ? <h1 className="text-3xl font-semibold tracking-tight">{resource.heading}</h1> : null}{resource.description ? <p className="mt-1.5 max-w-[58ch] text-sm text-(--inlay-widget-muted)">{resource.description}</p> : null}</div>{headerActions.length ? <WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} icons={icons} /> : null}</header> : null}
+      {tabs.length > 1 ? <div className="mb-6 flex justify-center overflow-x-auto overflow-y-hidden pb-1" data-slot="dashboard-tabs" role="tablist"><div className="inline-flex max-w-full gap-1 overflow-x-auto rounded-(--inlay-widget-radius) border border-(--inlay-widget-border) bg-(--inlay-widget-muted-surface) p-1 shadow-xs">{tabs.map((tab) => <button aria-selected={tab.name === activeTab} className={`min-h-(--inlay-button-sm-height) shrink-0 rounded-[calc(var(--inlay-widget-radius)-0.25rem)] px-3 py-1.5 text-sm font-medium transition-[background-color,color,box-shadow] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-widget-accent) ${tab.name === activeTab ? 'bg-(--inlay-widget-surface) text-(--inlay-widget-accent) shadow-xs' : 'text-(--inlay-widget-muted) hover:text-(--inlay-widget-text)'}`} key={tab.name} onClick={() => setActiveTab(tab.name)} role="tab" type="button">{tab.label}</button>)}</div></div> : null}
       {widgets.length ? <div className={`grid grid-cols-1 gap-4 md:grid-cols-(--inlay-dashboard-columns) lg:gap-6 ${classNames.grid ?? ''}`} data-columns={resource.columns} data-slot="widget-grid" style={{ '--inlay-dashboard-columns': `repeat(${resource.columns}, minmax(0, 1fr))` } as CSSProperties}>{widgets.map((widget) => <WidgetSlot key={widget.name} onRefresh={onRefresh} widget={widget} wrapperClassName={`${classNames.widget ?? ''} ${spanClass(widget.columnSpan, resource.columns)} ${startClass(widget.columnStart, resource.columns)}`}><WidgetRenderer actionExecutor={actionExecutor} actionInput={actionInput} classNames={classNames} icons={icons} renderers={renderers} theme={theme} widget={widget} /></WidgetSlot>)}</div> : (empty ?? <div className="rounded-(--inlay-widget-radius) border border-dashed border-(--inlay-widget-border) bg-(--inlay-widget-surface) px-6 py-12 text-center text-sm text-(--inlay-widget-muted)">No dashboard widgets yet.</div>)}
   </section>
 }
@@ -154,27 +170,28 @@ function WidgetSlot({ widget, style, wrapperClassName, onRefresh, children }: { 
 function WidgetRenderer({ widget, theme, icons, renderers, classNames, actionExecutor, actionInput }: { widget: WidgetResource; theme?: WidgetTheme; icons: NonNullable<WidgetDashboardProps['icons']>; renderers: WidgetDashboardProps['renderers']; classNames: NonNullable<WidgetDashboardProps['classNames']>; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput }) {
   const custom = renderers?.[widget.type]
   if (custom) return createElement(custom, { widget, theme })
+  const sharedIcons = componentIcons(icons)
   if (widget.type === 'stats-overview') return <StatsOverview actionExecutor={actionExecutor} actionInput={actionInput} className={classNames.stats} icons={icons} statClassName={classNames.stat} widget={widget} />
-  if (widget.type === 'chart') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}><Chart className={classNames.chart} widget={widget} /></Surface>
-  if (widget.type === 'form') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}>{widget.form ? <Form resource={widget.form as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No form data.</p>}</Surface>
-  if (widget.type === 'infolist') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}>{widget.infolist ? <Infolist resource={widget.infolist as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No infolist data.</p>}</Surface>
-  return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} label={widget.label}><div className={classNames.table} data-slot="widget-table">{widget.table ? <Table resource={widget.table as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No table data.</p>}</div></Surface>
+  if (widget.type === 'chart') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} icons={icons} label={widget.label}><Chart className={classNames.chart} widget={widget} /></Surface>
+  if (widget.type === 'form') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} icons={icons} label={widget.label}>{widget.form ? <Form icons={sharedIcons} resource={widget.form as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No form data.</p>}</Surface>
+  if (widget.type === 'infolist') return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} icons={icons} label={widget.label}>{widget.infolist ? <Infolist icons={sharedIcons} resource={widget.infolist as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No infolist data.</p>}</Surface>
+  return <Surface actionExecutor={actionExecutor} actionInput={actionInput} description={widget.description} footerActions={widget.footerActions} headerActions={widget.headerActions} icons={icons} label={widget.label}><div className={classNames.table} data-slot="widget-table">{widget.table ? <Table renderers={{ icon: sharedIcons }} resource={widget.table as never} theme={theme} /> : <p className="text-sm text-(--inlay-widget-muted)">No table data.</p>}</div></Surface>
 }
 
-function Surface({ label, description, children, headerActions = [], footerActions = [], actionExecutor, actionInput }: { label: string | null; description: string | null; children: ReactNode; headerActions?: ActionResource[]; footerActions?: ActionResource[]; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput }) {
-  return <article className="h-full overflow-hidden rounded-(--inlay-widget-radius) bg-(--inlay-widget-surface) shadow-(--inlay-widget-shadow) ring-1 ring-(--inlay-widget-border)" data-slot="widget-surface">{label || description || headerActions.length ? <header className="flex items-start justify-between gap-4 border-b border-(--inlay-widget-border) px-5 py-4"><div className="min-w-0"><div className="text-sm font-semibold">{label}</div>{description ? <p className="mt-1 text-sm text-(--inlay-widget-muted)">{description}</p> : null}</div>{headerActions.length ? <WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} /> : null}</header> : null}<div className="p-5">{children}</div>{footerActions.length ? <footer className="flex flex-wrap gap-2 border-t border-(--inlay-widget-border) px-5 py-4"><WidgetActions actions={footerActions} actionExecutor={actionExecutor} actionInput={actionInput} /></footer> : null}</article>
+function Surface({ label, description, children, headerActions = [], footerActions = [], actionExecutor, actionInput, icons }: { label: string | null; description: string | null; children: ReactNode; headerActions?: ActionResource[]; footerActions?: ActionResource[]; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput; icons?: NonNullable<WidgetDashboardProps['icons']> }) {
+  return <article className="h-full overflow-hidden rounded-(--inlay-radius-lg) bg-(--inlay-widget-surface) shadow-(--inlay-widget-shadow) ring-1 ring-(--inlay-widget-border)" data-slot="widget-surface">{label || description || headerActions.length ? <header className="flex items-start justify-between gap-4 border-b border-(--inlay-widget-border) px-(--inlay-space-card) py-4"><div className="min-w-0"><div className="text-sm font-semibold">{label}</div>{description ? <p className="mt-1 text-sm text-(--inlay-widget-muted)">{description}</p> : null}</div>{headerActions.length ? <WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} icons={icons} /> : null}</header> : null}<div className="p-(--inlay-space-card)">{children}</div>{footerActions.length ? <footer className="flex flex-wrap gap-2 border-t border-(--inlay-widget-border) px-(--inlay-space-card) py-4"><WidgetActions actions={footerActions} actionExecutor={actionExecutor} actionInput={actionInput} icons={icons} /></footer> : null}</article>
 }
 
 function StatsOverview({ widget, className, statClassName, icons, actionExecutor, actionInput }: { widget: StatsOverviewWidget; className?: string; statClassName?: string; icons: NonNullable<WidgetDashboardProps['icons']>; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput }) {
   const headerActions = widget.headerActions
   const footerActions = widget.footerActions
-  return <div className={className} data-slot="stats-overview">{headerActions.length ? <div className="mb-4 flex flex-wrap justify-end gap-2"><WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} /></div> : null}<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-(--inlay-widget-columns)" style={{ '--inlay-widget-columns': `repeat(${widget.columns}, minmax(0, 1fr))` } as CSSProperties}>{widget.stats.map((stat) => <StatCard className={statClassName} icons={icons} key={stat.label} stat={stat} />)}</div>{footerActions.length ? <div className="mt-4 flex flex-wrap justify-end gap-2"><WidgetActions actions={footerActions} actionExecutor={actionExecutor} actionInput={actionInput} /></div> : null}</div>
+  return <div className={className} data-slot="stats-overview">{headerActions.length ? <div className="mb-4 flex flex-wrap justify-end gap-2"><WidgetActions actions={headerActions} actionExecutor={actionExecutor} actionInput={actionInput} icons={icons} /></div> : null}<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-(--inlay-widget-columns)" style={{ '--inlay-widget-columns': `repeat(${widget.columns}, minmax(0, 1fr))` } as CSSProperties}>{widget.stats.map((stat) => <StatCard className={statClassName} icons={icons} key={stat.label} stat={stat} />)}</div>{footerActions.length ? <div className="mt-4 flex flex-wrap justify-end gap-2"><WidgetActions actions={footerActions} actionExecutor={actionExecutor} actionInput={actionInput} icons={icons} /></div> : null}</div>
 }
 
-function WidgetActions({ actions, actionExecutor, actionInput }: { actions: ActionResource[]; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput }) {
+function WidgetActions({ actions, actionExecutor, actionInput, icons }: { actions: ActionResource[]; actionExecutor?: ActionExecutor; actionInput?: ActionExecutionInput; icons?: NonNullable<WidgetDashboardProps['icons']> }) {
   const runtime = useActionRuntime(actionExecutor ?? defaultActionExecutor)
 
-  return <div className="flex flex-wrap justify-end gap-2" data-slot="widget-actions">{actions.map(action => <ActionButton action={action} input={actionInput} key={action.instanceKey ?? action.name} runtime={runtime} />)}<ActionDialog runtime={runtime}>{dialogRuntime => <ActionForm runtime={dialogRuntime} />}</ActionDialog></div>
+  return <div className="flex flex-wrap justify-end gap-2" data-slot="widget-actions">{actions.map(action => <ActionButton action={action} icons={actionIcons(icons ?? {})} input={actionInput} key={action.instanceKey ?? action.name} runtime={runtime} />)}<ActionDialog runtime={runtime}>{dialogRuntime => <ActionForm runtime={dialogRuntime} />}</ActionDialog></div>
 }
 
 const defaultActionExecutor: ActionExecutor = (context) => {
@@ -187,8 +204,8 @@ const defaultActionExecutor: ActionExecutor = (context) => {
 function StatCard({ stat, className, icons }: { stat: WidgetStat; className?: string; icons: NonNullable<WidgetDashboardProps['icons']> }) {
   const color = resolveStatColor(stat.color)
   const style = { '--inlay-stat-color': color.value } as CSSProperties
-  const content = <><div className="flex items-start justify-between gap-4"><div className="min-w-0"><p className="text-sm font-medium text-(--inlay-widget-muted)">{stat.label}</p><p className="mt-2 text-3xl font-semibold tracking-tight tabular-nums">{stat.value}</p></div>{stat.icon ? <span aria-hidden="true" className="inline-flex size-9 items-center justify-center rounded-lg bg-(--inlay-widget-muted-surface) text-(--inlay-stat-color)" data-icon={stat.icon}><WidgetIcon icons={icons} name={stat.icon} /></span> : null}</div>{stat.description ? <p className="mt-3 text-sm text-(--inlay-widget-muted)"><span aria-hidden="true">{stat.trend === 'up' ? '↗ ' : stat.trend === 'down' ? '↘ ' : stat.trend === 'flat' ? '→ ' : ''}</span>{stat.description}</p> : null}{stat.chart.length > 1 ? <Sparkline values={stat.chart} /> : null}</>
-  const classes = 'block h-full rounded-(--inlay-widget-radius) bg-(--inlay-widget-surface) p-5 shadow-(--inlay-widget-shadow) ring-1 ring-(--inlay-widget-border) transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-stat-color)' + (className ? ` ${className}` : '')
+  const content = <><div className="flex items-start justify-between gap-4"><div className="min-w-0"><p className="text-xs text-(--inlay-muted)">{stat.label}</p><p className="mt-2 text-[1.75rem] font-semibold text-(--inlay-fg-strong) tabular-nums">{stat.value}</p></div>{stat.icon ? <span aria-hidden="true" className="inline-flex size-9 items-center justify-center rounded-lg bg-(--inlay-widget-muted-surface) text-(--inlay-stat-color)" data-icon={stat.icon}><WidgetIcon icons={icons} name={stat.icon} /></span> : null}</div>{stat.description ? <p className="mt-3 text-[11px] text-(--inlay-muted)"><span aria-hidden="true">{stat.trend === 'up' ? '↗ ' : stat.trend === 'down' ? '↘ ' : stat.trend === 'flat' ? '→ ' : ''}</span>{stat.description}</p> : null}{stat.chart.length > 1 ? <Sparkline values={stat.chart} /> : null}</>
+  const classes = 'block h-full rounded-(--inlay-radius-lg) bg-(--inlay-widget-surface) p-(--inlay-space-card) shadow-(--inlay-widget-shadow) ring-1 ring-(--inlay-widget-border) transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-stat-color)' + (className ? ` ${className}` : '')
   return stat.url && isSafeUrl(stat.url)
     ? <a className={classes} data-color={color.token} data-slot="stat" href={stat.url} style={style}>{content}</a>
     : <article className={classes} data-color={color.token} data-slot="stat" style={style}>{content}</article>

@@ -111,14 +111,14 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
       v-for="group in visibleGroups"
       :key="group.name"
       v-bind="safeAttributes(group.extraAttributes)"
-      :class="[horizontal ? 'relative' : 'mt-3 grid gap-1 first:mt-0', classNames.group]"
+      :class="[horizontal ? 'relative' : 'mt-5 grid gap-1 first:mt-0', classNames.group]"
       data-slot="navigation-group"
     >
       <button
         v-if="group.collapsible"
         :aria-controls="`panel-group-${group.name}`"
         :aria-expanded="!isGroupCollapsed(group)"
-          :class="['flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold', horizontal ? 'text-(--inlay-panel-muted)' : 'text-(--inlay-panel-sidebar-muted)', classNames.groupLabel]"
+          :class="['flex w-full items-center gap-2 px-3 py-1.5 text-xs font-semibold', horizontal ? 'text-(--inlay-panel-muted)' : 'mb-1 rounded-lg bg-(--inlay-panel-sidebar-hover) text-(--inlay-panel-sidebar-muted)', classNames.groupLabel]"
         data-slot="navigation-group-trigger"
         type="button"
         @click="toggleGroup(group)"
@@ -129,7 +129,7 @@ function hasUnsafeUrl(item: PanelNavigationItem): boolean {
         <span :class="collapsed ? 'sr-only' : ''">{{ group.label }}</span>
         <span aria-hidden="true" class="ml-auto">{{ isGroupCollapsed(group) ? '+' : '−' }}</span>
       </button>
-      <div v-else :class="['flex items-center gap-2 px-3 py-2 text-xs font-semibold', horizontal ? 'text-(--inlay-panel-muted)' : 'text-(--inlay-panel-sidebar-muted)', collapsed && 'sr-only', classNames.groupLabel]" data-slot="navigation-group-label">
+      <div v-else :class="['mb-1 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold', horizontal ? 'text-(--inlay-panel-muted)' : 'bg-(--inlay-panel-sidebar-hover) text-(--inlay-panel-sidebar-muted)', collapsed && 'sr-only', classNames.groupLabel]" data-slot="navigation-group-label">
         <slot v-if="group.icon" name="icon" :group="group" :name="group.icon"><component v-if="icons[group.icon]" :is="rawComponent(icons[group.icon])" aria-hidden="true" class="size-4 shrink-0" /></slot>
         {{ group.label }}
       </div>

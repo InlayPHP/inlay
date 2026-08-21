@@ -407,6 +407,9 @@ it('serializes renderer-neutral action groups and bulk selection policy', functi
 
     expect($unnamed['name'])->toStartWith('group-')
         ->and($unnamed['label'])->toStartWith('Group ');
+
+    expect(ActionGroup::make('default-placement', [Action::make('edit')])
+        ->jsonSerialize()['dropdownPlacement'])->toBe('bottom-end');
 });
 
 it('serializes nested action groups and refuses recursive references', function (): void {

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import type { CSSProperties } from 'vue'
 import { matchesActionKeyBinding } from '@inlayphp/actions'
 import type { ActionGroupResource } from '@inlayphp/actions'
 import type { TableRendererRegistries, TableRenderers } from './types'
 import NamedIcon from './NamedIcon.vue'
+import { iconButtonClass } from '@inlayphp/ui'
 
 const props = withDefaults(defineProps<{
   definition: ActionGroupResource
@@ -15,6 +17,10 @@ const props = withDefaults(defineProps<{
 }>(), { context: 'bulk', disabled: false })
 
 const details = ref<HTMLDetailsElement | null>(null)
+const menu = ref<HTMLDivElement | null>(null)
+const menuOpen = ref(false)
+const menuStyle = ref<CSSProperties>({ top: '8px', left: '8px' })
+const portalTarget = ref<HTMLElement | string>('body')
 const rowContext = 'row'
 const refused = computed(() => props.disabled || Boolean(props.definition.disabled))
 const style = computed(() => props.definition.triggerStyle ?? 'button')
@@ -34,14 +40,72 @@ const size = computed(() => style.value === 'icon-button'
   ? ({ 'extra-small': 'size-(--inlay-button-xs-height) min-h-0 text-xs', small: 'size-(--inlay-button-sm-height) min-h-0 text-sm', medium: 'size-(--inlay-icon-button-size) min-h-0 text-sm', large: 'size-(--inlay-button-lg-height) min-h-0 text-sm' }[props.definition.size ?? 'medium'] ?? 'size-(--inlay-icon-button-size) min-h-0 text-sm')
   : style.value === 'link' ? 'min-h-0 p-0 text-sm'
     : style.value === 'badge' ? 'min-h-6 px-2 py-0.5 text-xs'
-      : ({ 'extra-small': 'min-h-(--inlay-button-xs-height) px-2 py-1 text-xs', small: 'min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm', medium: 'min-h-(--inlay-button-height) px-3 py-1.5 text-sm', large: 'min-h-(--inlay-button-lg-height) px-3.5 py-2 text-sm' }[props.definition.size ?? 'medium'] ?? 'min-h-(--inlay-button-height) px-3 py-1.5 text-sm'))
-const placement = computed(() => placements[props.definition.dropdownPlacement ?? 'top-start'] ?? placements['top-start'])
+        : ({ 'extra-small': 'min-h-(--inlay-button-xs-height) px-2 py-1 text-xs', small: 'min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm', medium: 'min-h-(--inlay-button-sm-height) px-3 py-1 text-sm', large: 'min-h-(--inlay-button-lg-height) px-3.5 py-2 text-sm' }[props.definition.size ?? 'medium'] ?? 'min-h-(--inlay-button-sm-height) px-3 py-1 text-sm'))
+const placement = computed(() => placements[props.definition.dropdownPlacement ?? 'bottom-end'] ?? placements['bottom-end'])
 const width = computed(() => widths[props.definition.dropdownWidth ?? 'sm'] ?? widths.sm)
 const badgeTone = computed(() => badges[props.definition.badgeColor as keyof typeof badges ?? 'default'] ?? badges.default)
+const iconTriggerSize = computed(() => props.definition.size === 'extra-small'
+  ? 'size-(--inlay-button-xs-height)'
+  : props.definition.size === 'small'
+    ? 'size-(--inlay-button-sm-height)'
+    : props.definition.size === 'large'
+      ? 'size-(--inlay-button-lg-height)'
+      : 'size-(--inlay-icon-button-size)')
+const iconTriggerToken = computed(() => props.definition.size === 'extra-small'
+  ? 'button-xs-height'
+  : props.definition.size === 'small'
+    ? 'button-sm-height'
+    : props.definition.size === 'large'
+      ? 'button-lg-height'
+      : 'icon-button-size')
+const triggerClasses = computed(() => {
+  const base = style.value === 'icon-button'
+    ? `${iconButtonClass} relative ${iconTriggerSize.value}`
+    : 'relative inline-flex items-center justify-center gap-1.5 border font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)'
+  const grouped = props.groupPosition
+    ? props.groupPosition === 'single' ? 'rounded-(--inlay-radius)' : props.groupPosition === 'first' ? 'rounded-l-(--inlay-radius) rounded-r-none' : props.groupPosition === 'last' ? 'rounded-l-none rounded-r-(--inlay-radius)' : 'rounded-none'
+    : style.value === 'icon-button' ? 'rounded-full p-0 hover:border-transparent' : style.value === 'link' ? 'rounded-sm shadow-none underline-offset-4 hover:underline' : style.value === 'badge' ? 'rounded-full shadow-none' : 'rounded-(--inlay-radius)'
+  return `${base} ${grouped} ${size.value} ${style.value === 'icon-button' ? '' : tone.value}`
+})
 const ariaShortcuts = computed(() => props.definition.keyBindings?.flatMap(binding => {
   const value = binding.split('+').map(part => part.length === 1 ? part.toUpperCase() : part[0]!.toUpperCase() + part.slice(1)).join('+')
   return binding.startsWith('mod+') ? [value.replace('Mod+', 'Meta+'), value.replace('Mod+', 'Control+')] : [value]
 }).join(' ') || undefined)
+
+function updateMenuPosition(): void {
+  if (props.context !== rowContext || !menuOpen.value || !details.value || !menu.value) return
+  const trigger = details.value.querySelector('summary')
+  if (!trigger) return
+  const triggerRect = trigger.getBoundingClientRect()
+  const menuRect = menu.value.getBoundingClientRect()
+  const requested = props.definition.dropdownPlacement ?? 'bottom-end'
+  const vertical = requested.startsWith('top')
+    ? triggerRect.top - menuRect.height - 8
+    : requested.startsWith('bottom')
+      ? triggerRect.bottom + 8
+      : triggerRect.top + (triggerRect.height - menuRect.height) / 2
+  const horizontal = requested.startsWith('left')
+    ? triggerRect.left - menuRect.width - 8
+    : requested.startsWith('right')
+      ? triggerRect.right + 8
+      : requested.endsWith('start')
+        ? triggerRect.left
+        : requested.endsWith('end')
+          ? triggerRect.right - menuRect.width
+          : triggerRect.left + (triggerRect.width - menuRect.width) / 2
+  menuStyle.value = {
+    top: `${Math.max(8, Math.min(vertical, window.innerHeight - menuRect.height - 8))}px`,
+    left: `${Math.max(8, Math.min(horizontal, window.innerWidth - menuRect.width - 8))}px`,
+  }
+}
+
+function handleToggle(event: Event): void {
+  menuOpen.value = (event.currentTarget as HTMLDetailsElement).open
+  if (menuOpen.value) {
+    portalTarget.value = details.value?.closest('[data-inlay-theme-root]') as HTMLElement ?? 'body'
+  }
+  if (menuOpen.value) void nextTick(updateMenuPosition)
+}
 
 function toggleFromKeyboard(event: KeyboardEvent): void {
   if (refused.value || !matchesActionKeyBinding(event, props.definition.keyBindings)) return
@@ -49,8 +113,16 @@ function toggleFromKeyboard(event: KeyboardEvent): void {
   if (details.value) details.value.open = !details.value.open
 }
 
-onMounted(() => document.addEventListener('keydown', toggleFromKeyboard))
-onBeforeUnmount(() => document.removeEventListener('keydown', toggleFromKeyboard))
+onMounted(() => {
+  document.addEventListener('keydown', toggleFromKeyboard)
+  window.addEventListener('resize', updateMenuPosition)
+  window.addEventListener('scroll', updateMenuPosition, true)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', toggleFromKeyboard)
+  window.removeEventListener('resize', updateMenuPosition)
+  window.removeEventListener('scroll', updateMenuPosition, true)
+})
 </script>
 
 <template>
@@ -61,27 +133,34 @@ onBeforeUnmount(() => document.removeEventListener('keydown', toggleFromKeyboard
     <span class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-(--inlay-muted)">{{ definition.label }}</span>
     <slot />
   </div>
-  <details v-else ref="details" class="group relative" :data-slot="context === rowContext ? 'row-action-group' : 'bulk-action-group'">
+  <details v-else ref="details" class="group relative" :data-slot="context === rowContext ? 'row-action-group' : 'bulk-action-group'" @toggle="handleToggle">
     <summary
       :aria-disabled="refused || undefined"
       :aria-keyshortcuts="ariaShortcuts"
       :aria-label="style === 'icon-button' ? definition.label : undefined"
-      :class="['relative inline-flex cursor-pointer list-none items-center justify-center gap-1.5 border font-semibold shadow-xs marker:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)', refused && 'pointer-events-none opacity-50', groupPosition ? groupPosition === 'single' ? 'rounded-(--inlay-radius)' : groupPosition === 'first' ? 'rounded-l-(--inlay-radius) rounded-r-none' : groupPosition === 'last' ? 'rounded-l-none rounded-r-(--inlay-radius)' : 'rounded-none' : style === 'icon-button' ? 'rounded-full p-0' : style === 'link' ? 'rounded-sm shadow-none underline-offset-4 hover:underline' : style === 'badge' ? 'rounded-full shadow-none' : 'rounded-(--inlay-radius)', size, tone]"
+      :class="[triggerClasses, 'cursor-pointer list-none marker:hidden', refused && 'pointer-events-none opacity-50']"
       :data-color="definition.color"
       :data-size="definition.size ?? 'medium'"
       :data-trigger-style="style"
       data-slot="action-trigger"
       :title="definition.tooltip ?? undefined"
+      :style="style === 'icon-button' ? { width: `var(--inlay-${iconTriggerToken})`, height: `var(--inlay-${iconTriggerToken})` } : undefined"
       @click="refused && $event.preventDefault()"
     >
-      <NamedIcon v-if="definition.icon && definition.iconPosition !== 'after'" fallback="◆" :name="definition.icon" :registries="registries" :renderers="renderers" />
+      <NamedIcon v-if="style === 'icon-button'" fallback="…" :name="definition.icon ?? 'ellipsis-vertical'" :registries="registries" :renderers="renderers" />
+      <NamedIcon v-else-if="definition.icon && definition.iconPosition !== 'after'" fallback="◆" :name="definition.icon" :registries="registries" :renderers="renderers" />
       <span :class="style === 'icon-button' ? 'sr-only' : undefined">{{ definition.label }}</span>
-      <NamedIcon v-if="definition.icon && definition.iconPosition === 'after'" fallback="◆" :name="definition.icon" :registries="registries" :renderers="renderers" />
+      <NamedIcon v-if="style !== 'icon-button' && definition.icon && definition.iconPosition === 'after'" fallback="◆" :name="definition.icon" :registries="registries" :renderers="renderers" />
       <NamedIcon v-if="style !== 'icon-button'" fallback="⌄" name="chevron-down" :registries="registries" :renderers="renderers" />
       <span v-if="definition.badge !== null && definition.badge !== undefined" :class="[style === 'icon-button' ? 'absolute -right-1 -top-1 min-w-4' : 'ml-1', 'rounded-full border px-1.5 text-xs font-semibold', badgeTone]" :data-color="definition.badgeColor ?? 'default'" data-slot="action-group-badge">{{ definition.badge }}</span>
     </summary>
-    <div :class="['absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)', placement, width]" :data-placement="definition.dropdownPlacement ?? 'top-start'" :data-slot="context === rowContext ? 'row-action-group-menu' : 'action-group-menu'">
+    <div v-if="context !== rowContext" :class="['absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)', placement, width]" :data-placement="definition.dropdownPlacement ?? 'bottom-end'" data-slot="action-group-menu" :style="{ backgroundColor: 'var(--inlay-surface, #ffffff)' }">
       <slot />
     </div>
   </details>
+  <Teleport v-if="context === rowContext && menuOpen" :to="portalTarget">
+    <div ref="menu" :class="['fixed z-[100] grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md)', width]" :data-placement="definition.dropdownPlacement ?? 'bottom-end'" data-portal-menu="true" data-slot="row-action-group-menu" role="menu" :style="{ ...menuStyle, backgroundColor: 'var(--inlay-surface, #ffffff)' }">
+      <slot />
+    </div>
+  </Teleport>
 </template>

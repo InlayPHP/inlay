@@ -1,13 +1,14 @@
 import { router } from "@inertiajs/react";
 import { isSafeUrl } from "@inlayphp/core";
-import { customThemeVariables, recipeVariables, themeToken } from "@inlayphp/theme";
+import { customThemeVariables, defaultTheme, recipeVariables, themeToken } from "@inlayphp/theme";
 import type { ThemeSource } from "@inlayphp/theme";
 import { ActionDialog, useActionRuntime } from "@inlayphp/actions-react";
 import { ActionForm, SchemaRenderer } from "@inlayphp/forms-react";
 import { downloadAction, executeActionEndpoint, interpolateActionUrl, matchesActionKeyBinding } from "@inlayphp/actions";
 import type { ActionGroupResource } from "@inlayphp/actions";
-import { Select, buttonBaseClass, buttonDangerClass, buttonPrimaryClass, buttonSecondaryClass, controlClass, resolveIcon } from "@inlayphp/ui-react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Select, buttonBaseClass, buttonDangerClass, buttonPrimaryClass, buttonSecondaryClass, controlClass, iconButtonClass, menuItemClass, resolveIcon } from "@inlayphp/ui-react";
+import { createPortal } from "react-dom";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
 import type {
   Action,
@@ -161,6 +162,15 @@ const actionLinks: Record<string, string> = {
   info: "border-transparent bg-transparent text-(--inlay-info) hover:bg-(--inlay-info-surface)",
   gray: "border-transparent bg-transparent text-(--inlay-muted) hover:text-(--inlay-text)",
 };
+const actionMenuTones: Record<string, string> = {
+  default: "text-(--inlay-text)",
+  primary: "text-(--inlay-accent)",
+  danger: "text-(--inlay-danger)",
+  success: "text-(--inlay-success)",
+  warning: "text-(--inlay-warning)",
+  info: "text-(--inlay-info)",
+  gray: "text-(--inlay-muted-strong)",
+};
 const actionBadges: Record<string, string> = {
   default: "border-(--inlay-border) bg-(--inlay-surface-muted) text-(--inlay-fg-strong)",
   primary: "border-(--inlay-accent)/20 bg-(--inlay-accent)/10 text-(--inlay-accent)",
@@ -197,6 +207,17 @@ const actionGroupWidths: Record<string, string> = {
   "6xl": "w-[36rem]",
   "7xl": "w-[40rem]",
 };
+
+function scopedDarkThemeCss(theme: ThemeSource | undefined, scope: string): string {
+  const source = theme ?? defaultTheme;
+  const variables = { ...customThemeVariables(source, 'dark'), ...recipeVariables(source, 'dark') };
+  const declarations = Object.entries(variables)
+    .filter(([, value]) => !/[\r\n;{}]|<\/style/i.test(value))
+    .map(([name, value]) => '  ' + name + ': ' + value + ' !important;')
+    .join('\n');
+  if (!declarations) return '';
+  return '.dark [data-inlay-table-theme="' + scope + '"],\n[data-inlay-table-theme="' + scope + '"][data-theme-mode="dark"] {\n' + declarations + '\n}';
+}
 
 export function Table({
   resource,
@@ -323,6 +344,8 @@ export function Table({
       token("icon-button-size", "var(--inlay-panel-icon-button-size, var(--inlay-button-height, 2.5rem))"),
     "--inlay-shadow": token("shadow", "var(--inlay-panel-shadow, 0 1px 2px rgb(15 23 42 / 0.06))"),
   } as CSSProperties;
+  const tableThemeScope = 'table-' + resource.name.replace(/[^a-z0-9_-]/gi, '-');
+  const darkThemeCss = scopedDarkThemeCss(theme, tableThemeScope);
   const columnsByName = new Map(resource.columns.map((column) => [column.name, column]));
   const orderedColumns = columnOrder.map((name) => columnsByName.get(name)).filter((column): column is Column => column != null);
   const columns = orderedColumns.filter((column) => columnVisibility[column.name] ?? column.visible);
@@ -1012,7 +1035,7 @@ export function Table({
         <input aria-describedby={`${resource.name}-selection-status`} aria-label={`Select row ${keyFor(row)}`} checked={isKeySelected(keyFor(row))} className="size-5 rounded accent-(--inlay-accent) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color) sm:size-4" disabled={!selectableKeys.includes(keyFor(row)) || (!isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum)} onChange={(event) => { const key = keyFor(row); if (allMatchingSelected) setExcluded(event.target.checked ? excluded.filter(item => item !== key) : [...excluded, key]); else setSelected(event.target.checked ? [...selected, key] : selected.filter(item => item !== key)); }} title={!selectableKeys.includes(keyFor(row)) ? 'This record cannot be selected.' : !isKeySelected(keyFor(row)) && selectionMaximum !== null && selectedCount >= selectionMaximum ? `You can select at most ${selectionMaximum} records.` : undefined} type="checkbox" />
       </td> : null}
       {actionsAt('before-columns', row)}
-      {customLayout ? <td className="block p-2" colSpan={columns.length}><div className="grid gap-3" data-slot="column-layout">{resource.columnLayout?.map((component, index) => <ColumnLayoutRenderer component={component} key={index} onChange={(column, value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />)}</div></td> : columns.map((column) => <td {...safeAttributes(cellAttributesFor(row, column))} data-no-record-click={column.disabledClick ? "true" : undefined} className={`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? "sm:table-cell sm:h-(--inlay-table-row-height) sm:px-(--inlay-space-table-x) sm:align-middle" : ""}` : "min-w-0 overflow-hidden h-(--inlay-table-row-height) px-(--inlay-space-table-x)"} text-xs text-(--inlay-muted-strong) ${column.numeric || column.money ? "tabular-nums" : ""} ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? "whitespace-normal" : ""} ${classNames?.cell ?? ""}`} data-slot="table-cell" key={column.name} style={columnDimensionStyle(column)}>
+      {customLayout ? <td className="block p-2" colSpan={columns.length}><div className="grid gap-3" data-slot="column-layout">{resource.columnLayout?.map((component, index) => <ColumnLayoutRenderer component={component} key={index} onChange={(column, value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />)}</div></td> : columns.map((column) => <td {...safeAttributes(cellAttributesFor(row, column))} data-no-record-click={column.disabledClick ? "true" : undefined} className={`${cardLayout ? `grid grid-cols-[minmax(7rem,0.4fr)_1fr] items-center gap-3 px-2 py-2 ${stackedLayout && !gridLayout ? "sm:table-cell sm:h-(--inlay-table-row-height) sm:px-(--inlay-space-table-x) sm:align-middle" : ""}` : `min-w-0 ${column.type === "select-column" ? "overflow-visible" : "overflow-hidden"} h-(--inlay-table-row-height) px-(--inlay-space-table-x)`} text-sm leading-5 text-(--inlay-muted-strong) ${column.numeric || column.money ? "tabular-nums" : ""} ${alignmentClass(column.alignment)} ${verticalAlignmentClass(column.verticalAlignment)} ${responsiveColumnClass(column)} ${column.wrap ? "whitespace-normal" : ""} ${classNames?.cell ?? ""}`} data-slot="table-cell" key={column.name} style={columnDimensionStyle(column)}>
         {cardLayout ? <span className={`text-left text-xs font-medium text-(--inlay-muted) ${stackedLayout && !gridLayout ? "sm:hidden" : ""}`}>{column.label}</span> : null}<span {...safeAttributes(contentAttributesFor(row, column))} className={`${column.grow === false ? "grow-0" : "min-w-0 grow"} grid gap-1`}>{column.actions?.length ? <ColumnActionGroup actions={column.actions} column={column} execute={execute} row={row}><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></ColumnActionGroup> : column.action ? <button className="w-full cursor-pointer rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" data-slot="column-action" onClick={(event) => { event.stopPropagation(); execute(column.action as Action, [row]); }} type="button"><Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} /></button> : <Cell column={column} disabled={updatingCells.includes(cellKey(row, column))} error={cellErrors[cellKey(row, column)]} onChange={(value) => handleCellChange(row, column, value)} registries={registries} renderers={renderers} row={row} />}{cellErrors[cellKey(row, column)] ? <span className="text-xs text-(--inlay-danger)" role="alert">{cellErrors[cellKey(row, column)]}</span> : null}</span>
       </td>)}
       {actionsAt('after-columns', row)}
@@ -1026,9 +1049,11 @@ export function Table({
       aria-label={resource.name}
       className={`antialiased isolate min-w-0 max-w-full overflow-x-hidden ${classNames?.root ?? ""} ${className ?? ""}`}
       data-contract={resource.contract}
+      data-inlay-table-theme={tableThemeScope}
       data-slot="root"
       style={themeStyle}
     >
+      {darkThemeCss ? <style data-slot="table-dark-theme">{darkThemeCss}</style> : null}
       <p aria-live="polite" className="sr-only" data-slot="reorder-status">{reorderAnnouncement}</p>
       {resource.heading || resource.description ? (
         <div className="mb-4" data-slot="table-heading">
@@ -1037,16 +1062,17 @@ export function Table({
         </div>
       ) : null}
       <div
-        className={`flex min-h-(--inlay-control-height) flex-col gap-3 border-b border-(--inlay-border) pb-4 lg:flex-row lg:items-start lg:justify-between ${classNames?.toolbar ?? ""}`}
+        className={`flex min-h-(--inlay-control-height) flex-col gap-3 rounded-t-(--inlay-radius-lg) border-b border-(--inlay-border) bg-(--inlay-surface) px-4 py-3 lg:flex-row lg:items-center lg:justify-between sm:px-5 ${classNames?.toolbar ?? ""}`}
         data-slot="toolbar"
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
           {(resource.searchable ?? resource.columns.some((column) => column.searchable)) ? (
-          <label className="w-full max-w-[250px] flex-none">
+          <label className="relative w-full max-w-[280px] flex-none lg:ml-auto">
               <span className="sr-only">Search</span>
+              <NamedIcon className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-(--inlay-muted)" fallback="⌕" name="search" registries={registries} renderers={renderers} />
               <input
                 aria-label="Search"
-                className={`${controlClass} w-full focus:ring-offset-0`}
+                className={`${controlClass} w-full pl-9 focus:ring-offset-0`}
                 data-slot="search"
                 onBlur={() => resource.searchOnBlur && commitSearch(searchDraft)}
                 onChange={(event) => {
@@ -1082,12 +1108,12 @@ export function Table({
             <button
               aria-controls={`${resource.name}-filters`}
               aria-expanded={filtersOpen}
-              className={`${triggerButtonClass(resource.triggers?.filters)} min-h-(--inlay-control-height) shrink-0 ${classNames?.filtersTrigger ?? ""}`}
+              className={`${triggerButtonClass(resource.triggers?.filters)} min-h-(--inlay-button-sm-height) shrink-0 ${classNames?.filtersTrigger ?? ""}`}
               data-slot="filters-trigger"
               onClick={() => setFiltersOpen((open) => !open)}
               type="button"
             >
-              {resource.triggers?.filters?.icon ? <NamedIcon fallback="◆" name={resource.triggers.filters.icon} registries={registries} renderers={renderers} /> : null}
+              <NamedIcon fallback="◆" name={resource.triggers?.filters?.icon ?? "funnel"} registries={registries} renderers={renderers} />
               {resource.triggers?.filters?.label ?? "Filters"}
               {activeFilters.length ? (
                 <span
@@ -1115,7 +1141,7 @@ export function Table({
           className={`flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end ${classNames?.headerActions ?? ""}`}
           data-slot="header-actions"
         >
-          {resource.reordering?.enabled ? reordering ? <><button className={primaryButton} disabled={reorderSubmitting} onClick={() => void saveReordering()} type="button">{reorderSubmitting ? 'Saving…' : 'Save order'}</button><button className={secondaryButton} disabled={reorderSubmitting} onClick={cancelReordering} type="button">Cancel</button></> : <button className={`${triggerButtonClass(resource.triggers?.reordering)} ${classNames?.headerActions ?? ''}`} disabled={Boolean(resource.grouping?.active) || resource.rows.length < 2} onClick={() => { setOrderedRows(resource.rows); setReorderError(null); setReorderAnnouncement("Drag a row handle or use its move up and move down buttons."); setReordering(true); }} title={resource.grouping?.active ? 'Remove grouping before reordering records.' : undefined} type="button">{resource.triggers?.reordering?.icon ? <NamedIcon fallback="◆" name={resource.triggers.reordering.icon} registries={registries} renderers={renderers} /> : null}{resource.triggers?.reordering?.label ?? 'Reorder records'}</button> : null}
+          {resource.reordering?.enabled ? reordering ? <><button className={primaryButton} disabled={reorderSubmitting} onClick={() => void saveReordering()} type="button">{reorderSubmitting ? 'Saving…' : 'Save order'}</button><button className={secondaryButton} disabled={reorderSubmitting} onClick={cancelReordering} type="button">Cancel</button></> : <button className={`${triggerButtonClass(resource.triggers?.reordering)} ${classNames?.headerActions ?? ''}`} disabled={Boolean(resource.grouping?.active) || resource.rows.length < 2} onClick={() => { setOrderedRows(resource.rows); setReorderError(null); setReorderAnnouncement("Drag a row handle or use its move up and move down buttons."); setReordering(true); }} title={resource.grouping?.active ? 'Remove grouping before reordering records.' : undefined} type="button"><NamedIcon fallback="◆" name={resource.triggers?.reordering?.icon ?? "arrows-up-down"} registries={registries} renderers={renderers} />{resource.triggers?.reordering?.label ?? 'Reorder records'}</button> : null}
           {resource.columnManager && (resource.columnManager.reorderable || resource.columns.some((column) => column.toggleable)) ? (
             <button
               aria-controls={`${resource.name}-columns`}
@@ -1125,7 +1151,7 @@ export function Table({
               onClick={() => columnsOpen ? closeColumns() : openColumns()}
               type="button"
             >
-              {resource.triggers?.columnManager?.icon ? <NamedIcon fallback="◆" name={resource.triggers.columnManager.icon} registries={registries} renderers={renderers} /> : null}
+              <NamedIcon fallback="◆" name={resource.triggers?.columnManager?.icon ?? "columns"} registries={registries} renderers={renderers} />
               {resource.triggers?.columnManager?.label ?? "Columns"}
             </button>
           ) : null}
@@ -1179,8 +1205,8 @@ export function Table({
           }}
         >
         <div
-          aria-label={resource.columnManager?.layout === "modal" ? undefined : "Table columns"}
-          aria-labelledby={resource.columnManager?.layout === "modal" ? `${resource.name}-columns-heading` : undefined}
+          aria-label={resource.columnManager?.layout === "modal" ? "Manage columns" : "Table columns"}
+          aria-labelledby={resource.columnManager?.layout === "modal" ? undefined : `${resource.name}-columns-heading`}
           aria-modal={resource.columnManager?.layout === "modal" ? true : undefined}
           className={resource.columnManager?.layout === "modal"
             ? "max-h-[min(42rem,calc(100dvh-2rem))] w-full max-w-3xl overflow-y-auto rounded-(--inlay-radius) border border-(--inlay-border) bg-(--inlay-surface) p-5 shadow-2xl"
@@ -1192,11 +1218,11 @@ export function Table({
           }}
           role={resource.columnManager?.layout === "modal" ? "dialog" : "region"}
         >
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-base font-semibold text-(--inlay-text)" id={`${resource.name}-columns-heading`}>Manage columns</h3>
+          <div className="mb-4 flex items-center justify-between gap-3 border-b border-(--inlay-border) pb-3">
+            <h3 className="text-base font-semibold text-(--inlay-text)" id={`${resource.name}-columns-heading`}>Columns</h3>
             <div className="flex items-center gap-2">
-              {(resource.columnManager?.resetActionPosition ?? "header") === "header" ? <button className={secondaryButton} onClick={resetColumns} type="button">Reset columns</button> : null}
-              {resource.columnManager?.layout === "modal" ? <button aria-label="Close column manager" autoFocus className={`${secondaryButton} min-w-9 px-2`} onClick={closeColumns} type="button">×</button> : null}
+              {(resource.columnManager?.resetActionPosition ?? "header") === "header" ? <button aria-label="Reset columns" className="rounded-md px-2 py-1 text-sm font-medium text-(--inlay-danger) hover:bg-(--inlay-danger-surface) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={resetColumns} type="button">Reset</button> : null}
+              {resource.columnManager?.layout === "modal" ? <button aria-label="Close column manager" autoFocus className={`${iconButtonClass} min-h-8 size-8`} onClick={closeColumns} type="button"><NamedIcon fallback="×" name="x" registries={registries} renderers={renderers} /></button> : null}
             </div>
           </div>
           <div className={`grid gap-2 ${columnManagerGridClass(resource.columnManager?.columns ?? 1)}`}>
@@ -1209,15 +1235,15 @@ export function Table({
                   <span className="truncate">{column.label}</span>
                 </label> : <span className="min-w-0 flex-1 truncate">{column.label}</span>}
                 {resource.columnManager?.reorderable ? <span className="flex gap-1">
-                  <button aria-label={`Move ${column.label} up`} className={secondaryButton} disabled={index === 0} onClick={() => moveColumn(column.name, -1)} type="button">↑</button>
-                  <button aria-label={`Move ${column.label} down`} className={secondaryButton} disabled={index === draftColumnOrder.length - 1} onClick={() => moveColumn(column.name, 1)} type="button">↓</button>
+                  <button aria-label={`Move ${column.label} up`} className={`${iconButtonClass} min-h-8 size-8`} disabled={index === 0} onClick={() => moveColumn(column.name, -1)} type="button"><NamedIcon fallback="↑" name="chevron-up" registries={registries} renderers={renderers} /></button>
+                  <button aria-label={`Move ${column.label} down`} className={`${iconButtonClass} min-h-8 size-8`} disabled={index === draftColumnOrder.length - 1} onClick={() => moveColumn(column.name, 1)} type="button"><NamedIcon fallback="↓" name="chevron-down" registries={registries} renderers={renderers} /></button>
                 </span> : null}
               </div>;
             })}
           </div>
           {resource.columnManager?.deferred || resource.columnManager?.resetActionPosition === "footer" ? (
             <div className="mt-4 flex items-center justify-between gap-3 border-t border-(--inlay-border) pt-4">
-              {resource.columnManager?.resetActionPosition === "footer" ? <button className={secondaryButton} onClick={resetColumns} type="button">Reset columns</button> : <span />}
+              {resource.columnManager?.resetActionPosition === "footer" ? <button aria-label="Reset columns" className="rounded-md px-2 py-1 text-sm font-medium text-(--inlay-danger) hover:bg-(--inlay-danger-surface) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={resetColumns} type="button">Reset</button> : <span />}
               {resource.columnManager?.deferred ? <button
                 className={primaryButton}
                 onClick={() => { commitColumns(draftColumnVisibility, draftColumnOrder); setColumnsOpen(false); }}
@@ -1289,7 +1315,7 @@ export function Table({
           {resource.bulkActions.map((definition) => isActionGroup(definition)
             ? <BulkActionGroupMenu count={selectedCount} definition={definition} execute={execute} key={definition.instanceKey ?? definition.name} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} rows={selectedRows} />
             : <BulkActionControl action={definition} count={selectedCount} execute={execute} key={definition.instanceKey ?? definition.name} processing={actionRuntime.state.phase === "executing"} registries={registries} renderers={renderers} rows={selectedRows} />)}
-          <button className={`${secondaryButton} min-h-8 px-2.5 py-1 text-sm`} onClick={() => { setSelected([]); setAllMatchingSelected(false); setExcluded([]); }} type="button">Clear selection</button>
+          <button className={`${secondaryButton} min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm`} onClick={() => { setSelected([]); setAllMatchingSelected(false); setExcluded([]); }} type="button">Clear selection</button>
         </div>
       ) : null}
 
@@ -1324,17 +1350,17 @@ export function Table({
                   </th>
                 ) : null}
                 {actionsHeaderAt('before-columns')}
-                {hasColumnGroups ? headerSegments.map((segment, index) => segment.group ? <th className={`border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(segment.group.alignment)} ${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'}`} colSpan={segment.columns.length} key={`${segment.group.label}-${index}`} scope="colgroup" title={segment.group.tooltip ?? undefined}>{segment.group.label}</th> : <ColumnHeaderCell column={segment.columns[0]} key={segment.columns[0].name} onQueryChange={changeQuery} query={query} rowSpan={2} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />)}
+                {hasColumnGroups ? headerSegments.map((segment, index) => segment.group ? <th className={`border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-xs font-medium text-(--inlay-muted) ${alignmentClass(segment.group.alignment)} ${segment.group.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'}`} colSpan={segment.columns.length} key={`${segment.group.label}-${index}`} scope="colgroup" title={segment.group.tooltip ?? undefined}>{segment.group.label}</th> : <ColumnHeaderCell column={segment.columns[0]} hasSearchRow={columns.some((column) => column.individuallySearchable)} key={segment.columns[0].name} onQueryChange={changeQuery} query={query} registries={registries} renderers={renderers} rowSpan={2} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : columns.map((column) => <ColumnHeaderCell column={column} hasSearchRow={columns.some((item) => item.individuallySearchable)} key={column.name} onQueryChange={changeQuery} query={query} registries={registries} renderers={renderers} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />)}
                 {actionsHeaderAt('after-columns')}
               </tr>
-              {hasColumnGroups ? <tr>{headerSegments.flatMap((segment) => segment.group ? segment.columns.map((column) => <ColumnHeaderCell column={column} key={column.name} onQueryChange={changeQuery} query={query} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : [])}</tr> : null}
+              {hasColumnGroups ? <tr>{headerSegments.flatMap((segment) => segment.group ? segment.columns.map((column) => <ColumnHeaderCell column={column} hasSearchRow={columns.some((item) => item.individuallySearchable)} key={column.name} onQueryChange={changeQuery} query={query} registries={registries} renderers={renderers} searchDebounce={resource.searchDebounce} searchOnBlur={resource.searchOnBlur} />) : [])}</tr> : null}
             </thead>
             <tbody className={gridLayout ? `grid gap-4 p-4 ${contentGridClass(resource.layout?.contentGrid ?? {})}` : customLayout ? "grid gap-3 p-3" : stackedLayout ? "block p-3 sm:table-row-group sm:p-0" : undefined}>
               {resource.grouping?.active ? resource.grouping.buckets.map((bucket) => {
                 const collapsed = collapsedGroups.includes(bucket.key);
                 const bucketRows = orderedRows.filter((row) => bucket.rowKeys.includes(String(keyFor(row))));
                 return <Fragment key={bucket.key}>
-                  <tr className="bg-(--inlay-surface-muted)" data-slot="group-header"><th className="whitespace-normal h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-left" colSpan={columns.length + (reordering ? 1 : 0) + (resource.selectable ? 1 : 0) + (resource.actions.length ? 1 : 0)} scope="rowgroup">
+      <tr className="bg-(--inlay-surface-muted)" data-slot="group-header"><th className="whitespace-normal h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-left text-sm" colSpan={columns.length + (reordering ? 1 : 0) + (resource.selectable ? 1 : 0) + (resource.actions.length ? 1 : 0)} scope="rowgroup">
                     <button className="flex w-full items-start justify-between gap-4 text-left" disabled={!resource.grouping?.active?.collapsible} onClick={() => setCollapsedGroups(collapsed ? collapsedGroups.filter((key) => key !== bucket.key) : [...collapsedGroups, bucket.key])} type="button">
                       <span><span className="font-semibold text-(--inlay-text)">{bucket.title}</span>{bucket.description ? <span className="mt-0.5 block text-sm font-normal text-(--inlay-muted)">{bucket.description}</span> : null}</span>
                       <span className="text-sm font-normal text-(--inlay-muted)">{summaryText(bucket.summaries)}{resource.grouping?.active?.collapsible ? ` ${collapsed ? "▾" : "▴"}` : ""}</span>
@@ -1448,9 +1474,33 @@ function Cell({
     try {
       await navigator.clipboard.writeText(String(copyValue ?? ''));
       setCopied(true);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("inlay:notification", {
+          detail: {
+            id: `table-copy-${column.name}-${String(row.id ?? "record")}`,
+            title: copyMessage,
+            body: `${column.label} copied to clipboard.`,
+            status: "success",
+            icon: "✓",
+            duration: copyMessageDuration,
+          },
+        }));
+      }
       window.setTimeout(() => setCopied(false), copyMessageDuration);
     } catch {
       setCopied(false);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("inlay:notification", {
+          detail: {
+            id: `table-copy-error-${column.name}-${String(row.id ?? "record")}`,
+            title: "Copy failed",
+            body: `Could not copy ${column.label.toLowerCase()} to the clipboard.`,
+            status: "danger",
+            icon: "×",
+            duration: 3500,
+          },
+        }));
+      }
     }
   };
   const Renderer =
@@ -1507,7 +1557,7 @@ function Cell({
   if (column.type === "badge-column")
     return (
       <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${badgeColor(column.colors?.[String(raw)])}`}
+        className={`inline-flex min-h-6 w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium leading-none ${badgeColor(column.colors?.[String(raw)])}`}
       >
         <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
         {String(column.labels?.[String(raw)] ?? value)}
@@ -1515,20 +1565,16 @@ function Cell({
     );
   if (column.type === "select-column")
     return (
-      <select
-        aria-invalid={Boolean(error)}
-        aria-label={`${column.label} for ${row.id}`}
-        className={controlClass}
+      <Select
+        ariaLabel={`${column.label} for ${row.id}`}
+        buttonClassName="min-h-(--inlay-button-sm-height)"
+        className="w-full min-w-40"
         disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
+        invalid={Boolean(error)}
+        onValueChange={(next) => onChange(next)}
+        options={column.options?.map((option) => ({ value: option.value, label: option.label })) ?? []}
         value={String(raw ?? "")}
-      >
-        {column.options?.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      />
     );
   if (["toggle-column", "checkbox-column"].includes(column.type))
     return (
@@ -1581,7 +1627,7 @@ function Cell({
     const remaining = allItems.length - shownItems.length;
     return <span className="inline-grid min-w-0 gap-1" title={presentation?.tooltip ?? column.tooltip ?? undefined}>
       {(presentation?.description ?? column.description) && column.descriptionPosition === 'above' ? <span className="text-xs text-(--inlay-muted)">{presentation?.description ?? column.description}</span> : null}
-      <ul className={bulleted ? 'list-inside list-disc space-y-0.5' : 'grid list-none gap-0.5'}>{shownItems.map((item, index) => <li className={`${bulleted ? '' : 'flex items-start gap-1.5'} ${textClasses}`} data-color={textColor ?? undefined} key={index} style={textStyle}><span className={`${badge ? `${textBadgeClass(textColor)} rounded-full px-2 py-0.5` : ''} inline-flex items-start gap-1.5`}>{column.iconPosition !== 'after' ? icon : null}<span className={wrap ? 'whitespace-normal' : 'whitespace-nowrap'}>{String(item)}</span>{column.iconPosition === 'after' ? icon : null}</span></li>)}</ul>
+      <ul className={bulleted ? 'list-inside list-disc space-y-0.5' : 'grid list-none gap-0.5'}>{shownItems.map((item, index) => <li className={`${bulleted ? '' : 'flex items-start gap-1.5'} ${textClasses}`} data-color={textColor ?? undefined} key={index} style={textStyle}><span className={`${badge ? `${textBadgeClass(textColor)} rounded-full px-2.5 py-1 text-xs font-medium leading-none` : ''} inline-flex items-start gap-1.5`}>{column.iconPosition !== 'after' ? icon : null}<span className={wrap ? 'whitespace-normal' : 'whitespace-nowrap'}>{String(item)}</span>{column.iconPosition === 'after' ? icon : null}</span></li>)}</ul>
       {listLimit && expandableLimitedList && allItems.length > listLimit ? <button aria-expanded={listExpanded} className="justify-self-start text-xs font-medium text-(--inlay-accent) hover:underline" onClick={() => setListExpanded(current => !current)} type="button">{listExpanded ? 'Show less' : `Show ${remaining} more`}</button> : remaining > 0 ? <span className="text-xs text-(--inlay-muted)">+{remaining} more</span> : null}
       {(presentation?.description ?? column.description) && column.descriptionPosition !== 'above' ? <span className="text-xs text-(--inlay-muted)">{presentation?.description ?? column.description}</span> : null}
     </span>;
@@ -1618,9 +1664,9 @@ function Cell({
     ) : <span className={`${empty && column.placeholder ? 'text-(--inlay-muted)' : ''} ${contentClass}`} style={contentStyle}>{richText && !empty ? <span dangerouslySetInnerHTML={{ __html: String(display) }} /> : display}</span>;
   return <span className="grid min-w-0 w-full max-w-full gap-0.5 overflow-hidden" title={tooltip ?? undefined}>
     {description && column.descriptionPosition === 'above' ? <span className="truncate text-xs text-(--inlay-muted)">{description}</span> : null}
-    <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden"><span className={`${textClasses} ${badge ? `${textBadgeClass(textColor)} rounded-full px-2 py-0.5` : ''} inline-flex min-w-0 max-w-full flex-1 items-center gap-1.5 overflow-hidden`} data-color={textColor ?? undefined} style={textStyle}>{column.iconPosition !== 'after' ? icon : null}{main}{column.iconPosition === 'after' ? icon : null}</span>{copyable ? <button aria-label={`Copy ${column.label}`} className="shrink-0 rounded-sm p-1 text-(--inlay-muted) hover:bg-(--inlay-hover) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={() => void copy()} title={copyMessage} type="button"><span aria-hidden="true">⎘</span></button> : null}</span>
+    <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden"><span className={`${textClasses} ${badge ? `${textBadgeClass(textColor)} rounded-full px-2.5 py-1 text-xs font-medium leading-none` : ''} inline-flex min-w-0 max-w-full ${badge ? 'w-fit flex-none' : 'flex-1'} items-center gap-1.5 overflow-hidden`} data-color={textColor ?? undefined} style={textStyle}>{column.iconPosition !== 'after' ? icon : null}{main}{column.iconPosition === 'after' ? icon : null}</span>{copyable ? <button aria-label={copied ? copyMessage : `Copy ${column.label}`} className={`${iconButtonClass} size-8 min-h-0`} data-slot="copy-trigger" onClick={() => void copy()} style={{ height: '2rem', width: '2rem' }} title={copied ? copyMessage : `Copy ${column.label}`} type="button"><NamedIcon className="size-4" fallback={copied ? '✓' : '⎘'} name={copied ? 'check' : 'copy'} registries={registries} renderers={renderers} /></button> : null}</span>
     {description && column.descriptionPosition !== 'above' ? <span className="truncate text-xs text-(--inlay-muted)">{description}</span> : null}
-    {copied ? <span aria-live="polite" className="text-xs text-(--inlay-success)" role="status">{copyMessage}</span> : null}
+    {copied ? <span aria-live="polite" className="sr-only" role="status">{copyMessage}</span> : null}
   </span>;
 }
 
@@ -1798,6 +1844,7 @@ function ActionButton({
   disabled = false,
   disabledReason,
   groupPosition,
+  menuItem = false,
 }: {
   action: Action;
   rows: TableRow[];
@@ -1808,6 +1855,8 @@ function ActionButton({
   disabled?: boolean;
   disabledReason?: string | null;
   groupPosition?: ActionGroupPosition;
+  /** Render a borderless, full-width command-menu item instead of a button. */
+  menuItem?: boolean;
 }) {
   const type = action.type ?? action.name;
   const Renderer = renderers?.action?.[type] ?? registries?.action?.get(type);
@@ -1831,15 +1880,18 @@ function ActionButton({
     return <Renderer action={action} disabled={refused} disabledReason={disabledReason ?? null} onExecute={refused ? () => {} : onClick} rows={rows} />;
 
   const style = action.triggerStyle ?? "button";
+  const iconOnly = style === "icon-button" && !menuItem;
   const toneSet = style === "link" ? actionLinks : style === "badge" ? actionBadges : action.outlined ? actionOutlines : actionColors;
   const tone = toneSet[action.color ?? "default"] ?? toneSet.default ?? actionColors.default;
-  const size = style === "icon-button"
+  const size = menuItem
+    ? "min-h-9 px-2.5 py-1 text-sm"
+    : style === "icon-button"
     ? ({ "extra-small": "size-(--inlay-button-xs-height) min-h-0 text-xs", small: "size-(--inlay-button-sm-height) min-h-0 text-sm", medium: "size-(--inlay-icon-button-size) min-h-0 text-sm", large: "size-(--inlay-button-lg-height) min-h-0 text-sm" }[action.size ?? "medium"] ?? "size-(--inlay-icon-button-size) min-h-0 text-sm")
     : style === "link"
       ? "min-h-0 p-0 text-sm"
       : style === "badge"
         ? "min-h-6 px-2 py-0.5 text-xs"
-        : ({ "extra-small": "min-h-(--inlay-button-xs-height) px-2 py-1 text-xs", small: "min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm", medium: "min-h-(--inlay-button-height) px-3 py-1.5 text-sm", large: "min-h-(--inlay-button-lg-height) px-3.5 py-2 text-sm" }[action.size ?? "medium"] ?? "min-h-(--inlay-button-height) px-3 py-1.5 text-sm");
+        : ({ "extra-small": "min-h-(--inlay-button-xs-height) px-2 py-1 text-xs", small: "min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm", medium: "min-h-(--inlay-button-sm-height) px-3 py-1 text-sm", large: "min-h-(--inlay-button-lg-height) px-3.5 py-2 text-sm" }[action.size ?? "medium"] ?? "min-h-(--inlay-button-sm-height) px-3 py-1 text-sm");
   const icon = action.icon
     ? <NamedIcon className="shrink-0" fallback="◆" name={action.icon} registries={registries} renderers={renderers} />
     : null;
@@ -1847,22 +1899,23 @@ function ActionButton({
     ? interpolateActionUrl(action.url, rows[0] ?? {})
     : null;
   const content = <>
-      {style === "icon-button" ? <span aria-hidden="true" className="pointer-fine:hidden absolute left-1/2 top-1/2 size-[max(100%,3rem)] -translate-1/2" /> : null}
+      {iconOnly ? <span aria-hidden="true" className="pointer-fine:hidden absolute left-1/2 top-1/2 size-[max(100%,3rem)] -translate-1/2" /> : null}
       {action.iconPosition === "after" ? null : icon}
-      {style === "icon-button" ? <span className="sr-only">{action.label}</span> : action.label}
+      {iconOnly ? <span className="sr-only">{action.label}</span> : action.label}
       {action.iconPosition === "after" ? icon : null}
-      {action.badge == null ? null : <span className={`${style === "icon-button" ? "absolute -right-1 -top-1 min-w-4" : "ml-1"} rounded-full border px-1.5 text-xs font-semibold ${actionBadges[action.badgeColor ?? "default"] ?? actionBadges.default}`} data-color={action.badgeColor ?? "default"} data-slot="action-badge">{action.badge}</span>}
+      {action.badge == null ? null : <span className={`${iconOnly ? "absolute -right-1 -top-1 min-w-4" : "ml-1"} rounded-full border px-1.5 text-xs font-semibold ${actionBadges[action.badgeColor ?? "default"] ?? actionBadges.default}`} data-color={action.badgeColor ?? "default"} data-slot="action-badge">{action.badge}</span>}
     </>;
-  const className = `${actionButtonBase} relative ${groupPosition ? groupPosition === "single" ? "rounded-(--inlay-radius)" : groupPosition === "first" ? "rounded-l-(--inlay-radius) rounded-r-none" : groupPosition === "last" ? "rounded-l-none rounded-r-(--inlay-radius)" : "rounded-none" : style === "icon-button" ? "rounded-full p-0" : style === "link" ? "rounded-sm shadow-none underline-offset-4 hover:underline" : style === "badge" ? "rounded-full shadow-none" : "rounded-(--inlay-radius)"} ${size} ${tone}`;
+  const className = `${menuItem ? `${menuItemClass} ${actionMenuTones[action.color ?? "default"] ?? actionMenuTones.default}` : actionButtonBase} relative ${menuItem ? "" : groupPosition ? groupPosition === "single" ? "rounded-(--inlay-radius)" : groupPosition === "first" ? "rounded-l-(--inlay-radius) rounded-r-none" : groupPosition === "last" ? "rounded-l-none rounded-r-(--inlay-radius)" : "rounded-none" : style === "icon-button" ? "rounded-full p-0" : style === "link" ? "rounded-sm shadow-none underline-offset-4 hover:underline" : style === "badge" ? "rounded-full shadow-none" : "rounded-(--inlay-radius)"} ${size} ${menuItem ? "" : tone}`;
   if (downloadUrl && rows.length === 0) {
     return (
       <a
         aria-disabled={refused || undefined}
-        aria-label={style === "icon-button" ? action.label : undefined}
+        aria-label={iconOnly ? action.label : undefined}
         className={`${className} ${refused ? "pointer-events-none opacity-50" : ""}`}
         data-color={action.color ?? "default"}
         data-outlined={action.outlined ? "true" : undefined}
         data-size={action.size ?? "medium"}
+        data-menu-item={menuItem ? "true" : undefined}
         data-trigger-style={style}
         data-slot="action-trigger"
         download
@@ -1878,11 +1931,12 @@ function ActionButton({
     <button
       aria-disabled={refused || undefined}
       aria-keyshortcuts={keyboardEnabled ? ariaKeyShortcuts(action.keyBindings) : undefined}
-      aria-label={style === "icon-button" ? action.label : undefined}
+      aria-label={iconOnly ? action.label : undefined}
       className={className}
       data-color={action.color ?? "default"}
       data-outlined={action.outlined ? "true" : undefined}
       data-size={action.size ?? "medium"}
+      data-menu-item={menuItem ? "true" : undefined}
       data-trigger-style={style}
       data-slot="action-trigger"
       disabled={refused}
@@ -1915,25 +1969,25 @@ function selectionReason(action: Action, count: number) {
   return null;
 }
 
-function BulkActionControl({ action, rows, count, execute, processing, renderers, registries, groupPosition }: { action: Action; rows: TableRow[]; count: number; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; groupPosition?: ActionGroupPosition }) {
+function BulkActionControl({ action, rows, count, execute, processing, renderers, registries, groupPosition, menuItem = false }: { action: Action; rows: TableRow[]; count: number; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; groupPosition?: ActionGroupPosition; menuItem?: boolean }) {
   const reason = selectionReason(action, count);
-  return <ActionButton action={action} disabled={reason !== null} disabledReason={reason} groupPosition={groupPosition} onClick={() => execute(action, rows)} processing={processing} registries={registries} renderers={renderers} rows={rows} />;
+  return <ActionButton action={action} disabled={reason !== null} disabledReason={reason} groupPosition={groupPosition} menuItem={menuItem} onClick={() => execute(action, rows)} processing={processing} registries={registries} renderers={renderers} rows={rows} />;
 }
 
-function BulkActionGroupItems({ definition, rows, count, execute, processing, renderers, registries, grouped = false }: { definition: Extract<BulkActionDefinition, { type: 'action-group' }>; rows: TableRow[]; count: number; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; grouped?: boolean }) {
+function BulkActionGroupItems({ definition, rows, count, execute, processing, renderers, registries, grouped = false, menuItems = false }: { definition: Extract<BulkActionDefinition, { type: 'action-group' }>; rows: TableRow[]; count: number; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; grouped?: boolean; menuItems?: boolean }) {
   return <>
     {definition.actions.map((action, index) => {
       const groupPosition: ActionGroupPosition | undefined = grouped
         ? definition.actions.length === 1 ? "single" : index === 0 ? "first" : index === definition.actions.length - 1 ? "last" : "middle"
         : undefined;
       return isActionGroup(action)
-        ? <BulkActionGroupMenu count={count} definition={action} execute={execute} groupPosition={groupPosition} key={action.instanceKey ?? action.name} nested processing={processing} registries={registries} renderers={renderers} rows={rows} />
-        : <BulkActionControl action={action} count={count} execute={execute} groupPosition={groupPosition} key={action.instanceKey ?? action.name} processing={processing} registries={registries} renderers={renderers} rows={rows} />;
+        ? <BulkActionGroupMenu count={count} definition={action} execute={execute} groupPosition={groupPosition} key={action.instanceKey ?? action.name} menuItems={menuItems} nested processing={processing} registries={registries} renderers={renderers} rows={rows} />
+        : <BulkActionControl action={action} count={count} execute={execute} groupPosition={groupPosition} key={action.instanceKey ?? action.name} menuItem={menuItems} processing={processing} registries={registries} renderers={renderers} rows={rows} />;
     })}
   </>;
 }
 
-function BulkActionGroupMenu({ definition, rows, count, execute, processing, renderers, registries, nested = false, groupPosition }: { definition: Extract<BulkActionDefinition, { type: 'action-group' }>; rows: TableRow[]; count: number; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; nested?: boolean; groupPosition?: ActionGroupPosition }) {
+function BulkActionGroupMenu({ definition, rows, count, execute, processing, renderers, registries, nested = false, groupPosition, menuItems = false }: { definition: Extract<BulkActionDefinition, { type: 'action-group' }>; rows: TableRow[]; count: number; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; nested?: boolean; groupPosition?: ActionGroupPosition; menuItems?: boolean }) {
   const details = useRef<HTMLDetailsElement>(null);
   const refused = processing || Boolean(definition.disabled);
   useEffect(() => {
@@ -1954,21 +2008,21 @@ function BulkActionGroupMenu({ definition, rows, count, execute, processing, ren
     ? ({ "extra-small": "size-(--inlay-button-xs-height) min-h-0 text-xs", small: "size-(--inlay-button-sm-height) min-h-0 text-sm", medium: "size-(--inlay-icon-button-size) min-h-0 text-sm", large: "size-(--inlay-button-lg-height) min-h-0 text-sm" }[definition.size ?? "medium"] ?? "size-(--inlay-icon-button-size) min-h-0 text-sm")
     : style === "link" ? "min-h-0 p-0 text-sm"
       : style === "badge" ? "min-h-6 px-2 py-0.5 text-xs"
-        : ({ "extra-small": "min-h-(--inlay-button-xs-height) px-2 py-1 text-xs", small: "min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm", medium: "min-h-(--inlay-button-height) px-3 py-1.5 text-sm", large: "min-h-(--inlay-button-lg-height) px-3.5 py-2 text-sm" }[definition.size ?? "medium"] ?? "min-h-(--inlay-button-height) px-3 py-1.5 text-sm");
+        : ({ "extra-small": "min-h-(--inlay-button-xs-height) px-2 py-1 text-xs", small: "min-h-(--inlay-button-sm-height) px-2.5 py-1 text-sm", medium: "min-h-(--inlay-button-sm-height) px-3 py-1 text-sm", large: "min-h-(--inlay-button-lg-height) px-3.5 py-2 text-sm" }[definition.size ?? "medium"] ?? "min-h-(--inlay-button-sm-height) px-3 py-1 text-sm");
   const icon = definition.icon ? <NamedIcon fallback="◆" name={definition.icon} registries={registries} renderers={renderers} /> : null;
-  const placement = actionGroupPlacements[definition.dropdownPlacement ?? "top-start"] ?? actionGroupPlacements["top-start"];
+  const placement = actionGroupPlacements[definition.dropdownPlacement ?? "bottom-end"] ?? actionGroupPlacements["bottom-end"];
   const width = actionGroupWidths[definition.dropdownWidth ?? "sm"] ?? actionGroupWidths.sm;
 
   if (definition.buttonGroup) {
     return <div aria-label={definition.label} className="inline-flex max-w-full -space-x-px overflow-x-auto" data-slot="action-button-group" role="group">
-      <BulkActionGroupItems count={count} definition={definition} execute={execute} grouped processing={processing} registries={registries} renderers={renderers} rows={rows} />
+      <BulkActionGroupItems count={count} definition={definition} execute={execute} grouped menuItems={menuItems} processing={processing} registries={registries} renderers={renderers} rows={rows} />
     </div>;
   }
 
   if (definition.dropdown === false) {
     return <div className={`${nested ? "mt-1 border-t border-(--inlay-border) pt-1" : "flex flex-wrap items-center gap-1"}`} data-slot="action-group-section" role={nested ? "group" : undefined}>
       {nested ? <span className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-(--inlay-muted)">{definition.label}</span> : null}
-      <BulkActionGroupItems count={count} definition={definition} execute={execute} processing={processing} registries={registries} renderers={renderers} rows={rows} />
+      <BulkActionGroupItems count={count} definition={definition} execute={execute} menuItems={menuItems} processing={processing} registries={registries} renderers={renderers} rows={rows} />
     </div>;
   }
 
@@ -1988,11 +2042,11 @@ function BulkActionGroupMenu({ definition, rows, count, execute, processing, ren
       {definition.iconPosition === "after" ? null : icon}
       {style === "icon-button" ? <span className="sr-only">{definition.label}</span> : definition.label}
       {definition.iconPosition === "after" ? icon : null}
-      {style === "icon-button" ? null : <span aria-hidden="true">⌄</span>}
+      {style === "icon-button" ? null : <NamedIcon fallback="⌄" name="chevron-down" registries={registries} renderers={renderers} />}
       {definition.badge == null ? null : <span className={`${style === "icon-button" ? "absolute -right-1 -top-1 min-w-4" : "ml-1"} rounded-full border px-1.5 text-xs font-semibold ${actionBadges[definition.badgeColor ?? "default"] ?? actionBadges.default}`} data-color={definition.badgeColor ?? "default"} data-slot="action-group-badge">{definition.badge}</span>}
     </summary>
-    <div className={`absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md) ${placement} ${width}`} data-placement={definition.dropdownPlacement ?? "top-start"} data-slot="action-group-menu">
-      <BulkActionGroupItems count={count} definition={definition} execute={execute} processing={processing} registries={registries} renderers={renderers} rows={rows} />
+    <div className={`absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md) ${placement} ${width}`} data-placement={definition.dropdownPlacement ?? "bottom-end"} data-slot="action-group-menu" style={{ backgroundColor: "var(--inlay-surface, #ffffff)" }}>
+      <BulkActionGroupItems count={count} definition={definition} execute={execute} menuItems processing={processing} registries={registries} renderers={renderers} rows={rows} />
     </div>
   </details>;
 }
@@ -2007,7 +2061,7 @@ function rowGroupVisibleActions(actions: RowActionDefinition[], row: TableRow): 
   });
 }
 
-function RowActionGroupItems({ definition, row, execute, processing, renderers, registries, onClose, grouped = false }: { definition: ActionGroupResource; row: TableRow; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; onClose?: () => void; grouped?: boolean }) {
+function RowActionGroupItems({ definition, row, execute, processing, renderers, registries, onClose, grouped = false, menuItems = false }: { definition: ActionGroupResource; row: TableRow; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; onClose?: () => void; grouped?: boolean; menuItems?: boolean }) {
   const visible = rowGroupVisibleActions(definition.actions, row);
   return <>{visible.map((action, index) => {
     const groupPosition: ActionGroupPosition | undefined = grouped
@@ -2015,19 +2069,97 @@ function RowActionGroupItems({ definition, row, execute, processing, renderers, 
       : undefined;
     return isActionGroup(action)
       ? <RowActionGroupMenu definition={action} execute={execute} groupPosition={groupPosition} key={action.instanceKey ?? action.name} nested processing={processing} registries={registries} renderers={renderers} row={row} />
-      : <ActionButton action={action} groupPosition={groupPosition} key={action.instanceKey ?? action.name} onClick={() => { onClose?.(); execute(action, [row]); }} processing={processing} registries={registries} renderers={renderers} rows={[row]} />;
+      : <ActionButton action={action} groupPosition={groupPosition} key={action.instanceKey ?? action.name} menuItem={menuItems} onClick={() => { onClose?.(); execute(action, [row]); }} processing={processing} registries={registries} renderers={renderers} rows={[row]} />;
   })}</>;
 }
 
 function RowActionGroupMenu({ definition, row, execute, processing, renderers, registries, nested = false, groupPosition }: { definition: ActionGroupResource; row: TableRow; execute: (action: Action, rows: TableRow[]) => void; processing: boolean; renderers?: TableRenderers; registries?: TableRendererRegistries; nested?: boolean; groupPosition?: ActionGroupPosition }) {
   const details = useRef<HTMLDetailsElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const menuId = useId().replaceAll(':', '');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 8, left: 8 });
   const refused = processing || Boolean(definition.disabled);
   if (rowGroupVisibleActions(definition.actions, row).length === 0) return null;
-  const close = () => { if (details.current) details.current.open = false; };
+  const close = () => {
+    if (details.current) details.current.open = false;
+    setMenuOpen(false);
+  };
   const style = definition.triggerStyle ?? "button";
-  const icon = definition.icon ? <NamedIcon fallback="◆" name={definition.icon} registries={registries} renderers={renderers} /> : null;
-  const placement = actionGroupPlacements[definition.dropdownPlacement ?? "top-start"] ?? actionGroupPlacements["top-start"];
+  const icon = definition.icon
+    ? <NamedIcon fallback="◆" name={definition.icon} registries={registries} renderers={renderers} />
+      : style === "icon-button"
+        ? <NamedIcon fallback="…" name="ellipsis-vertical" registries={registries} renderers={renderers} />
+        : null;
+  const iconTriggerSize = definition.size === "extra-small"
+    ? "size-(--inlay-button-xs-height)"
+    : definition.size === "small"
+      ? "size-(--inlay-button-sm-height)"
+      : definition.size === "large"
+        ? "size-(--inlay-button-lg-height)"
+        : "size-(--inlay-icon-button-size)";
+  const iconTriggerToken = definition.size === "extra-small"
+    ? "button-xs-height"
+    : definition.size === "small"
+      ? "button-sm-height"
+      : definition.size === "large"
+        ? "button-lg-height"
+        : "icon-button-size";
+  const portalTarget = details.current?.closest<HTMLElement>('[data-inlay-theme-root]') ?? (typeof document !== 'undefined' ? document.body : null);
+  const placement = actionGroupPlacements[definition.dropdownPlacement ?? "bottom-end"] ?? actionGroupPlacements["bottom-end"];
   const width = actionGroupWidths[definition.dropdownWidth ?? "sm"] ?? actionGroupWidths.sm;
+
+  const updateMenuPosition = () => {
+    const trigger = details.current?.querySelector('summary');
+    if (!trigger || !menu.current) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    const menuRect = menu.current.getBoundingClientRect();
+    const requested = definition.dropdownPlacement ?? 'bottom-end';
+    const vertical = requested.startsWith('top')
+      ? triggerRect.top - menuRect.height - 8
+      : requested.startsWith('bottom')
+        ? triggerRect.bottom + 8
+        : triggerRect.top + (triggerRect.height - menuRect.height) / 2;
+    const horizontal = requested.startsWith('left')
+      ? triggerRect.left - menuRect.width - 8
+      : requested.startsWith('right')
+        ? triggerRect.right + 8
+        : requested.endsWith('start')
+          ? triggerRect.left
+          : requested.endsWith('end')
+            ? triggerRect.right - menuRect.width
+            : triggerRect.left + (triggerRect.width - menuRect.width) / 2;
+    setMenuPosition({
+      top: Math.max(8, Math.min(vertical, window.innerHeight - menuRect.height - 8)),
+      left: Math.max(8, Math.min(horizontal, window.innerWidth - menuRect.width - 8)),
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (!menuOpen) return;
+    updateMenuPosition();
+  }, [menuOpen, definition.dropdownPlacement, definition.dropdownWidth]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const reposition = () => updateMenuPosition();
+    window.addEventListener('resize', reposition);
+    window.addEventListener('scroll', reposition, true);
+    return () => {
+      window.removeEventListener('resize', reposition);
+      window.removeEventListener('scroll', reposition, true);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const closeWhenAnotherOpens = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === menuId) return;
+      if (details.current?.open) details.current.open = false;
+      setMenuOpen(false);
+    };
+    window.addEventListener('inlay:action-group-open', closeWhenAnotherOpens);
+    return () => window.removeEventListener('inlay:action-group-open', closeWhenAnotherOpens);
+  }, [menuId]);
 
   if (definition.buttonGroup) {
     return <div aria-label={definition.label} className="inline-flex max-w-full -space-x-px overflow-x-auto" data-slot="row-action-button-group" role="group">
@@ -2038,31 +2170,49 @@ function RowActionGroupMenu({ definition, row, execute, processing, renderers, r
   if (definition.dropdown === false) {
     return <div className={`${nested ? "mt-1 border-t border-(--inlay-border) pt-1" : "flex flex-wrap items-center gap-1"}`} data-slot="row-action-group-section" role={nested ? "group" : undefined}>
       {nested ? <span className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-(--inlay-muted)">{definition.label}</span> : null}
-      <RowActionGroupItems definition={definition} execute={execute} onClose={close} processing={processing} registries={registries} renderers={renderers} row={row} />
+      <RowActionGroupItems definition={definition} execute={execute} processing={processing} registries={registries} renderers={renderers} row={row} onClose={close} />
     </div>;
   }
 
-  return <details className="group relative" data-slot="row-action-group" ref={details}>
-    <summary
-      aria-disabled={refused || undefined}
-      aria-haspopup="menu"
-      aria-label={style === "icon-button" ? definition.label : undefined}
-      className={`${secondaryButton} relative min-h-(--inlay-button-sm-height) cursor-pointer list-none px-2 text-sm marker:hidden ${refused ? "pointer-events-none opacity-50" : ""} ${style === "icon-button" ? "rounded-full" : "rounded-(--inlay-radius)"}`}
-      data-color={definition.color}
-      data-size={definition.size ?? "medium"}
-      data-slot="action-trigger"
-      data-trigger-style={style}
-      onClick={(event) => { event.stopPropagation(); if (refused) event.preventDefault(); }}
-      title={definition.tooltip ?? undefined}
-    >
-      {style === "icon-button"
-        ? <>{icon ?? <span aria-hidden="true">…</span>}<span className="sr-only">{definition.label}</span></>
-        : <>{definition.iconPosition === "after" ? null : icon}{definition.label}{definition.iconPosition === "after" ? icon : null}<span aria-hidden="true">⌄</span></>}
-    </summary>
-    <div className={`absolute z-20 grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md) ${placement} ${width}`} data-placement={definition.dropdownPlacement ?? "top-start"} data-slot="row-action-group-menu">
-      <RowActionGroupItems definition={definition} execute={execute} onClose={close} processing={processing} registries={registries} renderers={renderers} row={row} />
-    </div>
-  </details>;
+  return <>
+    <details className="group relative" data-slot="row-action-group" ref={details} onToggle={(event) => {
+      const open = event.currentTarget.open;
+      setMenuOpen(open);
+      if (open) window.dispatchEvent(new CustomEvent('inlay:action-group-open', { detail: menuId }));
+    }}>
+      <summary
+        aria-disabled={refused || undefined}
+        aria-haspopup="menu"
+        aria-label={style === "icon-button" ? definition.label : undefined}
+        className={`${style === "icon-button" ? `${iconButtonClass} ${iconTriggerSize} hover:border-transparent hover:bg-(--inlay-surface-muted)` : `${secondaryButton} min-h-(--inlay-button-sm-height) px-3`} relative cursor-pointer list-none text-sm marker:hidden ${refused ? "pointer-events-none opacity-50" : ""} ${style === "icon-button" ? "rounded-full" : "rounded-(--inlay-radius)"}`}
+        data-color={definition.color}
+        data-size={definition.size ?? "medium"}
+        data-slot="action-trigger"
+        data-trigger-style={style}
+        onClick={(event) => { event.stopPropagation(); if (refused) event.preventDefault(); }}
+        style={style === "icon-button" ? { height: `var(--inlay-${iconTriggerToken})`, width: `var(--inlay-${iconTriggerToken})` } : undefined}
+        title={definition.tooltip ?? undefined}
+      >
+        {style === "icon-button"
+          ? <>{icon ?? <NamedIcon fallback="…" name="ellipsis-vertical" registries={registries} renderers={renderers} />}<span className="sr-only">…</span><span className="sr-only">{definition.label}</span></>
+          : <>{definition.iconPosition === "after" ? null : icon}{definition.label}{definition.iconPosition === "after" ? icon : null}<NamedIcon fallback="⌄" name="chevron-down" registries={registries} renderers={renderers} /></>}
+      </summary>
+    </details>
+    {menuOpen && portalTarget ? createPortal(
+      <div
+        className={`fixed z-[100] grid max-w-[calc(100vw-2rem)] gap-1 rounded-(--inlay-radius-md) border border-(--inlay-border) bg-(--inlay-surface) p-1.5 shadow-(--inlay-shadow-md) ${width}`}
+        data-placement={definition.dropdownPlacement ?? "bottom-end"}
+        data-portal-menu={menuId}
+        data-slot="row-action-group-menu"
+        ref={menu}
+        role="menu"
+        style={{ backgroundColor: "var(--inlay-surface, #ffffff)", left: menuPosition.left, top: menuPosition.top }}
+      >
+        <RowActionGroupItems definition={definition} execute={execute} menuItems processing={processing} registries={registries} renderers={renderers} row={row} onClose={close} />
+      </div>,
+      portalTarget,
+    ) : null}
+  </>;
 }
 
 function NamedIcon({ name, fallback, className, style, renderers, registries }: { name: string; fallback: string; className?: string; style?: CSSProperties; renderers?: TableRenderers; registries?: TableRendererRegistries }) {
@@ -2072,11 +2222,15 @@ function NamedIcon({ name, fallback, className, style, renderers, registries }: 
 }
 
 const tableIconPaths: Record<string, string[]> = {
+  search: ['M11 4a7 7 0 1 0 4.9 12l4.1 4', 'm16 16 4 4'],
   funnel: ['M4 5h16l-6.5 7.2V18l-3 1v-6.8z'],
   columns: ['M5 4h14v16H5z', 'M10 4v16', 'M15 4v16'],
   'arrows-up-down': ['M8 5v14', 'm5 8 3-3 3 3', 'm5 16 3 3 3-3', 'M16 5v14', 'm13 8 3-3 3 3', 'm13 16 3 3 3-3'],
+  'chevron-up': ['m6 15 6-6 6 6'],
+  'chevron-down': ['m6 9 6 6 6-6'],
   check: ['m5 12 4 4L19 6'],
   x: ['m6 6 12 12', 'm18 6-12 12'],
+  'ellipsis-vertical': ['M12 5h.01', 'M12 12h.01', 'M12 19h.01'],
   'ellipsis-horizontal': ['M5 12h.01', 'M12 12h.01', 'M19 12h.01'],
 };
 
@@ -2547,7 +2701,7 @@ function summaryValue(summary: SummaryResult): string {
   if (!summary.currency) value = `${summary.prefix ?? ""}${value}${summary.suffix ?? ""}`;
   return value;
 }
-function ColumnHeaderCell({ column, query, onQueryChange, rowSpan, searchDebounce, searchOnBlur }: { column: Column; query: QueryState; onQueryChange: (patch: Partial<QueryState>) => void; rowSpan?: number; searchDebounce?: number | null; searchOnBlur?: boolean }) {
+function ColumnHeaderCell({ column, query, onQueryChange, registries, renderers, rowSpan, searchDebounce, searchOnBlur, hasSearchRow = false }: { column: Column; query: QueryState; onQueryChange: (patch: Partial<QueryState>) => void; registries?: TableRendererRegistries; renderers?: TableRenderers; rowSpan?: number; searchDebounce?: number | null; searchOnBlur?: boolean; hasSearchRow?: boolean }) {
   const columnSearches = query.columnSearches ?? {};
   const [searchDraft, setSearchDraft] = useState(columnSearches[column.name] ?? "");
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -2566,14 +2720,14 @@ function ColumnHeaderCell({ column, query, onQueryChange, rowSpan, searchDebounc
     if (debounce <= 0) return commitSearch(value);
     searchTimer.current = setTimeout(() => commitSearch(value), debounce);
   };
-  return <th {...safeAttributes(column.extraHeaderAttributes)} aria-sort={query.sort === column.name ? `${query.direction}ending` : "none"} className={`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`} rowSpan={rowSpan} scope="col" style={columnDimensionStyle(column)} title={column.headerTooltip ?? undefined}>
-    <div className="grid min-w-0 gap-2">
-      {column.sortable ? <button className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={() => onQueryChange({ sort: column.name, direction: query.sort === column.name && query.direction === "asc" ? "desc" : "asc", page: 1 })} type="button"><span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>{query.sort === column.name ? <span aria-hidden="true" className="shrink-0 text-(--inlay-accent)">{query.direction === "asc" ? "↑" : "↓"}</span> : null}</button> : <span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>}
+  return <th {...safeAttributes(column.extraHeaderAttributes)} aria-sort={query.sort === column.name ? `${query.direction}ending` : "none"} className={`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-visible border-b border-(--inlay-border) bg-(--inlay-surface-subtle) min-h-(--inlay-table-row-height) h-auto px-(--inlay-space-table-x) py-2 align-top text-xs font-medium text-(--inlay-muted) ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`} rowSpan={rowSpan} scope="col" style={columnDimensionStyle(column)} title={column.headerTooltip ?? undefined}>
+    <div className="grid min-w-0 gap-1.5">
+      {column.sortable ? <button className="inline-flex min-h-5 min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)" onClick={() => onQueryChange({ sort: column.name, direction: query.sort === column.name && query.direction === "asc" ? "desc" : "asc", page: 1 })} type="button"><span className={column.wrapHeader ? '' : 'truncate'}>{column.label}</span>{query.sort === column.name ? <NamedIcon className="text-(--inlay-accent)" fallback={query.direction === "asc" ? "↑" : "↓"} name={query.direction === "asc" ? "chevron-up" : "chevron-down"} registries={registries} renderers={renderers} /> : null}</button> : <span className={`${column.wrapHeader ? '' : 'truncate'} flex min-h-5 items-center`}>{column.label}</span>}
       {column.individuallySearchable ? <label className="normal-case tracking-normal">
         <span className="sr-only">Search {column.label}</span>
         <input
           aria-label={`Search ${column.label}`}
-          className={`${controlClass} min-h-8 w-full px-2 py-1 text-sm font-normal focus:ring-offset-0`}
+          className={`${controlClass} min-h-(--inlay-button-sm-height) w-full px-2.5 py-1 text-sm font-normal focus:ring-offset-0`}
           data-slot="column-search"
           onBlur={() => searchOnBlur && commitSearch(searchDraft)}
           onChange={(event) => {
@@ -2587,10 +2741,11 @@ function ColumnHeaderCell({ column, query, onQueryChange, rowSpan, searchDebounc
               commitSearch(searchDraft);
             }
           }}
+          placeholder="Search…"
           type="search"
           value={searchDraft}
         />
-      </label> : null}
+      </label> : hasSearchRow ? <span aria-hidden="true" className="min-h-(--inlay-button-sm-height)" /> : null}
     </div>
   </th>;
 }
@@ -2658,9 +2813,10 @@ function badgeColor(color?: string) {
 }
 
 function triggerButtonClass(action?: Action): string {
-  if (action?.color === "primary") return primaryButton;
-  if (action?.color === "danger") return dangerButton;
-  return secondaryButton;
+  const density = "min-h-(--inlay-button-sm-height) px-3 py-1 text-sm";
+  if (action?.color === "primary") return `${primaryButton} ${density}`;
+  if (action?.color === "danger") return `${dangerButton} ${density}`;
+  return `${secondaryButton} ${density}`;
 }
 function semanticTextClass(color?: string | null) {
   return color === 'primary' ? 'text-(--inlay-accent)'

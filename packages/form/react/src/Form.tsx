@@ -240,7 +240,7 @@ export function Form({ resource, errors = {}, processing = false, className, the
       <SchemaRenderer actionExecutor={actionExecutor} className="gap-6" classNames={classNames} columnScope="form" columns={resource.columns} defaultLive={defaultLive} errors={displayedErrors} icons={icons} liveChange={liveChange} registries={registries} renderers={renderers} schema={schema} update={update} uploadProgress={uploadProgress} values={data} wizardStepValidator={wizardStepValidator} />
       {showSubmit ? <div className={`mt-7 flex justify-end border-t border-(--inlay-border) pt-5 ${classNames?.actions ?? ''}`.trim()} data-slot="actions">
         <button
-          className={`${buttonPrimaryClass} ${classNames?.submit ?? ''} min-h-(--inlay-button-lg-height) px-4 py-2 disabled:shadow-none`}
+          className={`${buttonPrimaryClass} ${classNames?.submit ?? ''} min-h-(--inlay-button-lg-height) disabled:shadow-none`}
           data-slot="submit"
           disabled={processing}
           type="submit"

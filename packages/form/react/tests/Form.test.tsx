@@ -297,7 +297,7 @@ describe('Form', () => {
     render(<SchemaRenderer errors={{}} liveChange={vi.fn()} path="" schema={[
       base({ name: 'quantity', label: 'Quantity', inputType: 'number', min: 1, max: 10, step: 2 }),
       base({ name: 'phone', label: 'Phone', inputType: 'tel', telRegex: '/^\\+?[0-9][0-9 .()-]+$/' }),
-      base({ type: 'date-picker', name: 'published_on', label: 'Published on', date: true, time: false }),
+      base({ type: 'date-picker', name: 'published_on', label: 'Published on', date: true, time: false, placeholder: 'YYYY-MM-DD' }),
       base({ type: 'time-picker', name: 'opens_at', label: 'Opens at', date: false, time: true, seconds: true }),
       base({ type: 'date-time-picker', name: 'starts_at', label: 'Starts at', date: true, time: true, seconds: false, min: '2026-01-01T09:00', max: '2026-01-31T17:00' }),
     ]} update={vi.fn()} values={{}} />)
@@ -310,6 +310,7 @@ describe('Form', () => {
     expect(screen.getByLabelText('Phone')).toHaveAttribute('pattern', '^\\+?[0-9][0-9 .()-]+$')
 
     expect(screen.getByLabelText('Published on')).toHaveAttribute('type', 'date')
+    expect(screen.getByLabelText('Published on')).toHaveAttribute('placeholder', 'YYYY-MM-DD')
     expect(screen.getByLabelText('Opens at')).toHaveAttribute('type', 'time')
     expect(screen.getByLabelText('Opens at')).toHaveAttribute('step', '1')
 
@@ -1778,6 +1779,53 @@ describe('Form', () => {
     expect(() => render(<Form resource={resource([component])} />)).not.toThrow()
   })
 
+  it('paints pressed toggle buttons with their option color and honors the inline flag', () => {
+    render(<SchemaRenderer errors={{}} liveChange={vi.fn()} path="" schema={[
+      base({
+        type: 'toggle-buttons', name: 'status', label: 'Status', inline: true,
+        options: [
+          { value: 'draft', label: 'Draft' },
+          { value: 'published', label: 'Published' },
+          { value: 'archived', label: 'Archived' },
+        ],
+        colors: { draft: 'gray', published: 'success', archived: 'danger' },
+      }),
+    ]} update={vi.fn()} values={{ status: 'published' }} />)
+
+    const group = document.querySelector('[role="group"]') as HTMLElement
+    expect(group).toHaveAttribute('data-inline', 'true')
+    expect(group).toHaveClass('flex-nowrap')
+    expect(group).not.toHaveClass('flex-wrap')
+
+    const draft = screen.getByRole('button', { name: 'Draft' })
+    const published = screen.getByRole('button', { name: 'Published' })
+    expect(draft).toHaveAttribute('data-color', 'gray')
+    expect(published).toHaveAttribute('data-color', 'success')
+    expect(published).toHaveAttribute('aria-pressed', 'true')
+    expect(published).toHaveClass('aria-pressed:bg-(--inlay-success-surface)')
+    expect(draft).toHaveAttribute('aria-pressed', 'false')
+    expect(draft).not.toHaveClass('aria-pressed:bg-(--inlay-accent)')
+    expect(screen.getByRole('button', { name: 'Archived' })).toHaveAttribute('data-color', 'danger')
+  })
+
+  it('falls back to the accent palette for unknown toggle button colors and wraps by default', () => {
+    render(<SchemaRenderer errors={{}} liveChange={vi.fn()} path="" schema={[
+      base({
+        type: 'toggle-buttons', name: 'status', label: 'Status',
+        options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }],
+        colors: { a: 'chartreuse' },
+      }),
+    ]} update={vi.fn()} values={{ status: 'a' }} />)
+
+    const group = document.querySelector('[role="group"]') as HTMLElement
+    expect(group).not.toHaveAttribute('data-inline')
+    expect(group).toHaveClass('flex-wrap')
+    const a = screen.getByRole('button', { name: 'A' })
+    expect(a).toHaveAttribute('data-color', 'chartreuse')
+    expect(a).toHaveAttribute('aria-pressed', 'true')
+    expect(a).toHaveClass('aria-pressed:bg-(--inlay-accent)')
+  })
+
   it('autosizes textarea controls while preserving ordinary textarea behavior', () => {
     render(<Form resource={resource([
       base({ type: 'textarea', name: 'bio', label: 'Biography', autosize: true, rows: 2 }),
@@ -2068,7 +2116,7 @@ describe('class overrides', () => {
       expect(container.querySelector(`.${value}`), key).not.toBeNull()
     }
     // The class lands beside the built-in styling rather than replacing it.
-    expect(container.querySelector('[data-slot="label"]')?.className).toContain('font-medium')
+    expect(container.querySelector('[data-slot="label"]')?.className).toContain('font-semibold')
   })
 
   it('renders exactly as before when no classes are given', () => {

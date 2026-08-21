@@ -3,8 +3,9 @@ import { controlClass } from '@inlayphp/ui'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { Column, QueryState } from './types'
+import NamedIcon from './NamedIcon.vue'
 
-const props = defineProps<{ column: Column; query: QueryState; rowSpan?: number; searchDebounce?: number | null; searchOnBlur?: boolean }>()
+const props = defineProps<{ column: Column; query: QueryState; rowSpan?: number; searchDebounce?: number | null; searchOnBlur?: boolean; hasSearchRow?: boolean }>()
 const emit = defineEmits<{ sort: [column: Column]; search: [column: Column, value: string] }>()
 const searchDraft = ref(props.query.columnSearches?.[props.column.name] ?? '')
 let searchTimer: ReturnType<typeof setTimeout> | null = null
@@ -45,7 +46,7 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
   <th
     v-bind="headerAttributes"
     :aria-sort="query.sort === column.name ? `${query.direction}ending` : 'none'"
-    :class="`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-hidden border-b border-(--inlay-border) bg-(--inlay-surface-subtle) h-(--inlay-table-row-height) px-(--inlay-space-table-x) align-middle text-[11px] font-semibold text-(--inlay-muted) ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`"
+    :class="`${column.wrapHeader ? 'whitespace-normal' : 'whitespace-nowrap'} min-w-0 overflow-visible border-b border-(--inlay-border) bg-(--inlay-surface-subtle) min-h-(--inlay-table-row-height) h-auto px-(--inlay-space-table-x) py-2 align-top text-xs font-medium text-(--inlay-muted) ${alignmentClass(column.alignment)} ${responsiveColumnClass(column)}`"
     :rowspan="rowSpan"
     scope="col"
     :style="dimensionStyle"
@@ -54,20 +55,21 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
     <div class="grid min-w-0 gap-2">
       <button
         v-if="column.sortable"
-        class="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-fg-strong) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)"
+        class="inline-flex min-h-5 min-w-0 max-w-full items-center gap-1.5 rounded-sm hover:text-(--inlay-fg-strong) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-focus-ring-color)"
         type="button"
         @click="emit('sort', column)"
       >
         <span :class="column.wrapHeader ? '' : 'truncate'">{{ column.label }}</span>
-        <span v-if="query.sort === column.name" aria-hidden="true" class="shrink-0 text-(--inlay-accent)">{{ query.direction === 'asc' ? '↑' : '↓' }}</span>
+        <NamedIcon v-if="query.sort === column.name" class="text-(--inlay-accent)" :fallback="query.direction === 'asc' ? '↑' : '↓'" :name="query.direction === 'asc' ? 'chevron-up' : 'chevron-down'" />
       </button>
-      <span v-else :class="column.wrapHeader ? '' : 'truncate'">{{ column.label }}</span>
+      <span v-else :class="`${column.wrapHeader ? '' : 'truncate'} flex min-h-5 items-center`">{{ column.label }}</span>
       <label v-if="column.individuallySearchable" class="normal-case tracking-normal">
         <span class="sr-only">Search {{ column.label }}</span>
         <input
           :aria-label="`Search ${column.label}`"
-          :class="`${controlClass} min-h-8 px-2 py-1 text-sm font-normal focus:ring-offset-0`"
+          :class="`${controlClass} min-h-(--inlay-button-sm-height) w-full px-2.5 py-1 text-sm font-normal focus:ring-offset-0`"
           data-slot="column-search"
+          placeholder="Search…"
           type="search"
           :value="searchDraft"
           @blur="searchOnBlur && commitSearch(searchDraft)"
@@ -75,6 +77,7 @@ const dimensionStyle = computed<CSSProperties | undefined>(() => props.column.co
           @keydown.enter.prevent="commitSearch(searchDraft)"
         />
       </label>
+      <span v-else-if="hasSearchRow" aria-hidden="true" class="min-h-(--inlay-button-sm-height)" />
     </div>
   </th>
 </template>

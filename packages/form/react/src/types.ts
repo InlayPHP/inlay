@@ -235,6 +235,8 @@ export type FormField = BaseField & {
   morphRemoteOptions?: MorphRemoteOptionsConfig | null
   optionActions?: SelectOptionActions
   inline?: boolean
+  /** Per-option semantic color names (e.g. 'success', 'danger'); the pressed button is painted with its option's color. */
+  colors?: Record<string, string>
   date?: boolean
   time?: boolean
   seconds?: boolean

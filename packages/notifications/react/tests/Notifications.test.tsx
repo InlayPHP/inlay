@@ -34,6 +34,13 @@ describe('Notifications', () => {
     expect(onDismiss).toHaveBeenCalledWith('notice-2')
   })
 
+  it('renders client-side notification events from renderer-neutral components', async () => {
+    render(<Notifications />)
+    act(() => window.dispatchEvent(new CustomEvent('inlay:notification', { detail: { id: 'copied', title: 'Copied', status: 'success', duration: 1000 } })))
+
+    expect(await screen.findByRole('status', { name: 'Copied' })).toBeInTheDocument()
+  })
+
   it('renders database notifications and marks one item read', async () => {
     const onMarkRead = vi.fn()
     render(<NotificationCenter notifications={[{ database_id: 12, read_at: null, data: { id: 'import-finished', title: 'Import finished', body: 'Review the results.', status: 'success' } }]} onMarkRead={onMarkRead} />)

@@ -215,6 +215,21 @@ describe('Table', () => {
     expect(container.querySelector('[data-slot="table-cell"]')).toHaveClass('min-w-0')
   })
 
+  it('keeps the default table chrome compact and icon-led', () => {
+    const data = {
+      ...resource([column({ searchable: true })]),
+      filters: [{ type: 'select-filter', name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] }] as TableResource['filters'],
+      columnManager: { deferred: true, persistInSession: false, reorderable: true },
+    }
+    const { container } = render(<Table resource={data} />)
+
+    expect(container.querySelector('[data-slot="toolbar"]')).toHaveClass('rounded-t-(--inlay-radius-lg)', 'bg-(--inlay-surface)')
+    expect(container.querySelector('[data-slot="search"]')).toHaveClass('pl-9')
+    expect(container.querySelector('[data-slot="search"]')?.parentElement?.querySelector('[data-icon="search"]')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Filters/ }).querySelector('[data-icon="funnel"]')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Columns' }).querySelector('[data-icon="columns"]')).toBeInTheDocument()
+  })
+
   it('uses fixed layout when PHP publishes explicit column dimensions', () => {
     const { container } = render(<Table resource={resource([column({ columnWidth: '12rem', minWidth: '10rem', maxWidth: '16rem' })])} />)
 
@@ -1336,14 +1351,22 @@ describe('Table', () => {
     expect(triggers).toHaveLength(2)
     expect(triggers[0]).toHaveAttribute('title', 'Row actions')
     expect(triggers[0]).toHaveAttribute('data-trigger-style', 'icon-button')
+    expect(triggers[0]).toHaveClass('border-transparent', 'hover:border-transparent', 'size-(--inlay-button-sm-height)')
 
     const row1 = document.querySelector('tr[data-row-key="1"]') as HTMLElement
     const row1Trigger = row1.querySelector('[data-slot="row-action-group"] > summary') as HTMLElement
     await userEvent.click(row1Trigger)
     expect((row1Trigger.parentElement as HTMLDetailsElement).open).toBe(true)
-    expect(within(row1).getByRole('button', { name: 'Process' })).toBeInTheDocument()
-    expect(within(row1).getByRole('button', { name: 'Edit' })).toBeInTheDocument()
-    await userEvent.click(within(row1).getByRole('button', { name: 'Process' }))
+    expect(screen.getByRole('menu')).toHaveAttribute('data-placement', 'top-end')
+    expect(screen.getByRole('menu')).toHaveAttribute('data-portal-menu')
+    const processMenuItem = screen.getByRole('button', { name: 'Process' })
+    expect(processMenuItem).toBeInTheDocument()
+    expect(processMenuItem).toHaveAttribute('data-menu-item', 'true')
+    expect(processMenuItem).toHaveClass('w-full', 'min-h-9')
+    expect(processMenuItem).not.toHaveClass('shadow-xs')
+    expect(screen.getByRole('menu')).toHaveStyle({ backgroundColor: 'var(--inlay-surface, #ffffff)' })
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Process' }))
 
     // The nested action runs through the exact same handler as a flat action.
     expect(onAction).toHaveBeenCalledTimes(1)
@@ -1359,13 +1382,13 @@ describe('Table', () => {
 
     const row1 = document.querySelector('tr[data-row-key="1"]') as HTMLElement
     await userEvent.click(row1.querySelector('[data-slot="row-action-group"] > summary') as HTMLElement)
-    expect(within(row1).getByRole('button', { name: 'Process' })).toBeInTheDocument()
-    expect(within(row1).queryByRole('button', { name: 'Ship' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Process' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ship' })).not.toBeInTheDocument()
 
     const row2 = document.querySelector('tr[data-row-key="2"]') as HTMLElement
     await userEvent.click(row2.querySelector('[data-slot="row-action-group"] > summary') as HTMLElement)
-    expect(within(row2).getByRole('button', { name: 'Ship' })).toBeInTheDocument()
-    expect(within(row2).queryByRole('button', { name: 'Process' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Ship' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Process' })).not.toBeInTheDocument()
   })
 
   it('hides a row action group entirely when no nested action is visible for the row', () => {
@@ -1508,7 +1531,8 @@ describe('Table', () => {
     const onCellChange = vi.fn()
     const data = { ...resource([column({ type: 'select-column', name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] })]), filters: [{ type: 'ternary-filter', name: 'active', label: 'Active', default: null, trueLabel: 'Yes', falseLabel: 'No' }] }
     render(<Table onCellChange={onCellChange} resource={data} />)
-    await userEvent.selectOptions(screen.getByLabelText('Status for 1'), 'active')
+    await userEvent.click(screen.getByRole('combobox', { name: 'Status for 1' }))
+    await userEvent.click(screen.getByRole('option', { name: 'Active' }))
     await userEvent.click(screen.getByRole('button', { name: 'Filters' }))
     expect(screen.getByLabelText('Active')).toBeInTheDocument()
     expect(onCellChange).toHaveBeenCalledWith(data.rows[0], data.columns[0], 'active')

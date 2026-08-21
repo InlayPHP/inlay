@@ -188,7 +188,7 @@ function keyboard(event: KeyboardEvent): void {
       <input v-if="!multiple" :name="name" type="hidden" :value="String(modelValue ?? '')" />
       <input v-for="value in selectedValues" v-else :key="value" :name="`${name}[]`" type="hidden" :value="value" />
     </template>
-    <div v-if="open" :class="[selectMenuClass, menuClassName]">
+    <div v-if="open" :class="[selectMenuClass, menuClassName]" :style="{ backgroundColor: 'var(--inlay-surface, #ffffff)', border: '1px solid var(--inlay-border, #d4d4d8)', boxShadow: 'var(--inlay-shadow-md, 0 14px 36px rgb(15 23 42 / 0.12))' }">
       <input v-if="searchable" ref="searchInput" v-model="search" :aria-label="`Search ${searchAriaLabel ?? ariaLabel ?? name ?? 'options'}`" :class="[controlClass, 'mb-1.5']" :placeholder="searchPlaceholder" role="searchbox" @input="emit('searchChange', search)" />
       <ul :id="listboxId" :aria-labelledby="ariaLabel ? undefined : controlId" :aria-multiselectable="multiple || undefined" class="max-h-60 overflow-auto" role="listbox">
         <li v-if="loading" class="px-2.5 py-3 text-(--inlay-muted)" role="status">{{ loadingMessage }}</li>

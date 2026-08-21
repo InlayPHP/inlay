@@ -9,7 +9,7 @@ import { evaluateContentExpression, isSafeUrl, loadDeferredView } from '@inlayph
 import { customThemeVariables, recipeVariables, resolveThemeTokens, themeToken } from '@inlayphp/theme'
 import { evaluateCondition, getAtPath } from './state'
 import { repeatableGridClasses, repeatableGridStyles, spanClasses, spanStyles } from './responsive'
-import type { InfolistComponent, InfolistComponentRenderer, InfolistEntry, InfolistProps, InfolistRendererContext, InfolistRendererTheme, InfolistResource, InfolistSlot } from './types'
+import type { InfolistComponent, InfolistComponentRenderer, InfolistEntry, InfolistIconRenderer, InfolistProps, InfolistRendererContext, InfolistRendererTheme, InfolistResource, InfolistSlot } from './types'
 
 type RenderContext = Omit<Pick<InfolistProps, 'classNames' | 'theme' | 'renderers' | 'registries' | 'icons' | 'emptyValue' | 'actionExecutor'>, 'theme'> & {
   theme?: InfolistRendererTheme
@@ -267,18 +267,18 @@ function headingSizeClass(size?: string | null) {
 
 function Layout({ component, ...context }: RenderContext & { component: InfolistComponent }) {
   const extra = safeAttributes(component)
-  if (component.type === 'actions') return <SchemaActions actions={component.actions ?? []} alignment={component.alignment} executor={context.actionExecutor} />
+  if (component.type === 'actions') return <SchemaActions actions={component.actions ?? []} alignment={component.alignment} executor={context.actionExecutor} icons={context.icons} />
   if (component.type === 'tabs') return <Tabs component={component} {...context} />
   if (component.type === 'wizard') return <Wizard component={component} {...context} />
   if (component.type === 'callout') {
     const color = component.backgroundColor ?? component.color ?? 'info'
     const tone = component.background === false ? 'border-(--inlay-infolist-border) bg-transparent text-(--inlay-infolist-text)' : calloutTone(color)
     const iconSize = { small: 'text-base', medium: 'text-xl', large: 'text-2xl' }[component.iconSize ?? 'medium']
-    return <aside {...extra.attributes} className={`rounded-(--inlay-infolist-radius) border p-4 ${tone} ${context.classNames?.layout ?? ''} ${context.classNames?.callout ?? ''} ${extra.className}`.trim()} data-color={component.color ?? 'info'} data-slot="callout"><div className="flex items-start gap-3">{component.icon ? <NamedIcon className={`shrink-0 ${iconSize} ${semanticTextTone(component.iconColor)}`.trim()} context={context} name={component.icon} /> : null}<div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-4"><div><h2 className="font-semibold">{component.label}</h2>{component.description ? <p className="mt-1 text-sm opacity-80">{component.description}</p> : null}</div>{component.headerActions?.length ? <div data-slot="header-actions"><SchemaActions actions={component.headerActions} alignment="end" executor={context.actionExecutor} /></div> : null}</div><SchemaSlot context={context} schema={component.headerSchema} slot="header" />{component.schema?.length ? <div className="mt-4"><Schema columns={component.columns ?? 1} dense={component.dense} gap={component.gap} schema={component.schema} {...context} /></div> : null}<SchemaSlot context={context} schema={component.footerSchema} slot="footer" />{component.footerActions?.length ? <div className="mt-4 border-t border-current/15 pt-4" data-slot="footer-actions"><SchemaActions actions={component.footerActions} alignment={component.footerAlignment} executor={context.actionExecutor} /></div> : null}</div></div></aside>
+    return <aside {...extra.attributes} className={`rounded-(--inlay-infolist-radius) border p-4 ${tone} ${context.classNames?.layout ?? ''} ${context.classNames?.callout ?? ''} ${extra.className}`.trim()} data-color={component.color ?? 'info'} data-slot="callout"><div className="flex items-start gap-3">{component.icon ? <NamedIcon className={`shrink-0 ${iconSize} ${semanticTextTone(component.iconColor)}`.trim()} context={context} name={component.icon} /> : null}<div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-4"><div><h2 className="font-semibold">{component.label}</h2>{component.description ? <p className="mt-1 text-sm opacity-80">{component.description}</p> : null}</div>{component.headerActions?.length ? <div data-slot="header-actions"><SchemaActions actions={component.headerActions} alignment="end" executor={context.actionExecutor} icons={context.icons} /></div> : null}</div><SchemaSlot context={context} schema={component.headerSchema} slot="header" />{component.schema?.length ? <div className="mt-4"><Schema columns={component.columns ?? 1} dense={component.dense} gap={component.gap} schema={component.schema} {...context} /></div> : null}<SchemaSlot context={context} schema={component.footerSchema} slot="footer" />{component.footerActions?.length ? <div className="mt-4 border-t border-current/15 pt-4" data-slot="footer-actions"><SchemaActions actions={component.footerActions} alignment={component.footerAlignment} executor={context.actionExecutor} icons={context.icons} /></div> : null}</div></div></aside>
   }
   if (component.type === 'empty-state') {
     const contained = component.contained !== false ? 'rounded-(--inlay-infolist-radius) border border-dashed border-(--inlay-infolist-border) bg-(--inlay-infolist-surface) px-6 py-10' : 'py-6'
-    return <section {...extra.attributes} className={`${contained} text-center ${context.classNames?.layout ?? ''} ${extra.className}`.trim()} data-contained={component.contained !== false ? 'true' : 'false'} data-slot="empty-state">{component.headerActions?.length ? <div className="mb-4" data-slot="header-actions"><SchemaActions actions={component.headerActions} alignment="center" executor={context.actionExecutor} /></div> : null}{component.icon ? <NamedIcon className={`mx-auto block ${{ small: 'text-base', medium: 'text-xl', large: 'text-2xl' }[component.iconSize ?? 'medium']} ${semanticTextTone(component.iconColor) || 'text-(--inlay-infolist-muted)'}`} context={context} name={component.icon} /> : null}<h2 className={`mt-3 font-semibold ${headingSizeClass(component.headingSize)}`}>{component.label}</h2>{component.description ? <p className="mt-1 text-sm text-(--inlay-infolist-muted)">{component.description}</p> : null}{component.schema?.length ? <div className="mt-5"><SchemaSlot context={context} schema={component.headerSchema} slot="header" /><Schema columns={component.columns ?? 1} dense={component.dense} gap={component.gap} schema={component.schema} {...context} /><SchemaSlot context={context} schema={component.footerSchema} slot="footer" /></div> : null}{component.footerActions?.length ? <div className="mt-5" data-slot="footer-actions"><SchemaActions actions={component.footerActions} alignment="center" executor={context.actionExecutor} /></div> : null}</section>
+    return <section {...extra.attributes} className={`${contained} text-center ${context.classNames?.layout ?? ''} ${extra.className}`.trim()} data-contained={component.contained !== false ? 'true' : 'false'} data-slot="empty-state">{component.headerActions?.length ? <div className="mb-4" data-slot="header-actions"><SchemaActions actions={component.headerActions} alignment="center" executor={context.actionExecutor} icons={context.icons} /></div> : null}{component.icon ? <NamedIcon className={`mx-auto block ${{ small: 'text-base', medium: 'text-xl', large: 'text-2xl' }[component.iconSize ?? 'medium']} ${semanticTextTone(component.iconColor) || 'text-(--inlay-infolist-muted)'}`} context={context} name={component.icon} /> : null}<h2 className={`mt-3 font-semibold ${headingSizeClass(component.headingSize)}`}>{component.label}</h2>{component.description ? <p className="mt-1 text-sm text-(--inlay-infolist-muted)">{component.description}</p> : null}{component.schema?.length ? <div className="mt-5"><SchemaSlot context={context} schema={component.headerSchema} slot="header" /><Schema columns={component.columns ?? 1} dense={component.dense} gap={component.gap} schema={component.schema} {...context} /><SchemaSlot context={context} schema={component.footerSchema} slot="footer" /></div> : null}{component.footerActions?.length ? <div className="mt-5" data-slot="footer-actions"><SchemaActions actions={component.footerActions} alignment="center" executor={context.actionExecutor} icons={context.icons} /></div> : null}</section>
   }
   const Wrapper = component.type === 'fieldset' ? 'fieldset' : component.type === 'callout' ? 'aside' : 'section'
   const framed = component.type === 'section' || (component.type === 'fieldset' && component.contained !== false) ? 'rounded-(--inlay-infolist-radius) p-4 ring-1 ring-(--inlay-infolist-border)' : ''
@@ -330,10 +330,10 @@ function NamedIcon({ name, className, context, fallback = '◆' }: { name: strin
   return <span aria-hidden="true" className={className} data-icon={name}>{Renderer ? <Renderer name={name} /> : fallback}</span>
 }
 
-function SchemaActions({ actions, alignment = 'start', executor }: { actions: ActionResource[]; alignment?: 'start' | 'center' | 'end' | 'between'; executor?: ActionExecutor }) {
+function SchemaActions({ actions, alignment = 'start', executor, icons }: { actions: ActionResource[]; alignment?: 'start' | 'center' | 'end' | 'between'; executor?: ActionExecutor; icons?: Record<string, InfolistIconRenderer> }) {
   const runtime = useActionRuntime(executor ?? defaultActionExecutor)
   const justify = { start: 'justify-start', center: 'justify-center', end: 'justify-end', between: 'justify-between' }[alignment]
-  return <div className={`flex flex-wrap gap-2 ${justify}`} data-slot="schema-actions">{actions.map(action => <ActionButton action={action} key={action.instanceKey ?? action.name} runtime={runtime} />)}<ActionDialog runtime={runtime}>{dialogRuntime => <ActionForm runtime={dialogRuntime} />}</ActionDialog></div>
+  return <div className={`flex flex-wrap gap-2 ${justify}`} data-slot="schema-actions">{actions.map(action => <ActionButton action={action} icons={icons} key={action.instanceKey ?? action.name} runtime={runtime} />)}<ActionDialog runtime={runtime}>{dialogRuntime => <ActionForm runtime={dialogRuntime} />}</ActionDialog></div>
 }
 
 const defaultActionExecutor: ActionExecutor = (context) => {
@@ -374,7 +374,7 @@ function Entry({ component, value, ...context }: RenderContext & { component: In
   const hasAffixActions = Boolean(component.prefixActions?.length || component.suffixActions?.length)
   const actionInput = { parameters: { entry: component.name, state: value } }
   const actions = (items: ActionResource[] | undefined, position: 'prefix' | 'suffix') => items?.length
-    ? <div className="flex shrink-0 items-center gap-1" data-slot={`${position}-actions`}>{items.map(action => <ActionButton action={action} input={actionInput} key={action.instanceKey ?? action.name} runtime={actionRuntime} />)}</div>
+    ? <div className="flex shrink-0 items-center gap-1" data-slot={`${position}-actions`}>{items.map(action => <ActionButton action={action} icons={context.icons} input={actionInput} key={action.instanceKey ?? action.name} runtime={actionRuntime} />)}</div>
     : null
   return (
     <div {...extra.attributes} className={`grid min-w-0 gap-1.5 ${context.classNames?.entry ?? ''} ${extra.className}`.trim()} data-entry={component.name} data-slot="entry">
@@ -387,7 +387,7 @@ function Entry({ component, value, ...context }: RenderContext & { component: In
           {component.hintIcon ? <span aria-hidden="true" data-icon={component.hintIcon} data-slot="hint-icon" /> : null}
           {component.hint}
         </span> : null}
-        {component.hintActions?.length ? <span data-slot="hint-actions"><SchemaActions actions={component.hintActions} executor={context.actionExecutor} /></span> : null}
+        {component.hintActions?.length ? <span data-slot="hint-actions"><SchemaActions actions={component.hintActions} executor={context.actionExecutor} icons={context.icons} /></span> : null}
       </div>
       <EntryContentSlot content={component.belowLabel} context={context} path={context.path} slot="below-label" />
       <EntryContentSlot content={component.aboveContent} context={context} path={context.path} slot="above-content" />

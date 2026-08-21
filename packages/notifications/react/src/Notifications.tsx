@@ -20,6 +20,22 @@ const tone: Record<NotificationStatus, string> = {
   danger: 'border-(--inlay-danger) bg-(--inlay-danger-surface)',
 }
 
+const toneFallback: Record<NotificationStatus, { border: string; surface: string }> = {
+  success: { border: '#16a34a', surface: 'rgb(22 163 74 / 0.08)' },
+  info: { border: '#0284c7', surface: 'rgb(2 132 199 / 0.08)' },
+  warning: { border: '#d97706', surface: 'rgb(217 119 6 / 0.1)' },
+  danger: { border: '#dc2626', surface: 'rgb(220 38 38 / 0.08)' },
+}
+
+function notificationStyle(status: NotificationStatus) {
+  const fallback = toneFallback[status] ?? toneFallback.info
+  return {
+    backgroundColor: `var(--inlay-${status}-surface, ${fallback.surface})`,
+    borderColor: `var(--inlay-${status}, ${fallback.border})`,
+    boxShadow: 'var(--inlay-shadow-md, 0 14px 36px rgb(15 23 42 / 0.12))',
+  }
+}
+
 const positionClass: Record<NotificationPosition, string> = {
   'top-left': 'top-4 left-4 items-start',
   'top-center': 'top-4 left-1/2 -translate-x-1/2 items-center',
@@ -43,7 +59,7 @@ function NotificationItem({ notification, onDismiss, className }: { notification
     if (!visible) onDismiss()
   }, [onDismiss, visible])
 
-  return <article aria-label={notification.title} className={`${cardClass} ${tone[status] ?? tone.info} w-full max-w-sm border p-4 shadow-lg ${className}`.trim()} data-slot="notification" role={status === 'danger' ? 'alert' : 'status'}>
+  return <article aria-label={notification.title} className={`${cardClass} rounded-(--inlay-radius-md) ${tone[status] ?? tone.info} w-full max-w-sm border p-4 shadow-(--inlay-shadow-md) ${className}`.trim()} data-slot="notification" role={status === 'danger' ? 'alert' : 'status'} style={notificationStyle(status)}>
     <div className="flex items-start gap-3">
       {notification.icon ? <span aria-hidden="true" className="mt-0.5 shrink-0 text-(--inlay-accent)">{notification.icon}</span> : null}
       <div className="min-w-0 flex-1">
@@ -59,9 +75,29 @@ function NotificationItem({ notification, onDismiss, className }: { notification
 }
 
 export function Notifications({ notifications = [], onDismiss, position = 'top-right', className = '', itemClassName = '', ariaLabel = 'Notifications' }: NotificationsProps) {
-  const records = useMemo(() => normalizeNotifications(notifications), [notifications])
+  const [clientRecords, setClientRecords] = useState<NotificationRecord[]>([])
+  const records = useMemo(() => [...normalizeNotifications(notifications), ...clientRecords], [clientRecords, notifications])
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const visible = records.filter(record => !dismissed.has(record.id))
+
+  useEffect(() => {
+    const receive = (event: Event) => {
+      const record = normalizeNotifications([(event as CustomEvent<unknown>).detail])[0]
+      if (!record) return
+
+      setClientRecords(current => [...current.filter(item => item.id !== record.id), record])
+      setDismissed(current => {
+        if (!current.has(record.id)) return current
+        const next = new Set(current)
+        next.delete(record.id)
+        return next
+      })
+    }
+
+    window.addEventListener('inlay:notification', receive)
+    return () => window.removeEventListener('inlay:notification', receive)
+  }, [])
+
   const dismiss = (id: string) => {
     setDismissed(current => new Set(current).add(id))
     onDismiss?.(id)

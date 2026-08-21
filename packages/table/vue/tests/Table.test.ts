@@ -210,6 +210,21 @@ describe('Vue Table', () => {
     expect(view.container.querySelector('[data-slot="table-cell"]')).toHaveClass('min-w-0')
   })
 
+  it('keeps the default table chrome compact and icon-led', () => {
+    const data = {
+      ...resource([column({ searchable: true })]),
+      filters: [{ type: 'select-filter', name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] }] as TableResource['filters'],
+      columnManager: { deferred: true, persistInSession: false, reorderable: true },
+    }
+    const view = render(Table, { props: { resource: data } })
+
+    expect(view.container.querySelector('[data-slot="toolbar"]')).toHaveClass('rounded-t-(--inlay-radius-lg)', 'bg-(--inlay-surface)')
+    expect(view.container.querySelector('[data-slot="search"]')).toHaveClass('pl-9')
+    expect(view.container.querySelector('[data-slot="search"]')?.parentElement?.querySelector('[data-icon="search"]')).not.toBeNull()
+    expect(screen.getByRole('button', { name: /^Filters/ }).querySelector('[data-icon="funnel"]')).not.toBeNull()
+    expect(screen.getByRole('button', { name: 'Columns' }).querySelector('[data-icon="columns"]')).not.toBeNull()
+  })
+
   it('uses fixed layout when PHP publishes explicit column dimensions', () => {
     const view = render(Table, { props: { resource: resource([column({ columnWidth: '12rem', minWidth: '10rem', maxWidth: '16rem' })]) } })
 
@@ -681,8 +696,13 @@ describe('Vue Table', () => {
 
     await userEvent.click(screen.getByText('More'))
     expect(view.container.querySelector('[data-slot="row-action-group"]')).not.toBeNull()
-    expect(view.container.querySelector('[data-slot="row-action-group-menu"]')).toHaveClass('rounded-(--inlay-radius-md)', 'shadow-(--inlay-shadow-md)')
+    expect(document.querySelector('[data-slot="row-action-group-menu"]')).toHaveClass('rounded-(--inlay-radius-md)', 'shadow-(--inlay-shadow-md)')
     expect(view.container.querySelector('[data-slot="row-actions"] [data-icon="ellipsis-horizontal"]')).not.toBeNull()
+    const editMenuItem = screen.getByRole('button', { name: 'Edit' })
+    expect(editMenuItem).toHaveAttribute('data-menu-item', 'true')
+    expect(editMenuItem).toHaveClass('w-full', 'min-h-9')
+    expect(editMenuItem).not.toHaveClass('shadow-xs')
+    expect(document.querySelector('[data-slot="row-action-group-menu"]')).toHaveStyle({ backgroundColor: 'var(--inlay-surface, #ffffff)' })
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }))
     expect(view.emitted().action?.[0]).toEqual([edit, [data.rows[0]]])
   })
@@ -799,7 +819,7 @@ describe('Vue Table', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Archive' }))
     expect(view.emitted().action?.[0]).toEqual([archive, [data.rows[0]], { mode: 'query', excluded: [2], query: data.query }])
   })
-  it('renders editable columns and filters', async () => { const data = { ...resource([column({ type: 'select-column', name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] })]), filters: [{ type: 'ternary-filter', name: 'active', label: 'Active', default: null, trueLabel: 'Yes', falseLabel: 'No' }] }; const view = render(Table, { props: { resource: data } }); await userEvent.selectOptions(screen.getByLabelText('Status for 1'), 'active'); await userEvent.click(within(view.container as HTMLElement).getByRole('button', { name: 'Filters' })); expect(within(view.container as HTMLElement).getByLabelText('Active')).toBeInTheDocument(); expect(view.emitted().cellChange).toBeTruthy() })
+  it('renders editable columns and filters', async () => { const data = { ...resource([column({ type: 'select-column', name: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }] })]), filters: [{ type: 'ternary-filter', name: 'active', label: 'Active', default: null, trueLabel: 'Yes', falseLabel: 'No' }] }; const view = render(Table, { props: { resource: data } }); await userEvent.click(screen.getByRole('combobox', { name: 'Status for 1' })); await userEvent.click(screen.getByRole('option', { name: 'Active' })); await userEvent.click(within(view.container as HTMLElement).getByRole('button', { name: 'Filters' })); expect(within(view.container as HTMLElement).getByLabelText('Active')).toBeInTheDocument(); expect(view.emitted().cellChange).toBeTruthy() })
   it('builds nested query-builder groups with typed constraints', async () => { const data: TableResource = { ...resource([column({})]), filters: [{ type: 'query-builder', name: 'advanced', label: 'Advanced filters', default: null, maxDepth: 3, maxRules: 10, constraints: [{ type: 'text-constraint', name: 'name', label: 'Name', nullable: false, operators: ['contains', 'equals'], operatorDefinitions: [{ name: 'contains', label: 'Contains', valueType: 'text', multiple: false, options: [] }, { name: 'equals', label: 'Equals', valueType: 'text', multiple: false, options: [] }] }, { type: 'number-constraint', name: 'score', label: 'Score', nullable: false, operators: ['greater_than', 'equals'], integer: true, operatorDefinitions: [{ name: 'greater_than', label: 'Greater Than', valueType: 'number', multiple: false, options: [] }, { name: 'equals', label: 'Equals', valueType: 'number', multiple: false, options: [] }] }] }] }; const view = render(Table, { props: { resource: data, manual: true } }); await userEvent.click(screen.getByRole('button', { name: 'Filters' })); await userEvent.click(screen.getByRole('button', { name: 'Add condition' })); await userEvent.type(screen.getByRole('textbox', { name: 'Value' }), 'Ada'); await userEvent.click(screen.getByRole('button', { name: 'Add group' })); const nested = within(view.container.querySelector('[data-depth="2"]') as HTMLElement); await userEvent.click(nested.getByRole('button', { name: 'Add condition' })); await userEvent.click(nested.getByRole('combobox', { name: 'Constraint' })); await userEvent.click(screen.getByRole('option', { name: 'Score' })); await userEvent.type(screen.getByRole('spinbutton', { name: 'Value' }), '80'); await userEvent.click(screen.getByRole('button', { name: 'Apply filters' })); expect((view.emitted('queryChange') as unknown[][]).at(-1)?.[0]).toEqual(expect.objectContaining({ filters: { advanced: { boolean: 'and', children: [{ constraint: 'name', operator: 'contains', value: 'Ada' }, { boolean: 'and', children: [{ constraint: 'score', operator: 'greater_than', value: '80' }] }] } } })) })
   it('uses the shared control contract for query-builder editors', async () => {
     const data: TableResource = { ...resource([column({})]), filters: [{ type: 'query-builder', name: 'advanced', label: 'Advanced filters', default: null, constraints: [{ type: 'text-constraint', name: 'name', label: 'Name', nullable: false, operators: ['contains'] }] }] }

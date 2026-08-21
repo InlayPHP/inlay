@@ -25,7 +25,8 @@ final class ActionGroup implements JsonSerializable
 
     private Action $trigger;
 
-    private string $dropdownPlacement = 'top-start';
+    /** Keep the default menu inside a table row's visible surface. */
+    private string $dropdownPlacement = 'bottom-end';
 
     private string $dropdownWidth = 'sm';
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { controlClass as sharedControlClass } from '@inlayphp/ui'
+import { controlClass as sharedControlClass, iconButtonClass } from '@inlayphp/ui'
+import { Select as InlaySelect } from '@inlayphp/ui-vue'
 import { computed, ref, toRaw } from 'vue'
 import type { Component, CSSProperties } from 'vue'
 import type { CellPresentation, Column, TableRendererRegistries, TableRenderers, TableRow } from './types'
@@ -103,9 +104,29 @@ async function copy() {
   try {
     await navigator.clipboard.writeText(String(copyValue.value ?? ''))
     copied.value = true
+    window.dispatchEvent(new CustomEvent('inlay:notification', {
+      detail: {
+        id: `table-copy-${props.column.name}-${String(props.row.id ?? 'record')}`,
+        title: copyMessage.value,
+        body: `${props.column.label} copied to clipboard.`,
+        status: 'success',
+        icon: '✓',
+        duration: copyMessageDuration.value,
+      },
+    }))
     window.setTimeout(() => { copied.value = false }, copyMessageDuration.value)
   } catch {
     copied.value = false
+    window.dispatchEvent(new CustomEvent('inlay:notification', {
+      detail: {
+        id: `table-copy-error-${props.column.name}-${String(props.row.id ?? 'record')}`,
+        title: 'Copy failed',
+        body: `Could not copy ${props.column.label.toLowerCase()} to the clipboard.`,
+        status: 'danger',
+        icon: '×',
+        duration: 3500,
+      },
+    }))
   }
 }
 function badgeColor() { const color = props.column.colors?.[String(raw.value)]; return color === 'success' ? 'bg-(--inlay-success-surface) text-(--inlay-success)' : color === 'danger' ? 'bg-(--inlay-danger-surface) text-(--inlay-danger)' : 'bg-(--inlay-surface-muted) text-(--inlay-text)' }
@@ -124,13 +145,13 @@ function textFamilyClass(family?: Column['fontFamily']) { return family === 'ser
   </div>
   <span v-else-if="column.type === 'color-column'" :aria-label="`${column.label}: ${value}`" class="inline-block size-6 rounded-sm ring-1 ring-(--inlay-border)" :style="{ backgroundColor: String(raw ?? 'transparent') }" />
   <span v-else-if="column.type === 'boolean-column' || column.type === 'icon-column'" :aria-label="Boolean(raw) ? 'Yes' : 'No'" :class="Boolean(raw) ? 'text-(--inlay-success)' : 'text-(--inlay-danger)'"><NamedIcon :fallback="Boolean(raw) ? '✓' : '×'" :name="Boolean(raw) ? (column.trueIcon ?? 'check') : (column.falseIcon ?? 'x')" :registries="registries" :renderers="renderers" /></span>
-  <span v-else-if="column.type === 'badge-column'" :class="`rounded-full px-2 py-1 text-base font-medium sm:text-sm ${badgeColor()}`">{{ column.labels?.[String(raw)] ?? value }}</span>
-  <select v-else-if="column.type === 'select-column'" :aria-invalid="Boolean(error)" :aria-label="`${column.label} for ${row.id}`" :class="cellControlClass" :disabled="disabled" :value="String(raw ?? '')" @change="emit('change', ($event.target as HTMLSelectElement).value)"><option v-for="option in column.options" :key="option.value" :value="option.value">{{ option.label }}</option></select>
+  <span v-else-if="column.type === 'badge-column'" :class="`inline-flex min-h-6 w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium leading-none ${badgeColor()}`"><span aria-hidden="true" class="size-1.5 rounded-full bg-current" />{{ column.labels?.[String(raw)] ?? value }}</span>
+  <InlaySelect v-else-if="column.type === 'select-column'" :aria-label="`${column.label} for ${row.id}`" button-class-name="min-h-(--inlay-button-sm-height)" class-name="w-full min-w-40" :disabled="disabled" :model-value="String(raw ?? '')" :options="column.options ?? []" @update:model-value="value => emit('change', value)" />
   <input v-else-if="column.type === 'toggle-column' || column.type === 'checkbox-column'" :aria-invalid="Boolean(error)" :aria-label="`${column.label} for ${row.id}`" :checked="Boolean(raw)" class="size-5 accent-(--inlay-accent) sm:size-4" :disabled="disabled" type="checkbox" @change="emit('change', ($event.target as HTMLInputElement).checked)">
   <input v-else-if="column.type === 'text-input-column'" :aria-invalid="Boolean(error)" :aria-label="`${column.label} for ${row.id}`" :class="cellControlClass" :disabled="disabled" :type="column.inputType ?? 'text'" :value="String(raw ?? '')" @input="emit('change', ($event.target as HTMLInputElement).value)">
   <span v-else-if="Array.isArray(displayRaw) && listWithLineBreaks" class="inline-grid min-w-0 gap-1" :title="tooltip ?? undefined">
     <span v-if="description && column.descriptionPosition === 'above'" class="text-xs text-(--inlay-muted)">{{ description }}</span>
-    <ul :class="bulleted ? 'list-inside list-disc space-y-0.5' : 'grid list-none gap-0.5'"><li v-for="(item, index) in visibleTextItems" :key="index" :class="`${bulleted ? '' : 'flex items-start gap-1.5'} ${textClasses}`" :data-color="textColor ?? undefined" :style="textStyle"><span :class="`${badge ? `${textBadgeClass(textColor)} rounded-full px-2 py-0.5` : ''} inline-flex items-start gap-1.5`"><NamedIcon v-if="textIcon && column.iconPosition !== 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /><span :class="wrap ? 'whitespace-normal' : 'whitespace-nowrap'">{{ item }}</span><NamedIcon v-if="textIcon && column.iconPosition === 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /></span></li></ul>
+    <ul :class="bulleted ? 'list-inside list-disc space-y-0.5' : 'grid list-none gap-0.5'"><li v-for="(item, index) in visibleTextItems" :key="index" :class="`${bulleted ? '' : 'flex items-start gap-1.5'} ${textClasses}`" :data-color="textColor ?? undefined" :style="textStyle"><span :class="`${badge ? `${textBadgeClass(textColor)} rounded-full px-2.5 py-1 text-xs font-medium leading-none` : ''} inline-flex items-start gap-1.5`"><NamedIcon v-if="textIcon && column.iconPosition !== 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /><span :class="wrap ? 'whitespace-normal' : 'whitespace-nowrap'">{{ item }}</span><NamedIcon v-if="textIcon && column.iconPosition === 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /></span></li></ul>
     <button v-if="listLimit && expandableLimitedList && textItems.length > listLimit" :aria-expanded="listExpanded" class="justify-self-start text-xs font-medium text-(--inlay-accent) hover:underline" type="button" @click="listExpanded = !listExpanded">{{ listExpanded ? 'Show less' : `Show ${remainingTextItems} more` }}</button>
     <span v-else-if="remainingTextItems > 0" class="text-xs text-(--inlay-muted)">+{{ remainingTextItems }} more</span>
     <span v-if="description && column.descriptionPosition !== 'above'" class="text-xs text-(--inlay-muted)">{{ description }}</span>
@@ -138,10 +159,10 @@ function textFamilyClass(family?: Column['fontFamily']) { return family === 'ser
   <span v-else class="grid min-w-0 w-full max-w-full gap-0.5 overflow-hidden" :title="tooltip ?? undefined">
     <span v-if="description && column.descriptionPosition === 'above'" class="truncate text-xs text-(--inlay-muted)">{{ description }}</span>
       <span class="inline-flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden">
-        <span :class="`${textClasses} ${badge ? `${textBadgeClass(textColor)} rounded-full px-2 py-0.5` : ''} inline-flex min-w-0 max-w-full flex-1 items-center gap-1.5 overflow-hidden`" :data-color="textColor ?? undefined" :style="textStyle"><NamedIcon v-if="textIcon && column.iconPosition !== 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /><a v-if="href" :class="`${textColor ? 'text-inherit' : 'text-(--inlay-accent)'} ${contentClasses} underline decoration-current/30 underline-offset-2`" :href="href" :rel="openUrlInNewTab ? 'noreferrer' : undefined" :style="contentStyle" :target="openUrlInNewTab ? '_blank' : undefined">{{ richText && !empty ? '' : display }}<span v-if="richText && !empty" v-html="String(display)" /></a><span v-else :class="`${empty && column.placeholder ? 'text-(--inlay-muted)' : ''} ${contentClasses}`" :style="contentStyle">{{ richText && !empty ? '' : display }}<span v-if="richText && !empty" v-html="String(display)" /></span><NamedIcon v-if="textIcon && column.iconPosition === 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /></span>
-      <button v-if="copyable" :aria-label="`Copy ${column.label}`" class="shrink-0 rounded-sm p-1 text-(--inlay-muted) hover:bg-(--inlay-hover) hover:text-(--inlay-text) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--inlay-accent)" :title="copyMessage" type="button" @click="copy"><span aria-hidden="true">⎘</span></button>
+        <span :class="`${textClasses} ${badge ? `${textBadgeClass(textColor)} rounded-full px-2.5 py-1 text-xs font-medium leading-none` : ''} inline-flex min-w-0 max-w-full ${badge ? 'w-fit flex-none' : 'flex-1'} items-center gap-1.5 overflow-hidden`" :data-color="textColor ?? undefined" :style="textStyle"><NamedIcon v-if="textIcon && column.iconPosition !== 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /><a v-if="href" :class="`${textColor ? 'text-inherit' : 'text-(--inlay-accent)'} ${contentClasses} underline decoration-current/30 underline-offset-2`" :href="href" :rel="openUrlInNewTab ? 'noreferrer' : undefined" :style="contentStyle" :target="openUrlInNewTab ? '_blank' : undefined">{{ richText && !empty ? '' : display }}<span v-if="richText && !empty" v-html="String(display)" /></a><span v-else :class="`${empty && column.placeholder ? 'text-(--inlay-muted)' : ''} ${contentClasses}`" :style="contentStyle">{{ richText && !empty ? '' : display }}<span v-if="richText && !empty" v-html="String(display)" /></span><NamedIcon v-if="textIcon && column.iconPosition === 'after'" :icon-class="`shrink-0 ${semanticTextClass(textIconColor)}`" fallback="◆" :icon-style="semanticTextStyle(textIconColor)" :name="textIcon" :registries="registries" :renderers="renderers" /></span>
+      <button v-if="copyable" :aria-label="copied ? copyMessage : `Copy ${column.label}`" :class="`${iconButtonClass} size-8 min-h-0`" data-slot="copy-trigger" :style="{ height: '2rem', width: '2rem' }" :title="copied ? copyMessage : `Copy ${column.label}`" type="button" @click="copy"><NamedIcon :fallback="copied ? '✓' : '⎘'" :name="copied ? 'check' : 'copy'" :registries="registries" :renderers="renderers" /></button>
     </span>
     <span v-if="description && column.descriptionPosition !== 'above'" class="truncate text-xs text-(--inlay-muted)">{{ description }}</span>
-    <span v-if="copied" aria-live="polite" class="text-xs text-(--inlay-success)" role="status">{{ copyMessage }}</span>
+    <span v-if="copied" aria-live="polite" class="sr-only" role="status">{{ copyMessage }}</span>
   </span>
 </template>

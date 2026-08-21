@@ -49,6 +49,22 @@ TextColumn::make('email')
 Card, stacked, grid, and custom column layouts keep their own responsive layout
 rules.
 
+### Shared table chrome
+
+The React and Vue adapters ship the same compact table chrome: a padded toolbar,
+ring-based search control, inline search icon, icon-led filter and column
+controls, quiet row separators, readable `text-sm` cells, and a compact
+pagination footer. Column management uses a lightweight popover/modal with a
+visible `Columns` heading, a reset action, keyboard-safe close control, and
+renderer-neutral chevrons. If a trigger does not declare an icon, the adapter
+uses the built-in `search`, `funnel`, `columns`, and `arrows-up-down` names.
+
+These are presentation defaults, not hard-coded application markup. Override
+them through the panel theme tokens (`surface`, `surface-muted`, `border`,
+`control-border`, `hover`, spacing, radius, and button heights), or supply a
+host icon registry for a product's own icon set. The same server schema remains
+usable from React, Vue, and standalone `TablePage` screens.
+
 When any visible column publishes one of these dimensions, both renderers use a
 fixed table layout so those widths and bounds are deterministic. The table
 remains horizontally scrollable on small screens; tables without explicit
@@ -534,8 +550,9 @@ can only be searched through its own header control. Individual values travel as
 using `AND`, and reuse relationship or custom search callbacks. PHP discards
 undeclared column names and caps each term before Eloquent or an external
 `TableDataRequest` can observe it. React and Vue render the same accessible
-`Search <column label>` control, apply the table's debounce or blur timing, and
-persist it with search state when requested.
+`Search <column label>` control in a shared, aligned header row (non-searchable
+columns reserve the same second line), apply the table's debounce or blur timing,
+and persist it with search state when requested.
 
 The control uses the shared `@inlayphp/ui` `controlClass` in both adapters.
 That keeps border rings, focus rings, radius, placeholder, disabled, and theme
@@ -619,6 +636,39 @@ React and Vue provide the same behavior:
 - “Clear selection” remains available independently of action execution.
 
 For backward compatibility, a regular `Action` placed in `bulkActions()` is still accepted and is normalized to `bulk: true`. Laravel must re-query the submitted IDs through an authorized query, validate action-specific limits again, and perform the mutation in a transaction. Client-side disabled state is never authorization.
+
+### Compact record actions
+
+Record actions use the shared `inlayphp/actions` contract. When a row has more
+than one action, group them in an `ActionGroup` so the table renders one
+ellipsis trigger instead of a row full of buttons:
+
+```php
+use Inlay\Actions\Action;
+use Inlay\Actions\ActionGroup;
+
+return $table->actions([
+    ActionGroup::make('row_actions', [
+        Action::make('view')->label('View profile')->icon('eye'),
+        Action::make('edit')->label('Edit')->icon('pencil')->url('/users/{id}/edit'),
+        Action::make('delete')->label('Delete')->icon('trash')->color('danger')
+            ->requiresConfirmation(),
+    ])
+        ->icon('ellipsis-vertical')
+        ->iconButton()
+        ->tooltip('Row actions')
+        ->dropdownPlacement('left-start'),
+]);
+```
+
+The menu trigger, keyboard disclosure behavior, authorization visibility, modal
+forms, and action transport are renderer-neutral. React and Vue both keep the
+row compact and expose the same action list after the trigger is opened. The
+ellipsis control uses the shared quiet icon-button recipe (no decorative
+outline), menu entries use the shared borderless command-menu recipe, and table
+action buttons use the small button height so row actions, bulk actions, and
+“Clear selection” align in one rhythm. Override the tokens once in your panel
+theme rather than styling each resource.
 
 ### Selecting all matching records across pages
 
@@ -1129,7 +1179,7 @@ TextColumn::make('email')
     ->copyable(message: 'Email copied', messageDuration: 2000);
 ```
 
-Callbacks receive injectable `$state`, `$record` / `$row`, and the typed `$column`. The renderer-neutral row metadata contains resolved state, description, and tooltip values, never closures. React and Vue render equivalent muted placeholders, above/below descriptions, cell tooltips, accessible copy buttons, clipboard failure handling, and polite success feedback. `default()` replaces only `null`; `placeholder()` is display-only and is not copied as data.
+Callbacks receive injectable `$state`, `$record` / `$row`, and the typed `$column`. The renderer-neutral row metadata contains resolved state, description, and tooltip values, never closures. React and Vue render equivalent muted placeholders, above/below descriptions, cell tooltips, and compact themed copy icon buttons. Successful and failed copies dispatch the optional `inlay:notification` browser event, so a mounted Notifications host can show the feedback as a panel toast; the table also keeps an accessible live-region announcement. `default()` replaces only `null`; `placeholder()` is display-only and is not copied as data.
 
 Cell and header presentation are independent. This prevents a record-value tooltip from leaking onto a heading and keeps table sizing in PHP:
 

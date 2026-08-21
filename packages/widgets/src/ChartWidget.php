@@ -13,8 +13,11 @@ final class ChartWidget extends Widget
     /** @var list<string> */
     private array $labels = [];
 
-    /** @var list<array{label: string, data: list<int|float>, color: string|null}> */
+    /** @var list<array{label: string, data: list<int|float|array{0: int|float, 1: int|float}>, color: string|null, options: array<string, mixed>}> */
     private array $datasets = [];
+
+    /** @var array<string, mixed> */
+    private array $options = [];
 
     public static function make(string $name): self
     {
@@ -23,8 +26,8 @@ final class ChartWidget extends Widget
 
     public function chartType(string $type): self
     {
-        if (! in_array($type, ['line', 'bar', 'doughnut'], true)) {
-            throw new InvalidArgumentException('A chart widget type must be line, bar, or doughnut.');
+        if (! in_array($type, ['line', 'bar', 'doughnut', 'scatter'], true)) {
+            throw new InvalidArgumentException('A chart widget type must be line, bar, doughnut, or scatter.');
         }
         $this->chartType = $type;
 
@@ -39,15 +42,54 @@ final class ChartWidget extends Widget
         return $this;
     }
 
-    /** @param list<int|float> $data */
-    public function dataset(string $label, array $data, ?string $color = null): self
+    /**
+     * Add a dataset. Values are numeric, or x/y point pairs for scatter charts.
+     *
+     * Per-dataset rendering options (fill, borderDash, pointRadius, showLine,
+     * backgroundColor, borderColor, ...) are merged into the serialized
+     * `options.datasets` bag keyed by dataset label, so renderers can read one
+     * options object without a new transport contract.
+     *
+     * @param  list<int|float|array{0: int|float, 1: int|float}>  $data
+     * @param  array<string, mixed>  $options
+     */
+    public function dataset(string $label, array $data, ?string $color = null, array $options = []): self
     {
         foreach ($data as $value) {
-            if (! is_int($value) && ! is_float($value)) {
-                throw new InvalidArgumentException('Chart dataset values must be numeric.');
+            if (is_int($value) || is_float($value)) {
+                continue;
+            }
+            $pair = is_array($value)
+                && count($value) === 2
+                && (is_int($value[0]) || is_float($value[0]))
+                && (is_int($value[1]) || is_float($value[1]));
+            if (! $pair) {
+                throw new InvalidArgumentException('Chart dataset values must be numeric or x/y pairs.');
             }
         }
-        $this->datasets[] = ['label' => $label, 'data' => array_values($data), 'color' => $color];
+        $this->datasets[] = [
+            'label' => $label,
+            'data' => array_values($data),
+            'color' => $color,
+            'options' => $options,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Chart-level rendering options serialized alongside chartType.
+     *
+     * Host renderers read this bag for presentation the base contract cannot
+     * express: `indexAxis` (horizontal bars), `fill`, `borderDash`,
+     * `pointRadius`, `showLine`, and per-dataset overrides under `datasets`
+     * keyed by dataset label.
+     *
+     * @param  array<string, mixed>  $options
+     */
+    public function options(array $options): self
+    {
+        $this->options = [...$this->options, ...$options];
 
         return $this;
     }
@@ -59,6 +101,26 @@ final class ChartWidget extends Widget
 
     protected function payload(): array
     {
-        return ['chartType' => $this->chartType, 'labels' => $this->labels, 'datasets' => $this->datasets];
+        $options = $this->options;
+        $datasetOptions = [];
+        foreach ($this->datasets as $dataset) {
+            if ($dataset['options'] !== []) {
+                $datasetOptions[$dataset['label']] = $dataset['options'];
+            }
+        }
+        if ($datasetOptions !== []) {
+            $options['datasets'] = [...($options['datasets'] ?? []), ...$datasetOptions];
+        }
+
+        return [
+            'chartType' => $this->chartType,
+            'labels' => $this->labels,
+            'datasets' => array_map(static fn (array $dataset): array => [
+                'label' => $dataset['label'],
+                'data' => $dataset['data'],
+                'color' => $dataset['color'],
+            ], $this->datasets),
+            'options' => $options,
+        ];
     }
 }

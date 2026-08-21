@@ -214,6 +214,7 @@ describe('Panel', () => {
     expect(screen.queryByText('Secret')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Users/ })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByText('3')).toHaveAttribute('data-slot', 'navigation-badge')
+    expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('mb-1', 'bg-(--inlay-sidebar-hover)')
     const labels = [...screen.getByRole('navigation', { name: 'Primary navigation' }).querySelectorAll('[data-slot="navigation-item"]')].map((node) => node.textContent)
     expect(labels).toEqual(['Home', 'Settings', 'Users3', 'Late'])
 

@@ -16,12 +16,15 @@ const props = defineProps<{
 const renderer = computed(() => resolveIcon<Component>(props.name, props.renderers?.icon, props.registries?.icon ? toRaw(props.registries.icon) : undefined))
 const component = computed(() => renderer.value && typeof renderer.value === 'object' ? toRaw(renderer.value) : renderer.value)
 const builtInPaths: Record<string, string[]> = {
+  search: ['M11 4a7 7 0 1 0 4.9 12l4.1 4', 'm16 16 4 4'],
   funnel: ['M4 5h16l-6.5 7.2V18l-3 1v-6.8z'],
   columns: ['M5 4h14v16H5z', 'M10 4v16', 'M15 4v16'],
   'arrows-up-down': ['M8 5v14', 'm5 8 3-3 3 3', 'm5 16 3 3 3-3', 'M16 5v14', 'm13 8 3-3 3 3', 'm13 16 3 3 3-3'],
+  'chevron-up': ['m6 15 6-6 6 6'],
+  'chevron-down': ['m6 9 6 6 6-6'],
   check: ['m5 12 4 4L19 6'],
   x: ['m6 6 12 12', 'm18 6-12 12'],
-  'chevron-down': ['m6 9 6 6 6-6'],
+  'ellipsis-vertical': ['M12 5h.01', 'M12 12h.01', 'M12 19h.01'],
   'ellipsis-horizontal': ['M5 12h.01', 'M12 12h.01', 'M19 12h.01'],
 }
 const paths = computed(() => builtInPaths[props.name] ?? [])

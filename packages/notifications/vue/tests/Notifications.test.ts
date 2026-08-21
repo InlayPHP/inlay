@@ -22,6 +22,13 @@ describe('Notifications', () => {
     expect(screen.queryByRole('status', { name: 'Heads up' })).not.toBeInTheDocument()
   })
 
+  it('renders client-side notification events from renderer-neutral components', async () => {
+    render(Notifications)
+    window.dispatchEvent(new CustomEvent('inlay:notification', { detail: { id: 'copied', title: 'Copied', status: 'success', duration: 1000 } }))
+
+    await vi.waitFor(() => expect(screen.getByRole('status', { name: 'Copied' })).toBeInTheDocument())
+  })
+
   it('renders database notifications and emits a mark-read callback', async () => {
     const onMarkRead = vi.fn()
     const view = render(NotificationCenter, { props: { notifications: [{ database_id: 12, read_at: null, data: { title: 'Import finished', body: 'Review the results.', status: 'success' } }], onMarkRead } })
