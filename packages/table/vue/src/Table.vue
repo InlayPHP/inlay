@@ -246,6 +246,7 @@ function syncDarkThemeStyle(): void {
 onMounted(() => {
   const element = document.createElement('style')
   element.dataset.inlayTableDarkTheme = tableThemeScope.value
+  element.dataset.slot = 'table-dark-theme'
   element.textContent = darkThemeCss.value
   document.head.appendChild(element)
   darkThemeStyleElement.value = element

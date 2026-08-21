@@ -358,6 +358,15 @@ it('publishes the same data-slot names in both renderers', function (): void {
             $slots[$package][$renderer][$slot] = true;
         }
 
+        // Vue may create a style or portal node imperatively rather than through
+        // a template attribute. Treat its literal dataset slot assignment as
+        // the same published selector contract.
+        preg_match_all('/dataset\.slot\s*=\s*[\'\"]([a-z][a-z0-9-]*)[\'\"]/', $source, $dynamicSlots);
+
+        foreach ($dynamicSlots[1] as $slot) {
+            $slots[$package][$renderer][$slot] = true;
+        }
+
         // An expression may still name its slots literally — the column manager
         // overlay is `layout === 'modal' ? 'column-manager-overlay' : undefined` in
         // both renderers — so quoted names inside one count as published. Only a
