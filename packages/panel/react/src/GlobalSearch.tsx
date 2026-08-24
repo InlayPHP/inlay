@@ -91,7 +91,10 @@ export function GlobalSearch({ config, placement = 'header-end', linkComponent, 
   }
 
   const isSidebar = placement === 'sidebar' || placement === 'sidebar-footer'
-  return <div className={`relative min-w-0 ${isSidebar ? 'w-full' : 'w-72 max-w-[min(18.75rem,40vw)] flex-none'}`} data-placement={placement} data-slot="global-search">
+  const responsiveWidth = isSidebar
+    ? 'w-full'
+    : 'max-sm:order-last max-sm:basis-full max-sm:w-full max-sm:max-w-none sm:w-72 sm:max-w-[min(18.75rem,40vw)] sm:flex-none'
+  return <div className={`relative min-w-0 ${responsiveWidth}`} data-placement={placement} data-slot="global-search">
     <label className="sr-only" htmlFor="inlay-global-search">Search resources</label>
     <BuiltInIcon className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-(--inlay-panel-muted)" name="search" />
     <input ref={input} id="inlay-global-search" name="global-search" aria-label="Search resources" className={`${controlClass} min-h-(--inlay-control-height) bg-(--inlay-surface-subtle) pl-9 pr-3 text-(--inlay-panel-text) placeholder:text-(--inlay-panel-muted) focus:ring-offset-0`.trim()} onBlur={() => window.setTimeout(() => setOpen(false), 120)} onChange={(event) => { setQuery(event.target.value); setOpen(true) }} onFocus={() => setOpen(true)} placeholder={config.placeholder} role="searchbox" type="search" value={query} />

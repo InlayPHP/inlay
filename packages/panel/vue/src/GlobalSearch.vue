@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div :class="['relative min-w-0', placement === 'sidebar' || placement === 'sidebar-footer' ? 'w-full' : 'w-72 max-w-[min(18.75rem,40vw)] flex-none']" :data-placement="placement" data-slot="global-search">
+  <div :class="['relative min-w-0', placement === 'sidebar' || placement === 'sidebar-footer' ? 'w-full' : 'max-sm:order-last max-sm:basis-full max-sm:w-full max-sm:max-w-none sm:w-72 sm:max-w-[min(18.75rem,40vw)] sm:flex-none']" :data-placement="placement" data-slot="global-search">
     <label class="sr-only" for="inlay-global-search">Search resources</label>
     <BuiltInIcon class-name="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-(--inlay-panel-muted)" name="search" />
     <input id="inlay-global-search" ref="input" v-model="query" aria-label="Search resources" name="global-search" :class="[controlClass, 'min-h-(--inlay-control-height) bg-(--inlay-panel-surface) py-1 pl-9 pr-3 text-(--inlay-panel-text) ring-(--inlay-panel-border) placeholder:text-(--inlay-panel-muted) focus:ring-(--inlay-panel-accent)']" :placeholder="config.placeholder" role="searchbox" type="search" @blur="closeSoon" @focus="open = true" @input="open = true">
