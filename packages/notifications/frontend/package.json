@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/notifications",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "Renderer-neutral notification contracts for Inlay React and Vue renderers.",
   "type": "module",
   "sideEffects": false,

@@ -1,7 +1,7 @@
 {
-  "name": "@inlayphp/actions-vue",
-  "version": "0.3.13",
-  "description": "Vue renderer for Inlay actions and confirmation flows.",
+  "name": "@inlayphp/cms-multisite-vue",
+  "version": "0.1.0",
+  "description": "Vue site management for Inlay CMS multisite panels.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -13,8 +13,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "README.md"
+    "src"
   ],
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.build.json --declaration --emitDeclarationOnly --outDir dist/types",
@@ -22,14 +21,13 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
-    "@inlayphp/actions": "workspace:^",
-    "@inlayphp/core": "workspace:^",
-    "@inlayphp/ui": "workspace:^",
+    "@inertiajs/vue3": "^3.0.0",
+    "@inlayphp/ui-vue": "^0.1.0",
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@inlayphp/actions": "workspace:^",
-    "@inlayphp/ui": "workspace:^",
+    "@inertiajs/vue3": "^3.6.1",
+    "@inlayphp/ui-vue": "workspace:^",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
     "@testing-library/vue": "^8.1.0",
@@ -40,14 +38,14 @@
     "vitest": "^3.0.5",
     "vue": "^3.5.13",
     "vue-tsc": "^2.2.0",
-    "@inlayphp/core": "workspace:^"
+    "@inlayphp/core": "workspace:*"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/InlayPHP/inlay.git",
-    "directory": "packages/actions/vue"
+    "directory": "packages/cms-multisite/vue"
   },
-  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/actions/vue",
+  "homepage": "https://github.com/InlayPHP/inlay/tree/main/packages/cms-multisite/vue",
   "bugs": {
     "url": "https://github.com/InlayPHP/inlay/issues"
   },
