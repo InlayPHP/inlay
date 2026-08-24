@@ -398,7 +398,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       <button
         :aria-expanded="mobileOpen"
         aria-label="Open navigation"
-        class="inline-flex size-11 items-center justify-center rounded-lg hover:bg-(--inlay-panel-hover) md:hidden"
+        class="inline-flex size-11 items-center justify-center rounded-lg hover:bg-(--inlay-panel-hover) lg:hidden"
         data-slot="mobile-navigation-trigger"
         type="button"
         @click="mobileOpen = true"
@@ -453,7 +453,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
 
       <NavigationMenu
         v-if="resource.navigationMode === 'top'"
-        class="ml-4 hidden min-w-0 flex-1 md:block"
+        class="ml-4 hidden min-w-0 flex-1 lg:block"
         :class="classNames.topNavigation"
         :class-names="classNames"
         :condition-values="conditionValues"
@@ -473,7 +473,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       <div class="ml-auto flex items-center gap-2 max-sm:contents" data-slot="header-actions">
         <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-end'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-end" />
         <slot name="header" :resource="resource" />
-        <div v-if="$slots['header-end']" data-slot="header-end"><slot name="header-end" :context="renderContext" /></div>
+        <div v-if="$slots['header-end']" class="min-w-0 max-w-full max-sm:shrink" data-slot="header-end"><slot name="header-end" :context="renderContext" /></div>
         <div v-if="showUserMenu" :class="['relative', classNames.userMenu]" data-slot="user-menu">
           <component v-if="renderers.userMenu" :is="rawComponent(renderers.userMenu)" :context="renderContext" :items="safeUserItems" />
           <template v-else>
@@ -569,7 +569,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       <aside
         v-if="resource.navigationMode === 'sidebar'"
         :class="[
-          'hidden shrink-0 border-r border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-surface) p-3 transition-[width] md:flex md:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-40',
+          'hidden shrink-0 border-r border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-surface) p-3 transition-[width] lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:z-40',
           desktopCollapsed ? 'w-(--inlay-panel-sidebar-collapsed-width)' : 'w-(--inlay-panel-sidebar-width)',
           classNames.sidebar,
         ]"
@@ -616,7 +616,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       <button
         v-if="resource.navigationMode === 'sidebar'"
         aria-label="Close navigation"
-        :class="[mobileOpen ? 'fixed' : 'hidden', 'inset-0 z-40 bg-(--inlay-scrim) md:hidden', classNames.mobileOverlay ?? classNames.overlay]"
+        :class="[mobileOpen ? 'fixed' : 'hidden', 'inset-0 z-40 bg-(--inlay-scrim) lg:hidden', classNames.mobileOverlay ?? classNames.overlay]"
         data-slot="mobile-overlay"
         type="button"
         @click="mobileOpen = false"
@@ -624,7 +624,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
       <aside
         v-if="mobileOpen"
         aria-label="Mobile navigation"
-        :class="['fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] overflow-y-auto border-r border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-surface) p-3 shadow-xl md:hidden', resource.topbar ? 'mt-(--inlay-topbar-height)' : 'mt-0']"
+        :class="['fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] overflow-y-auto border-r border-(--inlay-panel-sidebar-border) bg-(--inlay-panel-sidebar-surface) p-3 shadow-xl lg:hidden', resource.topbar ? 'mt-(--inlay-topbar-height)' : 'mt-0']"
         data-slot="mobile-navigation"
         role="dialog"
       >
