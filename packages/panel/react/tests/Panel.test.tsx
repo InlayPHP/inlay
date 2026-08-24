@@ -295,6 +295,8 @@ describe('Panel', () => {
     expect(root).toHaveClass('custom-root')
     expect(root.style.getPropertyValue('--inlay-light-accent')).toBe('#123456')
     expect(root.style.getPropertyValue('min-height')).toBe('100dvh')
+    expect(root.style.getPropertyValue('width')).toBe('100%')
+    expect(root.style.getPropertyValue('max-width')).toBe('100%')
     expect(root.style.getPropertyValue('overflow-x')).toBe('hidden')
     expect(root.style.getPropertyValue('--inlay-light-background')).toBe('#fafafa')
     expect(root.style.getPropertyValue('--inlay-panel-accent')).toBe('var(--inlay-accent)')
