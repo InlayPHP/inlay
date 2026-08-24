@@ -393,12 +393,12 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
           <!-- D: a registered brand icon had no way to appear here at all. -->
           <component v-else-if="icons.brand" :is="rawComponent(icons.brand)" aria-hidden="true" class="size-5 shrink-0" />
           <span v-else aria-hidden="true" class="grid size-8 shrink-0 place-items-center rounded-lg bg-(--inlay-panel-accent) text-sm font-bold text-(--inlay-panel-accent-foreground)">{{ brandName.trim().charAt(0).toUpperCase() || 'I' }}</span>
-          <span>{{ brandName }}</span>
+          <span class="min-w-0 truncate">{{ brandName }}</span>
         </component>
       </slot>
       </div>
 
-      <div v-if="$slots['header-start']" data-slot="header-start"><slot name="header-start" :context="renderContext" /></div>
+      <div v-if="$slots['header-start']" class="min-w-0 max-w-full" data-slot="header-start"><slot name="header-start" :context="renderContext" /></div>
       <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-start'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-start" />
       <!-- The tenant a panel is scoped to, and the ones the visitor may switch to. PHP decides both; the switcher only navigates. -->
       <div v-if="resource.tenant" ref="tenantRoot" class="relative" data-slot="tenant-switcher">
@@ -429,7 +429,7 @@ function sanitizeNavigationItem(item: PanelNavigationItem): PanelNavigationItem 
         <template v-if="$slots['navigation-item']" #navigation-item="slotProps"><slot name="navigation-item" v-bind="slotProps" /></template>
       </NavigationMenu>
 
-      <div class="ml-auto flex items-center gap-2" data-slot="header-actions">
+      <div class="ml-auto flex items-center gap-2 max-sm:contents" data-slot="header-actions">
         <GlobalSearch v-if="resource.globalSearch && globalSearchPosition === 'header-end'" :config="resource.globalSearch" :link-component="linkComponent" :on-navigate="props.onNavigate" placement="header-end" />
         <slot name="header" :resource="resource" />
         <div v-if="$slots['header-end']" data-slot="header-end"><slot name="header-end" :context="renderContext" /></div>

@@ -285,11 +285,11 @@ export function Panel({ resource, children, className = '', classNames, theme, i
         <button aria-controls={`${resource.id}-navigation`} aria-expanded={mobileOpen} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} className="inline-flex size-11 items-center justify-center rounded-(--inlay-panel-radius) ring-1 ring-(--inlay-panel-border) lg:hidden" data-slot="mobile-navigation-trigger" onClick={actions.toggleMobile} type="button"><span aria-hidden="true">☰</span></button>
         {resource.navigationMode === 'sidebar' && resource.collapsible && collapsed ? <button aria-expanded={!collapsed} aria-label="Expand sidebar" className="hidden size-9 items-center justify-center rounded-(--inlay-panel-radius) border border-(--inlay-panel-border) text-(--inlay-panel-muted) hover:bg-(--inlay-panel-hover) hover:text-(--inlay-panel-text) lg:inline-flex" data-slot="sidebar-collapse-trigger" onClick={actions.toggleCollapsed} title="Expand sidebar" type="button"><BuiltInIcon className="size-4" name="chevron-right" /></button> : null}
         <div className={`min-w-0 max-w-[min(12rem,48vw)] flex-1 lg:max-w-none lg:flex-none ${resource.navigationMode === 'sidebar' ? 'lg:hidden' : ''}`}>{renderers?.brand ? renderers.brand(context) : <Brand className={classNames?.brand} icons={icons} linkComponent={linkComponent} onNavigate={onNavigate} resource={resource} />}</div>
-        {slots?.headerStart ? <div data-slot="header-start">{resolveSlot(slots.headerStart, context)}</div> : null}
+        {slots?.headerStart ? <div className="min-w-0 max-w-full" data-slot="header-start">{resolveSlot(slots.headerStart, context)}</div> : null}
         {globalSearchPosition === 'header-start' ? globalSearch : null}
         <TenantSwitcher linkComponent={linkComponent} onNavigate={onNavigate} tenant={resource.tenant} />
         {resource.navigationMode === 'top' ? <div className={`${mobileOpen ? 'block' : 'hidden'} absolute inset-x-0 top-full border-b border-(--inlay-panel-border) bg-(--inlay-panel-surface) p-3 lg:static lg:block lg:flex-1 lg:border-0 lg:p-0 ${classNames?.topNavigation ?? ''}`} id={`${resource.id}-navigation`}>{navigation}</div> : null}
-        <div className="ml-auto flex items-center gap-2" data-slot="header-actions">
+        <div className="ml-auto flex items-center gap-2 max-sm:contents" data-slot="header-actions">
           {globalSearchPosition === 'header-end' ? globalSearch : null}
           {slots?.headerEnd ? <div data-slot="header-end">{resolveSlot(slots.headerEnd, context)}</div> : null}
           {userItems.length ? renderers?.userMenu ? renderers.userMenu(userItems.map(sanitizeNavigationItem), context) : <UserMenu buttonRef={userButton} classNames={classNames} context={context} firstItemRef={firstUserItem} icons={icons} items={userItems} linkComponent={linkComponent} onNavigate={onNavigate} /> : null}
@@ -449,7 +449,7 @@ function Brand({ resource, className, collapsed = false, icons, linkComponent, o
   const initial = brandName.trim().charAt(0).toUpperCase() || 'I'
   const content = <>{resource.brandLogo && isSafeUrl(resource.brandLogo) ? <img alt={`${brandName} logo`} className="size-8 shrink-0 object-contain" src={resource.brandLogo} /> : icons.brand ? <Icon icons={icons} name="brand" /> : <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-lg bg-(--inlay-panel-accent) text-sm font-bold text-(--inlay-panel-accent-foreground)">{initial}</span>}<span className={`min-w-0 truncate font-semibold ${collapsed ? 'lg:hidden' : ''}`}>{brandName}</span></>
   if (!isSafeUrl(resource.path)) return <div className={`flex min-w-0 max-w-full shrink items-center gap-2 overflow-hidden ${className ?? ''}`} data-slot="brand">{content}</div>
-  const props: PanelLinkProps = { href: resource.path, className: `flex min-w-0 shrink-0 items-center gap-2 ${className ?? ''}`, children: content, 'data-slot': 'brand', onClick: onNavigate ? (event) => { event.preventDefault(); onNavigate(resource.path, event) } : undefined }
+  const props: PanelLinkProps = { href: resource.path, className: `flex min-w-0 max-w-full shrink items-center gap-2 overflow-hidden ${className ?? ''}`, children: content, 'data-slot': 'brand', onClick: onNavigate ? (event) => { event.preventDefault(); onNavigate(resource.path, event) } : undefined }
   return linkComponent ? createElement(linkComponent, props) : <a {...props} />
 }
 

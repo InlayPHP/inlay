@@ -107,6 +107,14 @@ describe('Panel', () => {
     expect(search?.className).toContain('w-full')
   })
 
+  it('lets header search occupy a full row on narrow screens without overflowing actions', () => {
+    const view = render(Panel, { props: { resource: resource({ globalSearch: { endpoint: '/admin/_inlay/global-search', minChars: 2, placeholder: 'Search resources…', position: 'header-end' } }) } })
+
+    expect(view.container.querySelector('[data-slot="global-search"]')).toHaveClass('max-sm:basis-full', 'max-sm:order-last', 'max-sm:w-full')
+    expect(view.container.querySelector('[data-slot="header-actions"]')).toHaveClass('max-sm:contents')
+    expect(view.container.querySelector('[data-slot="brand"]')).toHaveClass('max-w-full', 'overflow-hidden')
+  })
+
   it('switches tenants from the panel header', async () => {
     const view = render(Panel, { props: { resource: resource({
       tenant: {
