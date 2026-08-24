@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/panels-react",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "React renderer for Inlay administration panels.",
   "license": "MIT",
   "type": "module",

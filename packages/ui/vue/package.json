@@ -1,6 +1,6 @@
 {
   "name": "@inlayphp/ui-vue",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "Accessible Vue primitives and shared control styling for Inlay packages.",
   "license": "MIT",
   "type": "module",
