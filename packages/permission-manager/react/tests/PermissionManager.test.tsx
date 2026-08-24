@@ -131,6 +131,7 @@ describe('permission manager pages', () => {
     expect(screen.getByText('No roles')).toBeInTheDocument()
     expect(container.querySelector('.custom-surface')).toBeInTheDocument()
     expect(container.querySelector('.custom-table')).toHaveAttribute('data-contract', 'inlay.tables.v1')
+    expect(container.querySelector('main')).toHaveAttribute('data-contract', 'inlay.permission-manager.v1')
     expect(container.querySelector('main')).toHaveStyle({ '--inlay-foreground': '#111827', '--inlay-surface': '#fefefe' })
     expect(container.querySelector('main')).toHaveStyle({ '--inlay-control-height': '3rem', '--inlay-permission-stage-surface': '#fafafa' })
   })

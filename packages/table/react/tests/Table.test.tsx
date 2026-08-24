@@ -1743,6 +1743,23 @@ describe('Table', () => {
     expect(container.querySelector('[data-slot="filter-control"]')).toHaveClass('custom-control')
   })
 
+  it('emits complete dark semantic tokens for a themed table', () => {
+    const data = resource([column({})])
+    const theme = {
+      contract: 'inlay.themes.v1' as const,
+      name: 'test',
+      tokens: { surface: '#ffffff', foreground: '#111827', 'surface-subtle': '#f8fafc' },
+      darkTokens: { surface: '#18181b', foreground: '#fafafa', 'surface-subtle': '#27272a' },
+    }
+
+    const { container } = render(<Table resource={data} theme={theme} />)
+    const darkStyle = container.querySelector('[data-slot="table-dark-theme"]')
+
+    expect(darkStyle?.textContent).toContain('--inlay-surface: #18181b !important')
+    expect(darkStyle?.textContent).toContain('--inlay-foreground: #fafafa !important')
+    expect(darkStyle?.textContent).toContain('--inlay-surface-subtle: #27272a !important')
+  })
+
   it('groups actions, rows, and pagination in stable density and focus slots', () => {
     const action = { name: 'edit', label: 'Edit', url: null, method: 'get' as const, color: 'default', requiresConfirmation: false, icon: null, modalHeading: null }
     const data = { ...resource([column({ sortable: true })]), actions: [action], headerActions: [{ ...action, name: 'create', label: 'Create' }], pagination: { currentPage: 2, lastPage: 12, from: 11, to: 20, total: 115 } }

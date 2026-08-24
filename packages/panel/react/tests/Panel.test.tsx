@@ -197,6 +197,10 @@ describe('Panel', () => {
     expect(sidebar).toHaveClass('min-h-0', 'overflow-y-auto', 'overscroll-contain')
     expect(themeStyle?.textContent).toContain('--inlay-surface-subtle:')
     expect(themeStyle?.textContent).toContain('!important')
+    expect(themeStyle?.textContent).toContain('[data-contract^="inlay."]')
+    expect(themeStyle?.textContent).toContain('--media-surface: var(--inlay-surface) !important')
+    expect(themeStyle?.textContent).toContain('--media-muted-surface: var(--inlay-surface-muted) !important')
+    expect(themeStyle?.textContent).toContain('--inlay-widget-text: var(--inlay-foreground) !important')
   })
 
   it('sorts groups and items, filters hidden entries, marks active conditions, and renders badges', async () => {

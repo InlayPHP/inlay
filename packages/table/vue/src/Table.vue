@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { buttonBaseClass, buttonDangerClass, buttonPrimaryClass, buttonSecondaryClass, controlClass as sharedControlClass, iconButtonClass } from '@inlayphp/ui'
-import { customThemeVariables, defaultTheme, recipeVariables, themeToken } from '@inlayphp/theme'
+import { customThemeVariables, recipeVariables, themeToken } from '@inlayphp/theme'
 import type { ThemeSource } from '@inlayphp/theme'
 import { Select as InlaySelect } from '@inlayphp/ui-vue'
 import { router } from "@inertiajs/vue3";
@@ -98,8 +98,13 @@ function triggerButtonClass(action?: Action): string {
   return `${buttonSecondaryClass} ${density} font-medium`
 }
 function scopedDarkThemeCss(theme: ThemeSource | undefined, scope: string): string {
-  const source = theme ?? defaultTheme
-  const variables = { ...customThemeVariables(source, 'dark'), ...recipeVariables(source, 'dark') }
+  // A renderer theme is optional when the table is mounted in a Panel. In
+  // that case the panel owns the inherited dark aliases, so do not replace a
+  // custom panel theme with the built-in default. When a theme contract is
+  // supplied, however, the table's inline light aliases must be overridden by
+  // the complete dark recipe, including built-in surface/text/border tokens.
+  if (!theme) return ''
+  const variables = { ...recipeVariables(theme, 'dark'), ...customThemeVariables(theme, 'dark') }
   const declarations = Object.entries(variables)
     .filter(([, value]) => !/[\r\n;{}]|<\/style/i.test(value))
     .map(([name, value]) => `  ${name}: ${value} !important;`)

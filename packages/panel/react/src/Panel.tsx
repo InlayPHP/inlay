@@ -80,11 +80,31 @@ function darkRecipeCss(scope: string, variables: Record<string, string>): string
 
   if (declarations.length === 0) return ''
 
+  // Renderer roots keep package-specific aliases so they can run standalone.
+  // When mounted in a panel, mirror the panel's dark semantic recipe into
+  // those aliases as well, otherwise inline light tokens win inside forms,
+  // tables, infolists, widgets, imports, media, and permission screens.
+  const aliasPrefixes = ['inlay-infolist', 'inlay-import', 'inlay-widget', 'media']
+  const aliases = ['accent', 'accent-foreground', 'radius', 'surface', 'surface-muted', 'foreground', 'muted', 'border', 'control-border', 'hover', 'danger', 'danger-surface', 'success', 'success-surface', 'warning', 'warning-surface', 'info', 'info-surface', 'overlay', 'scrim', 'shadow']
+  const aliasDeclarations = aliasPrefixes.flatMap((prefix) => aliases.map((name) => {
+    const alias = (prefix === 'media' || prefix === 'inlay-widget') && name === 'surface-muted' ? 'muted-surface' : name === 'foreground' ? 'text' : name
+    const output = prefix === 'media' ? `--media-${alias}` : `--${prefix}-${alias}`
+    return `  ${output}: var(--inlay-${name}) !important;`
+  }))
+
   return [
     `.dark ${selector},`,
     `${selector}.dark,`,
     `${selector}[data-theme-mode="dark"] {`,
     ...declarations,
+    ...aliasDeclarations,
+    '}',
+    `.dark ${selector} [data-contract^="inlay."],`,
+    `.dark ${selector} [data-inlay-table-theme],`,
+    `${selector}[data-theme-mode="dark"] [data-contract^="inlay."],`,
+    `${selector}[data-theme-mode="dark"] [data-inlay-table-theme] {`,
+    ...declarations,
+    ...aliasDeclarations,
     '}',
   ].join('\n')
 }

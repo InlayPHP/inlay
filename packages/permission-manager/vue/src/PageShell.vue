@@ -61,6 +61,7 @@ const themeStyle = computed<CSSProperties>(() => {
 <template>
   <main
     :class="`mx-auto w-full ${maxWidth === 'narrow' ? 'max-w-3xl' : 'max-w-7xl'} text-(--inlay-foreground) antialiased ${classNames.root ?? ''} ${className}`.trim()"
+    data-contract="inlay.permission-manager.v1"
     :style="themeStyle"
   >
     <header :class="`flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between ${classNames.header ?? ''}`.trim()">

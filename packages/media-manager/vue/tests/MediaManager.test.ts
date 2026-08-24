@@ -187,6 +187,7 @@ describe('MediaPicker and page integration', () => {
     const { emitted } = render(MediaPicker, { props: { resource, theme: { accent: '#7c3aed', 'control-height': '3rem' } } })
     const picker = screen.getByRole('dialog', { name: 'Choose media' })
     expect(picker).toHaveClass('max-h-[min(90dvh,60rem)]', 'min-w-0')
+    expect(picker).toHaveAttribute('data-contract', 'inlay.media-manager.v1')
     expect(picker).toHaveStyle({ '--inlay-accent': '#7c3aed', '--inlay-control-height': '3rem' })
     expect(picker.querySelector('header')).toHaveClass('flex-wrap')
     expect(screen.getByRole('button', { name: 'Use selected' })).toHaveClass('min-h-(--inlay-button-height)', 'focus-visible:ring-(--inlay-focus-ring)')

@@ -86,6 +86,7 @@ describe('Vue PageShell and Flash', () => {
     })
 
     const root = view.container.querySelector('main')!
+    expect(root.getAttribute('data-contract')).toBe('inlay.permission-manager.v1')
     expect(root.getAttribute('style')).toContain('#123456')
     expect(root.getAttribute('style')).toContain('--inlay-control-height: 3rem')
     expect(root.getAttribute('style')).toContain('--inlay-permission-stage-surface: #fafafa')

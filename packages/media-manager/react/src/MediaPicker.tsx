@@ -40,7 +40,7 @@ export function MediaPicker({
   } as CSSProperties
 
   return (
-    <section aria-label={title} aria-modal="true" className={`flex max-h-[min(90dvh,60rem)] min-w-0 w-full max-w-7xl flex-col overflow-hidden rounded-(--inlay-radius) bg-(--inlay-surface-muted) shadow-2xl ring-1 ring-(--inlay-border) ${className ?? ''}`} role="dialog" style={themeStyle}>
+    <section aria-label={title} aria-modal="true" className={`flex max-h-[min(90dvh,60rem)] min-w-0 w-full max-w-7xl flex-col overflow-hidden rounded-(--inlay-radius) bg-(--inlay-surface-muted) shadow-2xl ring-1 ring-(--inlay-border) ${className ?? ''}`} data-contract="inlay.media-manager.v1" role="dialog" style={themeStyle}>
       <header className="flex min-w-0 flex-wrap items-center justify-between gap-4 border-b border-(--inlay-border) bg-(--inlay-surface) px-5 py-4">
         <div className="min-w-0"><h1 className="break-words text-xl font-semibold tracking-tight text-(--inlay-foreground)">{title}</h1><p className="mt-0.5 text-sm text-(--inlay-muted)">{selectionMode === 'single' ? 'Select one file.' : 'Select one or more files.'}</p></div>
         {onCancel ? <button className={`${buttonSecondaryClass} text-(--inlay-muted)`} onClick={onCancel} type="button">Cancel</button> : null}
